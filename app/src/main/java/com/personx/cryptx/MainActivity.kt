@@ -1,51 +1,37 @@
 package com.personx.cryptx
 
 import android.os.Bundle
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Code
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.LockOpen
 import androidx.compose.material.icons.filled.MoreHoriz
-import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.VisibilityOff
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.personx.cryptx.components.FeatureCardButton
+import com.personx.cryptx.components.FloatingNavBar
+import com.personx.cryptx.components.Header
 import com.personx.cryptx.data.FeatureItem
+import com.personx.cryptx.data.NavBarItem
 import com.personx.cryptx.ui.theme.CryptXTheme
 
 
@@ -75,7 +61,7 @@ val featuredItem = listOf(
         onClick = { }
     )
 )
-class MainActivity : ComponentActivity() {
+class MainActivity : androidx.activity.ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -85,7 +71,8 @@ class MainActivity : ComponentActivity() {
                 // Changed to background color for better edge-to-edge experience
                 Surface(
                     modifier = Modifier.
-                        fillMaxSize(),
+                        fillMaxSize()
+                        .background(MaterialTheme.colorScheme.background),
                     color = MaterialTheme.colorScheme.background
                 ) {
                     HomeScreen(featuredItem = featuredItem)
@@ -98,90 +85,58 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun HomeScreen(featuredItem: List<FeatureItem> = listOf()){
 
-    Column(
+    val navItems = listOf(
+        NavBarItem(Icons.Filled.Home, "Home"),
+        NavBarItem(Icons.Filled.Search, "Search"),
+        NavBarItem(Icons.Filled.Person, "Profile"),
+    )
+
+    Box (
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background),
-        verticalArrangement = Arrangement.SpaceBetween,
-        horizontalAlignment = Alignment.CenterHorizontally
+            .background(MaterialTheme.colorScheme.background) // Use the correct background color
     ) {
-        Card(
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(androidx.compose.foundation.layout.WindowInsets.statusBars.asPaddingValues())
-                .height(130.dp)
-                .padding(16.dp),
-            border = BorderStroke(
-                width = 1.dp,
-                color = MaterialTheme.colorScheme.primary
-            ),
-            elevation = CardDefaults.cardElevation(8.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = Color.Transparent,
-            )
+                .padding(bottom = 80.dp),
+            verticalArrangement = Arrangement.SpaceBetween,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Row(
+            Header()
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(2),
                 modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Start
+                    .weight(1f)
+                    .padding(24.dp),
+                verticalArrangement = Arrangement.spacedBy(24.dp),
+                horizontalArrangement = Arrangement.spacedBy(24.dp)
             ) {
-                Image(
-                    painter = painterResource(id = R.drawable.cryptx_logo_no_border),
-                    contentDescription = "Logo",
-                    contentScale = ContentScale.FillHeight,
-
-                )
-                VerticalDivider(
-                    modifier = Modifier
-                        .height(80.dp)
-                        .padding(horizontal = 16.dp),
-                    thickness = 3.dp,
-                    color = MaterialTheme.colorScheme.onBackground
-                )
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .background(
-                            color = MaterialTheme.colorScheme.primary,
-                            shape = MaterialTheme.shapes.large
-                        )
-                        .padding(
-                            horizontal = 16.dp,
-                            vertical = 8.dp
-                        ),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "CryptX",
-                        fontSize = 34.sp,
-                        fontWeight = FontWeight.ExtraBold,
-                        color = MaterialTheme.colorScheme.onPrimary
+                items(featuredItem.size) { index ->
+                    val item = featuredItem[index]
+                    FeatureCardButton(
+                        icon = item.icon,
+                        label = item.label,
+                        onClick = item.onClick
                     )
                 }
-
             }
         }
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
+
+        FloatingNavBar(
+            items = navItems,
             modifier = Modifier
-                .fillMaxSize()
-                .padding(24.dp),
-            verticalArrangement = Arrangement.spacedBy(24.dp),
-            horizontalArrangement = Arrangement.spacedBy(24.dp)
-        ) {
-            items(featuredItem.size) { index ->
-                val item = featuredItem[index]
-                FeatureCardButton(
-                    icon = item.icon,
-                    label = item.label,
-                    onClick = item.onClick
-                )
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 20.dp)
+        ) { selectedItem ->
+            // Handle navigation item click
+            when (selectedItem) {
+                else -> {
+                    // Handle navigation item click
+                }
             }
         }
-
     }
+
 }
 
 @Preview(showBackground = true)
