@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">CryptX</string>
+    <string name="title_activity_feature_card_button">FeatureCardButton</string>
+    <string name="title_activity_encrypt_screen">EncryptScreen</string>
+</resources>
