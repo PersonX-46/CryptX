@@ -39,32 +39,6 @@ import com.personx.cryptx.screens.MostUsedAlgo
 import com.personx.cryptx.ui.theme.CryptXTheme
 
 
-val featuredItem = listOf(
-    FeatureItem(
-        Icons.Default.Lock, "Encrypt",
-        onClick = { }
-    ),
-    FeatureItem(
-        Icons.Filled.LockOpen, "Decrypt",
-        onClick = {}
-    ),
-    FeatureItem(
-        Icons.Default.Code, "Hash Generator",
-        onClick = {}
-    ),
-    FeatureItem(
-        Icons.Default.Search, "Hash Detector",
-        onClick = {}
-    ),
-    FeatureItem(
-        Icons.Default.VisibilityOff, "Steganography",
-        onClick = { }
-    ),
-    FeatureItem(
-        Icons.Default.MoreHoriz, "More",
-        onClick = { }
-    )
-)
 class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -79,7 +53,7 @@ class MainActivity : ComponentActivity() {
                         .background(MaterialTheme.colorScheme.background),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    HomeScreen(featuredItem = featuredItem)
+                    HomeScreen()
                 }
             }
         }
@@ -87,11 +61,39 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun HomeScreen(featuredItem: List<FeatureItem> = listOf()){
+fun HomeScreen(){
+
 
     val currentScreen = remember {
         mutableStateOf("Home")
     }
+
+    val featuredItem = listOf(
+        FeatureItem(
+            Icons.Default.Lock, "Encrypt",
+            onClick = { currentScreen.value = "Encrypt" }
+        ),
+        FeatureItem(
+            Icons.Filled.LockOpen, "Decrypt",
+            onClick = { currentScreen.value = "Decrypt" }
+        ),
+        FeatureItem(
+            Icons.Default.Code, "Hash Generator",
+            onClick = { currentScreen.value = "Hash Generator" }
+        ),
+        FeatureItem(
+            Icons.Default.Search, "Hash Detector",
+            onClick = { currentScreen.value = "Hash Detector" }
+        ),
+        FeatureItem(
+            Icons.Default.VisibilityOff, "Steganography",
+            onClick = { currentScreen.value = "Steganography" }
+        ),
+        FeatureItem(
+            Icons.Default.MoreHoriz, "More",
+            onClick = { currentScreen.value = "More" }
+        )
+    )
 
     val navItems = listOf(
         NavBarItem(Icons.Filled.Home, "Home"),
@@ -126,7 +128,7 @@ fun HomeScreen(featuredItem: List<FeatureItem> = listOf()){
                         FeatureCardButton(
                             icon = item.icon,
                             label = item.label,
-                            onClick = item.onClick,
+                            onClick = { currentScreen.value = "Encrypt"},
                             cardSize = 140.dp,
                             iconSize = 40.dp,
                             cornerSize = 28.dp,
@@ -134,7 +136,7 @@ fun HomeScreen(featuredItem: List<FeatureItem> = listOf()){
                         )
                     }
                 }
-            } else if (currentScreen.value == "Profile") {
+            } else if (currentScreen.value == "Encrypt") {
                 MostUsedAlgo()
             }
 
@@ -150,7 +152,7 @@ fun HomeScreen(featuredItem: List<FeatureItem> = listOf()){
             currentScreen.value = when (selectedItem.label) {
                 "Home" -> "Home"
                 "Search" -> "Search"
-                "Profile" -> "Profile"
+                "Profile" -> "Encrypt"
                 else -> currentScreen.value
             }
         }
@@ -163,6 +165,6 @@ fun HomeScreen(featuredItem: List<FeatureItem> = listOf()){
 @Composable
 fun HomeScreenPreview() {
     CryptXTheme(darkTheme = true) {
-        HomeScreen(featuredItem = featuredItem)
+        HomeScreen()
     }
 }
