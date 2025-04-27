@@ -31,7 +31,8 @@ val LightColorScheme = lightColorScheme(
     background = CyberBackgroundLight,
     onBackground = Color.Black,
     surface = CyberSurfaceLight,
-    onSurface = Color.Black,
+    onSurfaceVariant = CyberSurfaceLight,
+    onSurface = CyberpunkGreen,
     secondary = Color(0xFF00B67A),
     onSecondary = Color.White
 )

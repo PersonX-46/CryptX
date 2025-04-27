@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -19,6 +20,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
@@ -27,18 +30,22 @@ fun FeatureCardButton(
     icon: ImageVector,
     label: String,
     modifier: Modifier = Modifier,
+    cardSize: Dp,
+    iconSize: Dp,
+    cornerSize: Dp,
+    borderWidth: Dp,
     onClick: () -> Unit
 ) {
     Card(
         modifier = modifier
-            .size(140.dp)
+            .size(cardSize)
             .clickable { onClick() },
-        shape = RoundedCornerShape(28.dp), // squircle vibe
+        shape = RoundedCornerShape(cornerSize), // squircle vibe
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.onPrimary
         ),
         border = BorderStroke(
-            width = 1.dp,
+            width = borderWidth,
             color = MaterialTheme.colorScheme.primary),
         elevation = CardDefaults.cardElevation(8.dp)
     ) {
@@ -53,7 +60,7 @@ fun FeatureCardButton(
             Icon(
                 imageVector = icon,
                 contentDescription = label,
-                modifier = Modifier.size(40.dp),
+                modifier = Modifier.size(iconSize),
                 tint = MaterialTheme.colorScheme.onSurface
             )
             Text(

@@ -1,6 +1,7 @@
 package com.personx.cryptx
 
 import android.os.Bundle
+import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
@@ -23,6 +24,8 @@ import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -32,6 +35,8 @@ import com.personx.cryptx.components.FloatingNavBar
 import com.personx.cryptx.components.Header
 import com.personx.cryptx.data.FeatureItem
 import com.personx.cryptx.data.NavBarItem
+import com.personx.cryptx.screens.MostUsedAlgo
+import com.personx.cryptx.screens.MostUsedAlgorithmsLayout
 import com.personx.cryptx.ui.theme.CryptXTheme
 
 
@@ -61,7 +66,7 @@ val featuredItem = listOf(
         onClick = { }
     )
 )
-class MainActivity : androidx.activity.ComponentActivity() {
+class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -85,6 +90,10 @@ class MainActivity : androidx.activity.ComponentActivity() {
 @Composable
 fun HomeScreen(featuredItem: List<FeatureItem> = listOf()){
 
+    val currentScreen = remember {
+        mutableStateOf("Home")
+    }
+
     val navItems = listOf(
         NavBarItem(Icons.Filled.Home, "Home"),
         NavBarItem(Icons.Filled.Search, "Search"),
@@ -103,23 +112,33 @@ fun HomeScreen(featuredItem: List<FeatureItem> = listOf()){
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Header()
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(2),
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(24.dp),
-                verticalArrangement = Arrangement.spacedBy(24.dp),
-                horizontalArrangement = Arrangement.spacedBy(24.dp)
-            ) {
-                items(featuredItem.size) { index ->
-                    val item = featuredItem[index]
-                    FeatureCardButton(
-                        icon = item.icon,
-                        label = item.label,
-                        onClick = item.onClick
-                    )
+
+            if (currentScreen.value == "Home") {
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(2),
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(24.dp),
+                    verticalArrangement = Arrangement.spacedBy(24.dp),
+                    horizontalArrangement = Arrangement.spacedBy(24.dp)
+                ) {
+                    items(featuredItem.size) { index ->
+                        val item = featuredItem[index]
+                        FeatureCardButton(
+                            icon = item.icon,
+                            label = item.label,
+                            onClick = item.onClick,
+                            cardSize = 140.dp,
+                            iconSize = 40.dp,
+                            cornerSize = 28.dp,
+                            borderWidth = 1.dp
+                        )
+                    }
                 }
+            } else if (currentScreen.value == "Profile") {
+                MostUsedAlgo()
             }
+
         }
 
         FloatingNavBar(
@@ -129,15 +148,17 @@ fun HomeScreen(featuredItem: List<FeatureItem> = listOf()){
                 .padding(bottom = 20.dp)
         ) { selectedItem ->
             // Handle navigation item click
-            when (selectedItem) {
-                else -> {
-                    // Handle navigation item click
-                }
+            currentScreen.value = when (selectedItem.label) {
+                "Home" -> "Home"
+                "Search" -> "Search"
+                "Profile" -> "Profile"
+                else -> currentScreen.value
             }
         }
     }
-
 }
+
+
 
 @Preview(showBackground = true)
 @Composable

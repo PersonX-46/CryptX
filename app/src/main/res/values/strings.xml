@@ -2,4 +2,22 @@
     <string name="app_name">CryptX</string>
     <string name="title_activity_feature_card_button">FeatureCardButton</string>
     <string name="title_activity_encrypt_screen">EncryptScreen</string>
+
+    <string-array name="mode_list">
+        <item>ECB</item>
+        <item>CBC</item>
+        <item>CTR</item>
+        <item>GSM</item>
+    </string-array>
+
+    <string-array name="padding_list">
+        <item>NoPadding</item>
+        <item>PKCS7</item>
+    </string-array>
+
+    <string-array name="key_list">
+        <item>128</item>
+        <item>192</item>
+        <item>256</item>
+    </string-array>
 </resources>
