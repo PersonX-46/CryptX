@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -83,7 +82,7 @@ fun MostUsedAlgo(){
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
         ) {
-            if (selectedAlgorithm.value.equals("AES")) {
+            if (selectedAlgorithm.value == "AES") {
                 AESComponent(
                     onItemSelected = {},
                 )

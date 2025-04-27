@@ -1,9 +1,6 @@
 package com.personx.cryptx.components
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -41,7 +38,7 @@ fun MaterialDropdownMenu(
             trailingIcon = {
                 ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
             },
-            modifier = Modifier.menuAnchor()
+            modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryEditable, true)
         )
         ExposedDropdownMenu(
             containerColor = MaterialTheme.colorScheme.onPrimary,
