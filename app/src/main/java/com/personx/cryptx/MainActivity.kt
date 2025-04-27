@@ -128,7 +128,7 @@ fun HomeScreen(){
                         FeatureCardButton(
                             icon = item.icon,
                             label = item.label,
-                            onClick = { currentScreen.value = "Encrypt"},
+                            onClick = item.onClick,
                             cardSize = 140.dp,
                             iconSize = 40.dp,
                             cornerSize = 28.dp,
@@ -139,7 +139,6 @@ fun HomeScreen(){
             } else if (currentScreen.value == "Encrypt") {
                 MostUsedAlgo()
             }
-
         }
 
         FloatingNavBar(
