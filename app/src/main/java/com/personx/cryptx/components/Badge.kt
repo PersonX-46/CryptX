@@ -9,7 +9,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
@@ -21,7 +20,7 @@ fun Badge(
     Box(
         modifier = modifier
             .background(
-                Color.Transparent,
+                MaterialTheme.colorScheme.onSurface.copy(0.2f),
                 RoundedCornerShape(50)
             )
             .padding(5.dp)
