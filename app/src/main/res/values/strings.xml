@@ -27,5 +27,48 @@
         <item>256</item>
     </string-array>
 
+    <!-- DES -->
+    <string-array name="des_transformation_list">
+        <item>ECB/PKCS5Padding</item>
+        <item>ECB/NoPadding</item>
+        <item>CBC/PKCS5Padding</item>
+        <item>CBC/NoPadding</item>
+    </string-array>
+    <string-array name="des_keysize_list">
+        <item>56</item>
+    </string-array>
+
+    <!-- 3DES -->
+    <string-array name="desede_transformation_list">
+        <item>ECB/PKCS5Padding</item>
+        <item>ECB/NoPadding</item>
+        <item>CBC/PKCS5Padding</item>
+        <item>CBC/NoPadding</item>
+    </string-array>
+    <string-array name="desede_keysize_list">
+        <item>112</item>
+        <item>168</item>
+    </string-array>
+
+    <!-- Blowfish -->
+    <string-array name="blowfish_transformation_list">
+        <item>ECB/PKCS5Padding</item>
+        <item>CBC/PKCS5Padding</item>
+        <item>ECB/NoPadding</item>
+    </string-array>
+    <string-array name="blowfish_keysize_list">
+        <item>128</item>
+        <item>192</item>
+        <item>256</item>
+    </string-array>
+
+    <!-- ChaCha20 -->
+    <string-array name="chacha_transformation_list">
+        <item>ChaCha20</item>
+    </string-array>
+    <string-array name="chacha_keysize_list">
+        <item>256</item>
+    </string-array>
+
 
 </resources>
