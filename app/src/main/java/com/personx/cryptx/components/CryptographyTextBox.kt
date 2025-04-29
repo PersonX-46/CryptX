@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -17,56 +18,62 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Key
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Security
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchColors
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringArrayResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.personx.cryptx.R
-
+import androidx.compose.ui.unit.sp
 @Composable
-fun AESComponent(
-    onItemSelected: (String) -> Unit,
+fun ModePadding(
+    onModeSelected: (String) -> Unit,
+    onKeySelected: (String) -> Unit,
+    transformationList: List<String>,
+    keyList: List<String>,
 ){
-    val modeList = stringArrayResource(R.array.mode_list).toList()
-    val paddingList = stringArrayResource(R.array.padding_list).toList()
-    val keyList = stringArrayResource(R.array.key_list).toList()
 
-    val dropdownItems = modeList.flatMap { mode ->
-        paddingList.map { padding ->
-                "$mode/$padding"
-        }
-    }
-    Row(
+    Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp),
-        horizontalArrangement = Arrangement.spacedBy(10.dp),
-        verticalAlignment = Alignment.CenterVertically
+            .padding(bottom = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        MaterialDropdownMenu(
-            modifier = Modifier.weight(2f),
-            items = dropdownItems,
-            onItemSelected = onItemSelected,
-            label = "Modes",
-        )
-        MaterialDropdownMenu(
+        Row(
             modifier = Modifier
-                .weight(1f)
-                .wrapContentWidth(),
-            items = keyList,
-            onItemSelected = onItemSelected,
-            label = "Key",
-        )
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            MaterialDropdownMenu(
+                modifier = Modifier.weight(2f),
+                items = transformationList,
+                onItemSelected = onModeSelected,
+                label = "Modes",
+            )
+            MaterialDropdownMenu(
+                modifier = Modifier
+                    .weight(1f)
+                    .wrapContentWidth(),
+                items = keyList,
+                onItemSelected = onKeySelected,
+                label = "Key",
+            )
+        }
     }
 
 }
@@ -74,31 +81,47 @@ fun AESComponent(
 
 @Composable
 fun CryptographicTextBox(
+    onModeSelected: (String) -> Unit,
+    onKeySelected: (String) -> Unit,
+    transformationList: List<String>,
+    keyList: List<String>,
     placeholder1: String,
     placeholder2: String,
     enableTextInput: Boolean,
     text1: String,
     text2: String,
     onText1Change: (String) -> Unit,
+    keyText: String,
+    onKeyTextChange: (String) -> Unit,
+    onKeyTextClicked: () -> Unit,
+    generateKey: () -> Unit,
+    ivText: String,
+    onIvTextChange: (String) -> Unit,
+    onIvTextClicked: () -> Unit,
+    generateIV: () -> Unit,
     checkSwitch: Boolean,
-    onSwtichChange: (Boolean) -> Unit
+    onSwtichChange: (Boolean) -> Unit,
+    onSubmit: () -> Unit,
 ){
     val encryptText = remember {
-        mutableStateOf("")
-    }
-    val keyText = remember {
         mutableStateOf("")
     }
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .padding(vertical = 16.dp)
     ) {
+        ModePadding(
+            transformationList = transformationList,
+            keyList = keyList,
+            onModeSelected = onModeSelected,
+            onKeySelected = onKeySelected
+        )
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(
-                    MaterialTheme.colorScheme.onPrimary,
+                    MaterialTheme.colorScheme.onPrimary.copy(0.1f),
                     shape = RoundedCornerShape(18.dp)
                 )
                 .border(
@@ -122,6 +145,7 @@ fun CryptographicTextBox(
                 modifier = Modifier
                     .padding(horizontal = 10.dp)
                     .padding(top = 10.dp),
+                maxLines = 5,
                 enabled = enableTextInput,
                 onTextChange = onText1Change,
                 placeholder = placeholder1,
@@ -136,6 +160,7 @@ fun CryptographicTextBox(
                 modifier = Modifier
                     .padding(10.dp),
                 enabled = false,
+                maxLines = 5,
                 placeholder = placeholder2,
                 text = text2,
                 onTextChange = { }
@@ -191,7 +216,7 @@ fun CryptographicTextBox(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(1.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Box(
@@ -208,7 +233,56 @@ fun CryptographicTextBox(
             ) {
                 Row(
                     modifier = Modifier
-                        .fillMaxWidth()
+                        .background(MaterialTheme.colorScheme.onPrimary)
+                        .padding(7.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Security,
+                        contentDescription = "IV",
+                        modifier = Modifier
+                            .padding(7.dp)
+                            .clickable { onIvTextClicked() }
+                            .size(20.dp),
+                        tint = MaterialTheme.colorScheme.onSurface
+                    )
+
+                    TransparentEditText(
+                        modifier = Modifier.weight(1f), // Allocate proportional space
+                        text = ivText,
+                        enabled = true,
+                        onTextChange = onIvTextChange,
+                        placeholder = "IV will appear here"
+                    )
+
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = "Generate Key",
+                        modifier = Modifier
+                            .padding(7.dp)
+                            .clickable { generateIV() }
+                            .size(20.dp),
+                        tint = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+
+            }
+            Box(
+                modifier = Modifier
+                    .background(
+                        MaterialTheme.colorScheme.onPrimary,
+                        shape = RoundedCornerShape(10.dp)
+                    )
+                    .border(
+                        1.dp,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        shape = RoundedCornerShape(10.dp)
+                    )
+            ) {
+                Row(
+                    modifier = Modifier
+                        .background(MaterialTheme.colorScheme.onPrimary)
                         .padding(7.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
@@ -218,16 +292,16 @@ fun CryptographicTextBox(
                         contentDescription = "Key",
                         modifier = Modifier
                             .padding(7.dp)
-                            .clickable { /* Handle add key action */ }
+                            .clickable { onKeyTextClicked() }
                             .size(20.dp),
                         tint = MaterialTheme.colorScheme.onSurface
                     )
 
                     TransparentEditText(
                         modifier = Modifier.weight(1f), // Allocate proportional space
-                        text = keyText.value,
+                        text = keyText,
                         enabled = true,
-                        onTextChange = { keyText.value = it },
+                        onTextChange = onKeyTextChange,
                         placeholder = "Key will appear here"
                     )
 
@@ -236,13 +310,42 @@ fun CryptographicTextBox(
                         contentDescription = "Generate Key",
                         modifier = Modifier
                             .padding(7.dp)
-                            .clickable { /* Handle add key action */ }
+                            .clickable { generateKey() }
                             .size(20.dp),
                         tint = MaterialTheme.colorScheme.onSurface
                     )
                 }
+
             }
 
+
+        }
+        Spacer(modifier = Modifier.size(height = 10.dp, width = 0.dp))
+        Button(
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+
+                .padding(10.dp),
+            onClick = onSubmit,
+            shape = RoundedCornerShape(50),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f),
+                contentColor = MaterialTheme.colorScheme.onPrimary
+            )
+        ) {
+            Icon(
+                imageVector = Icons.Default.Lock,
+                contentDescription = "Encrypt",
+                modifier = Modifier.size(20.dp),
+                tint = MaterialTheme.colorScheme.onSurface
+            )
+            Spacer(modifier = Modifier.size(8.dp))
+            Text(
+                text = "Encrypt",
+                fontSize = 18.sp,
+                color = MaterialTheme.colorScheme.onSurface,
+                fontWeight = FontWeight.ExtraBold
+            )
         }
 
     }
@@ -253,14 +356,25 @@ fun CryptographicTextBox(
 @Composable
 fun CryptographicTextBoxPreview() {
 
-    CryptographicTextBox(
-        placeholder1 = "Enter text to encrypt",
-        placeholder2 = "Encrypted text will appear here",
-        enableTextInput = true,
-        text1 = "",
-        text2 = "",
-        onText1Change = {},
-        onSwtichChange = {},
-        checkSwitch = false
-    )
+//    CryptXTheme(darkTheme = true) {
+//        CryptographicTextBox(
+//            placeholder1 = "Enter text to encrypt",
+//            placeholder2 = "Encrypted text will appear here",
+//            enableTextInput = true,
+//            text1 = "",
+//            text2 = "",
+//            onText1Change = {},
+//            onSwtichChange = {},
+//            checkSwitch = false,
+//            keyText = "",
+//            generateKey = {},
+//            onKeyTextChange = { },
+//            onSubmit = {},
+//            onItemSelected = {  },
+//            modeList = string,
+//            paddingList = TODO(),
+//            keyList = TODO()
+//        )
+//    }
+
 }

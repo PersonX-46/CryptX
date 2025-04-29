@@ -3,21 +3,20 @@
     <string name="title_activity_feature_card_button">FeatureCardButton</string>
     <string name="title_activity_encrypt_screen">EncryptScreen</string>
 
-    <string-array name="mode_list">
-        <item>ECB</item>
-        <item>CBC</item>
-        <item>CTR</item>
-        <item>GSM</item>
+    <string-array name="aes_transformation_list">
+        <item>ECB/NoPadding</item>
+        <item>ECB/PKCS5Padding</item>
+        <item>CBC/NoPadding</item>
+        <item>CBC/PKCS5Padding</item>
+        <item>CTR/NoPadding</item>
+        <item>GCM/NoPadding</item> <!-- GCM must use NoPadding -->
     </string-array>
 
-    <string-array name="padding_list">
-        <item>NoPadding</item>
-        <item>PKCS7</item>
-    </string-array>
-
-    <string-array name="key_list">
+    <string-array name="aes_keysize_list">
         <item>128</item>
         <item>192</item>
         <item>256</item>
     </string-array>
+
+
 </resources>

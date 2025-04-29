@@ -18,12 +18,13 @@ fun TransparentEditText(
     modifier: Modifier = Modifier,
     text: String,
     enabled: Boolean,
+    maxLines: Int = 1,
     onTextChange: (String) -> Unit,
     placeholder: String = ""
 ) {
     BasicTextField(
         enabled = enabled,
-        maxLines = 5,
+        maxLines = maxLines,
         value = text, // Use the text parameter directly
         onValueChange = onTextChange, // Update the parent state directly
         textStyle = TextStyle(
