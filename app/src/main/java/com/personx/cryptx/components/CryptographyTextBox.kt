@@ -37,6 +37,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+
 @Composable
 fun ModePadding(
     onModeSelected: (String) -> Unit,
@@ -75,7 +76,6 @@ fun ModePadding(
             )
         }
     }
-
 }
 
 
@@ -102,6 +102,7 @@ fun CryptographicTextBox(
     checkSwitch: Boolean,
     onSwtichChange: (Boolean) -> Unit,
     onSubmit: () -> Unit,
+    onCopyOutput: () -> Unit,
 ){
     val encryptText = remember {
         mutableStateOf("")
@@ -206,6 +207,8 @@ fun CryptographicTextBox(
                     }
                 )
                 Badge(
+                    modifier = Modifier
+                        .clickable { onCopyOutput() },
                     text = "Copy Cipher"
                 )
             }
@@ -266,7 +269,6 @@ fun CryptographicTextBox(
                         tint = MaterialTheme.colorScheme.onSurface
                     )
                 }
-
             }
             Box(
                 modifier = Modifier
@@ -315,10 +317,7 @@ fun CryptographicTextBox(
                         tint = MaterialTheme.colorScheme.onSurface
                     )
                 }
-
             }
-
-
         }
         Spacer(modifier = Modifier.size(height = 10.dp, width = 0.dp))
         Button(
@@ -347,9 +346,7 @@ fun CryptographicTextBox(
                 fontWeight = FontWeight.ExtraBold
             )
         }
-
     }
-
 }
 
 @Preview
