@@ -9,7 +9,7 @@ import com.personx.cryptx.utils.CryptoUtils.hexStringToByteArray
 import javax.crypto.Cipher
 import javax.crypto.spec.IvParameterSpec
 
-class AESAlgorithm: SymmetricAlgorithm {
+class SymmetricBasedAlgorithm: SymmetricAlgorithm {
 
     override fun encrypt(params: CryptoParams): String {
         val cipher = Cipher.getInstance(params.transformation)

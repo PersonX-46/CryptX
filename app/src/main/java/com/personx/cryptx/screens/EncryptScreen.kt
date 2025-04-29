@@ -1,7 +1,6 @@
 package com.personx.cryptx.screens
 
 
-import android.content.Context
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -19,12 +18,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.personx.cryptx.R
-import com.personx.cryptx.algorithms.AESAlgorithm
+import com.personx.cryptx.algorithms.SymmetricBasedAlgorithm
 import com.personx.cryptx.components.CryptographicTextBox
 import com.personx.cryptx.components.MaterialDropdownMenu
 import com.personx.cryptx.data.CryptoParams
@@ -123,7 +121,7 @@ fun MostUsedAlgo(){
                                 iv = if (selectedMode.value.startsWith("CBC")) ivState.value else null,
                                 useBase64 = isBase64Enabled.value
                             )
-                            val encryptedText = AESAlgorithm().encrypt(params)
+                            val encryptedText = SymmetricBasedAlgorithm().encrypt(params)
                             outputText.value = encryptedText
                         } catch (e: Exception) {
                             outputText.value = "Error: ${selectedMode.value}${e.message}"
