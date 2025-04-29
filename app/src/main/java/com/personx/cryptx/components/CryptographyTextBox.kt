@@ -28,15 +28,18 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchColors
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.personx.cryptx.utils.CryptoUtils.encodeByteArrayToString
+import com.personx.cryptx.utils.CryptoUtils.generateRandomIV
+import com.personx.cryptx.utils.CryptoUtils.generateSecretKey
 
 @Composable
 fun ModePadding(
@@ -81,7 +84,7 @@ fun ModePadding(
 
 @Composable
 fun CryptographicTextBox(
-    onModeSelected: (String) -> Unit,
+    onTranformationSelected: (String) -> Unit,
     onKeySelected: (String) -> Unit,
     transformationList: List<String>,
     keyList: List<String>,
@@ -91,22 +94,16 @@ fun CryptographicTextBox(
     text1: String,
     text2: String,
     onText1Change: (String) -> Unit,
+    onText2Change: (String) -> Unit,
     keyText: String,
     onKeyTextChange: (String) -> Unit,
-    onKeyTextClicked: () -> Unit,
-    generateKey: () -> Unit,
     ivText: String,
     onIvTextChange: (String) -> Unit,
-    onIvTextClicked: () -> Unit,
-    generateIV: () -> Unit,
     checkSwitch: Boolean,
-    onSwtichChange: (Boolean) -> Unit,
+    onSwitchChange: (Boolean) -> Unit,
     onSubmit: () -> Unit,
-    onCopyOutput: () -> Unit,
 ){
-    val encryptText = remember {
-        mutableStateOf("")
-    }
+    val clipboardManager = LocalClipboardManager.current
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -115,7 +112,7 @@ fun CryptographicTextBox(
         ModePadding(
             transformationList = transformationList,
             keyList = keyList,
-            onModeSelected = onModeSelected,
+            onModeSelected = onTranformationSelected,
             onKeySelected = onKeySelected
         )
         Column(
@@ -137,7 +134,7 @@ fun CryptographicTextBox(
                 modifier = Modifier
                     .padding(top = 10.dp, start = 10.dp)
                     .clickable {
-                        encryptText.value = ""
+                        onText1Change("")
                     },
                 text = "Clear Text"
             )
@@ -164,7 +161,7 @@ fun CryptographicTextBox(
                 maxLines = 5,
                 placeholder = placeholder2,
                 text = text2,
-                onTextChange = { }
+                onTextChange = onText2Change
             )
             Row(
                 modifier = Modifier
@@ -195,7 +192,7 @@ fun CryptographicTextBox(
                         disabledUncheckedIconColor = Color.Gray
                     ),
                     checked = checkSwitch,
-                    onCheckedChange = onSwtichChange,
+                    onCheckedChange = onSwitchChange,
                     thumbContent = {
                         Icon(
                             modifier = Modifier
@@ -208,7 +205,7 @@ fun CryptographicTextBox(
                 )
                 Badge(
                     modifier = Modifier
-                        .clickable { onCopyOutput() },
+                        .clickable { clipboardManager.setText(AnnotatedString(text2)) },
                     text = "Copy Cipher"
                 )
             }
@@ -246,7 +243,7 @@ fun CryptographicTextBox(
                         contentDescription = "IV",
                         modifier = Modifier
                             .padding(7.dp)
-                            .clickable { onIvTextClicked() }
+                            .clickable { clipboardManager.setText(AnnotatedString(ivText)) }
                             .size(20.dp),
                         tint = MaterialTheme.colorScheme.onSurface
                     )
@@ -264,7 +261,10 @@ fun CryptographicTextBox(
                         contentDescription = "Generate Key",
                         modifier = Modifier
                             .padding(7.dp)
-                            .clickable { generateIV() }
+                            .clickable {
+                                val iv = generateRandomIV(16)
+                                onIvTextChange(encodeByteArrayToString(iv).trim())
+                            }
                             .size(20.dp),
                         tint = MaterialTheme.colorScheme.onSurface
                     )
@@ -294,7 +294,7 @@ fun CryptographicTextBox(
                         contentDescription = "Key",
                         modifier = Modifier
                             .padding(7.dp)
-                            .clickable { onKeyTextClicked() }
+                            .clickable { clipboardManager.setText(AnnotatedString(keyText)) }
                             .size(20.dp),
                         tint = MaterialTheme.colorScheme.onSurface
                     )
@@ -312,7 +312,10 @@ fun CryptographicTextBox(
                         contentDescription = "Generate Key",
                         modifier = Modifier
                             .padding(7.dp)
-                            .clickable { generateKey() }
+                            .clickable {
+                                val secretKey = generateSecretKey("AES", 128)
+                                onKeyTextChange(encodeByteArrayToString(secretKey.encoded).trim())
+                            }
                             .size(20.dp),
                         tint = MaterialTheme.colorScheme.onSurface
                     )

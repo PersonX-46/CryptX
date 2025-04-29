@@ -4,6 +4,7 @@ import android.util.Base64
 import java.security.SecureRandom
 import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
+import javax.crypto.spec.SecretKeySpec
 
 object CryptoUtils {
 
@@ -14,17 +15,17 @@ object CryptoUtils {
     }
 
     fun encodeByteArrayToString(byteArray: ByteArray): String {
-        return Base64.encodeToString(byteArray, Base64.DEFAULT)
+        return Base64.encodeToString(byteArray, Base64.NO_WRAP)
     }
 
-//    fun decodeBase64ToSecretKey(base64Key: String, algorithm: String): SecretKey {
-//        val decodedKey = Base64.decode(base64Key, Base64.NO_WRAP)
-//        return SecretKeySpec(decodedKey, 0, decodedKey.size, algorithm)
-//    }
+    fun decodeBase64ToSecretKey(base64Key: String, algorithm: String): SecretKey {
+        val decodedKey = Base64.decode(base64Key, Base64.NO_WRAP)
+        return SecretKeySpec(decodedKey, 0, decodedKey.size, algorithm)
+    }
 
-//    fun decodeBase64ToIV(base64IV: String): ByteArray {
-//        return Base64.decode(base64IV, Base64.DEFAULT)
-//    }
+    fun decodeStringToByteArray(base64IV: String): ByteArray {
+        return Base64.decode(base64IV, Base64.NO_WRAP)
+    }
 
     fun padTextToBlockSize(input: String, blockSize: Int): ByteArray {
         val inputBytes = input.toByteArray()

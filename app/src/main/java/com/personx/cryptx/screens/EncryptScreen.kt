@@ -2,7 +2,6 @@ package com.personx.cryptx.screens
 
 
 import android.content.Context
-import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -23,7 +22,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringArrayResource
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.personx.cryptx.R
@@ -32,8 +30,9 @@ import com.personx.cryptx.components.CryptographicTextBox
 import com.personx.cryptx.components.MaterialDropdownMenu
 import com.personx.cryptx.data.CryptoParams
 import com.personx.cryptx.ui.theme.CryptXTheme
-import com.personx.cryptx.utils.CryptoUtils.encodeByteArrayToString
-import com.personx.cryptx.utils.CryptoUtils.generateRandomIV
+import com.personx.cryptx.utils.CryptoUtils.byteArrayToHexString
+import com.personx.cryptx.utils.CryptoUtils.decodeStringToByteArray
+import com.personx.cryptx.utils.CryptoUtils.decodeBase64ToSecretKey
 import com.personx.cryptx.utils.CryptoUtils.generateSecretKey
 import com.personx.cryptx.utils.CryptoUtils.padTextToBlockSize
 
@@ -89,6 +88,10 @@ fun MostUsedAlgo(context: Context){
             if (selectedAlgorithm.value == "AES") {
 
                 CryptographicTextBox(
+                    transformationList = stringArrayResource(R.array.aes_transformation_list).toList(),
+                    onTranformationSelected = { selectedMode.value = it },
+                    keyList = stringArrayResource(R.array.aes_keysize_list).toList(),
+                    onKeySelected = { selectedKeySize.intValue = it.toInt() },
                     placeholder1 = "Enter Text to Encrypt",
                     placeholder2 = "The Decrypted Text Will Appear Here",
                     enableTextInput = true,
@@ -96,16 +99,18 @@ fun MostUsedAlgo(context: Context){
                     text2 = outputText.value,
                     onText1Change = { inputText.value = it },
                     checkSwitch = isBase64Enabled.value,
-                    onSwtichChange = {
-                        isBase64Enabled.value = it
+                    onSwitchChange = { isBase64Enabled.value = it },
+                    ivText = ivText.value,
+                    onIvTextChange = {
+                        ivText.value = it
+                        ivState.value = decodeStringToByteArray(it)
                     },
                     keyText = keyText.value,
-                    onKeyTextChange = { keyText.value = it },
-                    generateKey = {
-                        val secretKey = generateSecretKey("AES", 128)
-                        secretKeyState.value = secretKey
-                        keyText.value = encodeByteArrayToString(secretKey.encoded).trim()
+                    onKeyTextChange = {
+                        keyText.value = it
+                        secretKeyState.value = decodeBase64ToSecretKey(keyText.value, selectedAlgorithm.value)
                     },
+                    onText2Change = { outputText.value = it },
                     onSubmit = {
                         try {
                             val input = inputText.value
@@ -127,33 +132,6 @@ fun MostUsedAlgo(context: Context){
                             outputText.value = "Error: ${selectedMode.value}${e.message}"
                         }
 
-                    },
-                    transformationList = stringArrayResource(R.array.aes_transformation_list).toList(),
-                    keyList = stringArrayResource(R.array.aes_keysize_list).toList(),
-                    ivText = ivText.value,
-                    onIvTextChange = { ivText.value = it },
-                    generateIV = {
-                        val iv = generateRandomIV(16)
-                        ivState.value = iv
-                        ivText.value = encodeByteArrayToString(iv).trim()
-                    },
-                    onModeSelected = { selectedMode.value = it },
-                    onKeySelected = { selectedKeySize.intValue = it.toInt() },
-                    onKeyTextClicked = {
-                        clipboardManager.setText(AnnotatedString(keyText.value))
-                    },
-                    onIvTextClicked = {
-                        clipboardManager.setText((AnnotatedString(ivText.value)))
-                    },
-                    onCopyOutput = {
-                        if (outputText.value.isNotEmpty())
-                            clipboardManager.setText(AnnotatedString(outputText.value))
-                        else
-                            Toast.makeText(
-                                context,
-                                "Nothing to copy",
-                                Toast.LENGTH_SHORT
-                            ).show()
                     },
                 )
             }
