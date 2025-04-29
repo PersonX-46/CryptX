@@ -3,6 +3,15 @@
     <string name="title_activity_feature_card_button">FeatureCardButton</string>
     <string name="title_activity_encrypt_screen">EncryptScreen</string>
 
+    <string-array name="supported_algorithms_list">
+        <item>AES</item>
+        <item>DES</item>
+        <item>3DES</item>
+        <item>RSA</item>
+        <item>Blowfish</item>
+        <item>ChaCha20</item>
+    </string-array>
+
     <string-array name="aes_transformation_list">
         <item>ECB/NoPadding</item>
         <item>ECB/PKCS5Padding</item>
