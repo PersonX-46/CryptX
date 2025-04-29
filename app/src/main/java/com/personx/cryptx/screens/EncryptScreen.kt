@@ -1,6 +1,8 @@
 package com.personx.cryptx.screens
 
 
+import android.content.Context
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -19,6 +21,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
@@ -35,21 +38,18 @@ import com.personx.cryptx.utils.CryptoUtils.generateSecretKey
 import com.personx.cryptx.utils.CryptoUtils.padTextToBlockSize
 
 @Composable
-fun MostUsedAlgo(){
+fun MostUsedAlgo(context: Context){
     val clipboardManager = LocalClipboardManager.current
+    val availableAlgorithms = stringArrayResource(R.array.supported_algorithms_list).toList()
+    val availableTransformations = stringArrayResource(R.array.aes_transformation_list).toList()
     val selectedAlgorithm = remember {
-        mutableStateOf("AES")
+        mutableStateOf(availableAlgorithms[0])
     }
-    val mostUsedAlgorithms = listOf(
-        "AES",
-        "DES",
-    )
-
     val inputText = remember { mutableStateOf("") }
     val outputText = remember { mutableStateOf("") }
     val keyText = remember { mutableStateOf("") }
     val ivText = remember { mutableStateOf("") }
-    val selectedMode = remember { mutableStateOf("ECB/NoPadding") }
+    val selectedMode = remember { mutableStateOf(availableTransformations[0]) }
     val selectedKeySize = remember { mutableIntStateOf(128) }
     val isBase64Enabled = remember { mutableStateOf(false) }
     val ivState = remember { mutableStateOf<ByteArray?>(null) }
@@ -71,7 +71,7 @@ fun MostUsedAlgo(){
                 .padding(bottom = 1.dp)
                 .padding(horizontal = 16.dp)
                 .wrapContentWidth(),
-            items = mostUsedAlgorithms,
+            items = availableAlgorithms,
             onItemSelected = { selectedAlgorithm.value = it },
             label = "Algorithms"
         )
@@ -124,7 +124,7 @@ fun MostUsedAlgo(){
                             val encryptedText = AESAlgorithm().encrypt(params)
                             outputText.value = encryptedText
                         } catch (e: Exception) {
-                            outputText.value = "Error: ${selectedMode.value }${e.message}"
+                            outputText.value = "Error: ${selectedMode.value}${e.message}"
                         }
 
                     },
@@ -144,6 +144,16 @@ fun MostUsedAlgo(){
                     },
                     onIvTextClicked = {
                         clipboardManager.setText((AnnotatedString(ivText.value)))
+                    },
+                    onCopyOutput = {
+                        if (outputText.value.isNotEmpty())
+                            clipboardManager.setText(AnnotatedString(outputText.value))
+                        else
+                            Toast.makeText(
+                                context,
+                                "Nothing to copy",
+                                Toast.LENGTH_SHORT
+                            ).show()
                     },
                 )
             }
@@ -202,6 +212,6 @@ fun MostUsedAlgo(){
 @Composable
 fun PreviewEncrypt() {
     CryptXTheme(darkTheme = true) {
-        MostUsedAlgo()
+        MostUsedAlgo(LocalContext.current)
     }
 }
