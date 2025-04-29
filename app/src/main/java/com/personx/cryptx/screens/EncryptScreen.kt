@@ -19,7 +19,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -30,15 +29,13 @@ import com.personx.cryptx.components.CryptographicTextBox
 import com.personx.cryptx.components.MaterialDropdownMenu
 import com.personx.cryptx.data.CryptoParams
 import com.personx.cryptx.ui.theme.CryptXTheme
-import com.personx.cryptx.utils.CryptoUtils.byteArrayToHexString
 import com.personx.cryptx.utils.CryptoUtils.decodeStringToByteArray
 import com.personx.cryptx.utils.CryptoUtils.decodeBase64ToSecretKey
 import com.personx.cryptx.utils.CryptoUtils.generateSecretKey
 import com.personx.cryptx.utils.CryptoUtils.padTextToBlockSize
 
 @Composable
-fun MostUsedAlgo(context: Context){
-    val clipboardManager = LocalClipboardManager.current
+fun MostUsedAlgo(){
     val availableAlgorithms = stringArrayResource(R.array.supported_algorithms_list).toList()
     val availableTransformations = stringArrayResource(R.array.aes_transformation_list).toList()
     val selectedAlgorithm = remember {
@@ -190,6 +187,6 @@ fun MostUsedAlgo(context: Context){
 @Composable
 fun PreviewEncrypt() {
     CryptXTheme(darkTheme = true) {
-        MostUsedAlgo(LocalContext.current)
+        MostUsedAlgo()
     }
 }
