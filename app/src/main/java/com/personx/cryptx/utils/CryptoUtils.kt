@@ -18,18 +18,18 @@ object CryptoUtils {
         return keyGen.generateKey()
     }
 
-    fun secretKeyToHex(secretKey: SecretKey): String {
-        val keyBytes = secretKey.encoded
-        return keyBytes.joinToString("") { "%02x".format(it) }
-    }
-
-    fun hexToSecretKey(hex: String, algorithm: String): SecretKey {
-        val bytes = hex.chunked(2)
-            .map { it.toInt(16).toByte() }
-            .toByteArray()
-
-        return SecretKeySpec(bytes, algorithm)
-    }
+//    fun secretKeyToHex(secretKey: SecretKey): String {
+//        val keyBytes = secretKey.encoded
+//        return keyBytes.joinToString("") { "%02x".format(it) }
+//    }
+//
+//    fun hexToSecretKey(hex: String, algorithm: String): SecretKey {
+//        val bytes = hex.chunked(2)
+//            .map { it.toInt(16).toByte() }
+//            .toByteArray()
+//
+//        return SecretKeySpec(bytes, algorithm)
+//    }
 
     fun decodeBase64ToSecretKey(keyString: String, algorithm: String): SecretKey {
         val decodedKey = Base64.decode(keyString, Base64.NO_WRAP)
