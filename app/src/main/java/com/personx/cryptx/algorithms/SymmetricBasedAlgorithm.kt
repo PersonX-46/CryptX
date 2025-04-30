@@ -13,7 +13,7 @@ class SymmetricBasedAlgorithm: SymmetricAlgorithm {
 
     override fun encrypt(params: CryptoParams): String {
         val cipher = Cipher.getInstance(params.transformation)
-        if (params.iv == null) {
+        if (params.iv == null || params.iv.isEmpty()) {
             cipher.init(Cipher.ENCRYPT_MODE, params.key)
         } else {
             val ivSpec = IvParameterSpec(params.iv)
