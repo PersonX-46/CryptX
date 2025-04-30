@@ -70,5 +70,18 @@
         <item>256</item>
     </string-array>
 
+    <string-array name="supported_hash_algorithms">
+        <item>MD5</item>
+        <item>SHA-1</item>
+        <item>SHA-224</item>
+        <item>SHA-256</item>
+        <item>SHA-384</item>
+        <item>SHA-512</item>
+        <item>SHA3-224</item>
+        <item>SHA3-256</item>
+        <item>SHA3-384</item>
+        <item>SHA3-512</item>
+    </string-array>
+
 
 </resources>
