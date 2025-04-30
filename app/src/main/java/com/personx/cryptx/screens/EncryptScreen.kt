@@ -108,7 +108,7 @@ fun MostUsedAlgo() {
                 keyList = keySizeList.value,
                 onKeySelected = { selectedKeySize.intValue = it.toInt() },
                 placeholder1 = "Enter Text to Encrypt",
-                placeholder2 = "The Decrypted Text Will Appear Here",
+                placeholder2 = "The Encrypted Text Will Appear Here",
                 enableTextInput = true,
                 text1 = inputText.value,
                 text2 = outputText.value,
