@@ -33,7 +33,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -148,7 +152,21 @@ fun CryptographicTextBox(
                 enabled = enableTextInput,
                 onTextChange = onText1Change,
                 placeholder = placeholder1,
-                text = text1
+                text = text1,
+                textStyle = TextStyle(
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontSize = 16.sp,
+                    textAlign = TextAlign.Start,
+                    fontFamily = FontFamily.Monospace,
+                    fontWeight = FontWeight.Bold
+                ),
+                placeholderStyle = TextStyle(
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                    fontSize = 16.sp,
+                    textAlign = TextAlign.Start,
+                    fontFamily = FontFamily.Monospace,
+                    fontWeight = FontWeight.Bold
+                )
             )
             HorizontalDivider(
                 thickness = 1.dp,
@@ -162,7 +180,21 @@ fun CryptographicTextBox(
                 maxLines = 5,
                 placeholder = placeholder2,
                 text = text2,
-                onTextChange = onText2Change
+                onTextChange = onText2Change,
+                textStyle = TextStyle(
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontSize = 16.sp,
+                    textAlign = TextAlign.Start,
+                    fontFamily = FontFamily.Monospace,
+                    fontWeight = FontWeight.Bold
+                ),
+                placeholderStyle = TextStyle(
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                    fontSize = 16.sp,
+                    textAlign = TextAlign.Start,
+                    fontFamily = FontFamily.Monospace,
+                    fontWeight = FontWeight.Bold
+                )
             )
             Row(
                 modifier = Modifier
@@ -254,7 +286,21 @@ fun CryptographicTextBox(
                         text = ivText,
                         enabled = enableIV,
                         onTextChange = onIvTextChange,
-                        placeholder = "IV will appear here"
+                        placeholder = "IV will appear here",
+                        textStyle = TextStyle(
+                            color = MaterialTheme.colorScheme.onSurface,
+                            fontSize = 16.sp,
+                            textAlign = TextAlign.Start,
+                            fontFamily = FontFamily.Monospace,
+                            fontWeight = FontWeight.Bold
+                        ),
+                        placeholderStyle = TextStyle(
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                            fontSize = 16.sp,
+                            textAlign = TextAlign.Start,
+                            fontFamily = FontFamily.Monospace,
+                            fontWeight = FontWeight.Bold
+                        ),
                     )
 
                     Icon(
@@ -310,7 +356,22 @@ fun CryptographicTextBox(
                         text = keyText,
                         enabled = true,
                         onTextChange = onKeyTextChange,
-                        placeholder = "Key will appear here"
+                        placeholder = "Key will appear here",
+                        textStyle = TextStyle(
+                            color = MaterialTheme.colorScheme.onSurface,
+                            fontSize = 16.sp,
+                            textAlign = TextAlign.Start,
+                            fontFamily = FontFamily.Monospace,
+                            fontWeight = FontWeight.Bold
+                        ),
+                        placeholderStyle = TextStyle(
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                            fontSize = 14.sp,
+                            textAlign = TextAlign.Start,
+                            fontStyle = FontStyle.Italic,
+                            fontFamily = FontFamily.Monospace,
+                            fontWeight = FontWeight.Bold
+                        ),
                     )
 
                     Icon(
