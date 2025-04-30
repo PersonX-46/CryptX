@@ -39,7 +39,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.personx.cryptx.utils.CryptoUtils.encodeByteArrayToString
 import com.personx.cryptx.utils.CryptoUtils.generateRandomIV
-import com.personx.cryptx.utils.CryptoUtils.generateSecretKey
 
 @Composable
 fun ModePadding(
