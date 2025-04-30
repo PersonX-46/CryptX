@@ -84,7 +84,7 @@ fun ModePadding(
 @Composable
 fun CryptographicTextBox(
     onKeyGenerateClicked: () -> Unit,
-    onTranformationSelected: (String) -> Unit,
+    onTransformationSelected: (String) -> Unit,
     onKeySelected: (String) -> Unit,
     transformationList: List<String>,
     keyList: List<String>,
@@ -113,7 +113,7 @@ fun CryptographicTextBox(
         ModePadding(
             transformationList = transformationList,
             keyList = keyList,
-            onModeSelected = onTranformationSelected,
+            onModeSelected = onTransformationSelected,
             onKeySelected = onKeySelected
         )
         Column(
