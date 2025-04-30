@@ -18,6 +18,8 @@ fun TransparentEditText(
     modifier: Modifier = Modifier,
     text: String,
     enabled: Boolean,
+    textStyle: TextStyle,
+    placeholderStyle: TextStyle,
     maxLines: Int = 1,
     onTextChange: (String) -> Unit,
     placeholder: String = ""
@@ -27,11 +29,7 @@ fun TransparentEditText(
         maxLines = maxLines,
         value = text, // Use the text parameter directly
         onValueChange = onTextChange, // Update the parent state directly
-        textStyle = TextStyle(
-            color = Color.White,
-            fontSize = 16.sp,
-            textAlign = TextAlign.Justify,
-        ),
+        textStyle = textStyle,
         modifier = modifier
             .fillMaxWidth()
             .padding(8.dp)
@@ -44,7 +42,7 @@ fun TransparentEditText(
             if (text.isEmpty()) { // Check the text parameter directly
                 androidx.compose.material3.Text(
                     text = placeholder,
-                    style = TextStyle(color = Color.Gray, fontSize = 16.sp)
+                    style = placeholderStyle
                 )
             }
             innerTextField()
