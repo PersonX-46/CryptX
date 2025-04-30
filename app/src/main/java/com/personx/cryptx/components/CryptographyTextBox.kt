@@ -266,10 +266,7 @@ fun CryptographicTextBox(
                             .clickable {
                                 if (enableIV) {
                                     val iv = generateRandomIV(16)
-                                    if (checkSwitch)
-                                        onIvTextChange(encodeByteArrayToString(iv).trim())
-                                    else
-                                        onIvTextChange(byteArrayToHexString(iv).trim())
+                                    onIvTextChange(encodeByteArrayToString(iv).trim())
                                 } else {
                                     onIvTextChange("")
                                 }
