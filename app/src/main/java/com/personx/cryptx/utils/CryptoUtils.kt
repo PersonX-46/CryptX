@@ -10,17 +10,39 @@ object CryptoUtils {
 
     fun generateSecretKey(algorithm: String, keySize: Int): SecretKey {
         val keyGen = KeyGenerator.getInstance(algorithm)
-        keyGen.init(keySize)
+        when (algorithm) {
+            "DES" -> keyGen.init(56) // DES only supports 56-bit keys (but uses 64 bits incl. parity)
+            "3DES" -> keyGen.init(168)
+            else -> keyGen.init(keySize)
+        }
         return keyGen.generateKey()
+    }
+
+    fun secretKeyToHex(secretKey: SecretKey): String {
+        val keyBytes = secretKey.encoded
+        return keyBytes.joinToString("") { "%02x".format(it) }
+    }
+
+    fun hexToSecretKey(hex: String, algorithm: String): SecretKey {
+        val bytes = hex.chunked(2)
+            .map { it.toInt(16).toByte() }
+            .toByteArray()
+
+        return SecretKeySpec(bytes, algorithm)
+    }
+
+    fun decodeBase64ToSecretKey(keyString: String, algorithm: String): SecretKey {
+        val decodedKey = Base64.decode(keyString, Base64.NO_WRAP)
+        val keyBytes = when (algorithm) {
+            "DES" -> decodedKey.copyOf(8) // truncate or pad to 8 bytes
+            "3DES" -> decodedKey.copyOf(24) // 3DES requires 24 bytes
+            else -> decodedKey
+        }
+        return SecretKeySpec(keyBytes, algorithm)
     }
 
     fun encodeByteArrayToString(byteArray: ByteArray): String {
         return Base64.encodeToString(byteArray, Base64.NO_WRAP)
-    }
-
-    fun decodeBase64ToSecretKey(base64Key: String, algorithm: String): SecretKey {
-        val decodedKey = Base64.decode(base64Key, Base64.NO_WRAP)
-        return SecretKeySpec(decodedKey, 0, decodedKey.size, algorithm)
     }
 
     fun decodeStringToByteArray(base64IV: String): ByteArray {
