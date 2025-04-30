@@ -36,6 +36,7 @@ import com.personx.cryptx.components.Header
 import com.personx.cryptx.data.FeatureItem
 import com.personx.cryptx.data.NavBarItem
 import com.personx.cryptx.screens.DecryptionScreen
+import com.personx.cryptx.screens.HashGeneratorScreen
 import com.personx.cryptx.screens.MostUsedAlgo
 import com.personx.cryptx.ui.theme.CryptXTheme
 
@@ -142,7 +143,7 @@ fun HomeScreen(){
             } else if (currentScreen.value == "Decrypt") {
                 DecryptionScreen()
             } else if (currentScreen.value == "Hash Generator") {
-                MostUsedAlgo()
+                HashGeneratorScreen()
             } else if (currentScreen.value == "Hash Detector") {
                 MostUsedAlgo()
             } else if (currentScreen.value == "Steganography") {
