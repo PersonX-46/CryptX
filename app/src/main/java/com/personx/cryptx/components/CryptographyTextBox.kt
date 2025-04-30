@@ -37,6 +37,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.personx.cryptx.utils.CryptoUtils.byteArrayToHexString
 import com.personx.cryptx.utils.CryptoUtils.encodeByteArrayToString
 import com.personx.cryptx.utils.CryptoUtils.generateRandomIV
 
@@ -265,7 +266,10 @@ fun CryptographicTextBox(
                             .clickable {
                                 if (enableIV) {
                                     val iv = generateRandomIV(16)
-                                    onIvTextChange(encodeByteArrayToString(iv).trim())
+                                    if (checkSwitch)
+                                        onIvTextChange(encodeByteArrayToString(iv).trim())
+                                    else
+                                        onIvTextChange(byteArrayToHexString(iv).trim())
                                 } else {
                                     onIvTextChange("")
                                 }
