@@ -1,6 +1,5 @@
 package com.personx.cryptx.screens
 
-import android.content.Context
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -25,10 +24,7 @@ import com.personx.cryptx.data.CryptoParams
 import com.personx.cryptx.utils.CryptoUtils.decodeBase64ToSecretKey
 import com.personx.cryptx.utils.CryptoUtils.decodeStringToByteArray
 import com.personx.cryptx.utils.CryptoUtils.encodeByteArrayToString
-import com.personx.cryptx.utils.CryptoUtils.generateRandomIV
 import com.personx.cryptx.utils.CryptoUtils.generateSecretKey
-import com.personx.cryptx.utils.CryptoUtils.padTextToBlockSize
-import java.security.SecureRandom
 
 @Composable
 fun DecryptionScreen() {
