@@ -84,6 +84,7 @@ fun ModePadding(
 
 @Composable
 fun CryptographicTextBox(
+    onKeyGenerateClicked: () -> Unit,
     onTranformationSelected: (String) -> Unit,
     onKeySelected: (String) -> Unit,
     transformationList: List<String>,
@@ -98,6 +99,7 @@ fun CryptographicTextBox(
     keyText: String,
     onKeyTextChange: (String) -> Unit,
     ivText: String,
+    enableIV: Boolean,
     onIvTextChange: (String) -> Unit,
     checkSwitch: Boolean,
     onSwitchChange: (Boolean) -> Unit,
@@ -245,13 +247,13 @@ fun CryptographicTextBox(
                             .padding(7.dp)
                             .clickable { clipboardManager.setText(AnnotatedString(ivText)) }
                             .size(20.dp),
-                        tint = MaterialTheme.colorScheme.onSurface
+                        tint = if (enableIV) MaterialTheme.colorScheme.onSurface else Color.Gray
                     )
 
                     TransparentEditText(
                         modifier = Modifier.weight(1f), // Allocate proportional space
                         text = ivText,
-                        enabled = true,
+                        enabled = enableIV,
                         onTextChange = onIvTextChange,
                         placeholder = "IV will appear here"
                     )
@@ -266,7 +268,7 @@ fun CryptographicTextBox(
                                 onIvTextChange(encodeByteArrayToString(iv).trim())
                             }
                             .size(20.dp),
-                        tint = MaterialTheme.colorScheme.onSurface
+                        tint = if (enableIV) MaterialTheme.colorScheme.onSurface else Color.Gray
                     )
                 }
             }
@@ -313,8 +315,7 @@ fun CryptographicTextBox(
                         modifier = Modifier
                             .padding(7.dp)
                             .clickable {
-                                val secretKey = generateSecretKey("AES", 128)
-                                onKeyTextChange(encodeByteArrayToString(secretKey.encoded).trim())
+                                onKeyGenerateClicked()
                             }
                             .size(20.dp),
                         tint = MaterialTheme.colorScheme.onSurface
