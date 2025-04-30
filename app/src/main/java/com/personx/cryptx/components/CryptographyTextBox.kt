@@ -228,7 +228,7 @@ fun CryptographicTextBox(
                     )
                     .border(
                         1.dp,
-                        color = MaterialTheme.colorScheme.onSurface,
+                        color = if (enableIV) MaterialTheme.colorScheme.onSurface else Color.Gray,
                         shape = RoundedCornerShape(10.dp)
                     )
             ) {
@@ -244,7 +244,7 @@ fun CryptographicTextBox(
                         contentDescription = "IV",
                         modifier = Modifier
                             .padding(7.dp)
-                            .clickable { clipboardManager.setText(AnnotatedString(ivText)) }
+                            .clickable { if (enableIV) clipboardManager.setText(AnnotatedString(ivText)) }
                             .size(20.dp),
                         tint = if (enableIV) MaterialTheme.colorScheme.onSurface else Color.Gray
                     )
@@ -263,8 +263,13 @@ fun CryptographicTextBox(
                         modifier = Modifier
                             .padding(7.dp)
                             .clickable {
-                                val iv = generateRandomIV(16)
-                                onIvTextChange(encodeByteArrayToString(iv).trim())
+                                if (enableIV) {
+                                    val iv = generateRandomIV(16)
+                                    onIvTextChange(encodeByteArrayToString(iv).trim())
+                                } else {
+                                    onIvTextChange("")
+                                }
+
                             }
                             .size(20.dp),
                         tint = if (enableIV) MaterialTheme.colorScheme.onSurface else Color.Gray
