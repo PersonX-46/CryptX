@@ -1,51 +1,77 @@
 package com.personx.cryptx.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun TransparentEditText(
+fun CyberpunkInputBox(
     modifier: Modifier = Modifier,
-    text: String,
-    enabled: Boolean,
-    textStyle: TextStyle,
-    placeholderStyle: TextStyle,
-    maxLines: Int = 1,
-    onTextChange: (String) -> Unit,
-    placeholder: String = ""
+    value: String,
+    onValueChange: (String) -> Unit,
+    placeholder: String,
+    trailingIcon: @Composable () -> Unit= {},
 ) {
-    BasicTextField(
-        enabled = enabled,
-        maxLines = maxLines,
-        value = text, // Use the text parameter directly
-        onValueChange = onTextChange, // Update the parent state directly
-        textStyle = textStyle,
+    Box(
         modifier = modifier
             .fillMaxWidth()
-            .padding(8.dp)
-            .background(Color.Transparent),
-        cursorBrush = androidx.compose.ui.graphics.SolidColor(
-            MaterialTheme.colorScheme.onSurface
-        ), // Set cursor color here
-
-        decorationBox = { innerTextField ->
-            if (text.isEmpty()) { // Check the text parameter directly
-                androidx.compose.material3.Text(
+            .background(
+                color = Color.Transparent,
+                shape = RoundedCornerShape(10.dp)
+            )
+            .border(
+                1.dp,
+                Color(0xFF00FFAA),
+                shape = RoundedCornerShape(10.dp)
+            )
+    ) {
+        TextField(
+            value = value,
+            onValueChange = onValueChange,
+            modifier = Modifier.fillMaxWidth(),
+            trailingIcon = {
+                trailingIcon()
+            },
+            textStyle = TextStyle(
+                color = MaterialTheme.colorScheme.onSurface,
+                fontSize = 16.sp,
+                fontFamily = FontFamily.Monospace
+            ),
+            placeholder = {
+                Text(
                     text = placeholder,
-                    style = placeholderStyle
+                    style = TextStyle(
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                        fontFamily = FontFamily.Monospace
+                    )
                 )
-            }
-            innerTextField()
-        }
-    )
+            },
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = Color.Transparent,
+                unfocusedContainerColor = Color.Transparent,
+                disabledContainerColor = Color.Transparent,
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent,
+                disabledIndicatorColor = Color.Transparent
+            ),
+            singleLine = false,
+            maxLines = 5
+        )
+    }
 }

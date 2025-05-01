@@ -17,6 +17,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
@@ -40,7 +41,7 @@ fun FeatureCardButton(
             .clickable { onClick() },
         shape = RoundedCornerShape(cornerSize), // squircle vibe
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.onPrimary
+            containerColor = Color.Transparent,
         ),
         border = BorderStroke(
             width = borderWidth,
@@ -49,7 +50,7 @@ fun FeatureCardButton(
     ) {
         Column(
             modifier = Modifier
-                .background(MaterialTheme.colorScheme.background)
+                .background(Color.Transparent)
                 .fillMaxSize()
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,

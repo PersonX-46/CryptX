@@ -2,27 +2,52 @@ package com.personx.cryptx.screens
 
 
 import android.content.Context
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ContentCopy
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringArrayResource
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.personx.cryptx.R
 import com.personx.cryptx.algorithms.SymmetricBasedAlgorithm
-import com.personx.cryptx.components.CryptographicTextBox
-import com.personx.cryptx.components.MaterialDropdownMenu
+import com.personx.cryptx.components.CyberpunkButton
+import com.personx.cryptx.components.CyberpunkDropdown
+import com.personx.cryptx.components.CyberpunkInputBox
+import com.personx.cryptx.components.CyberpunkKeySection
+import com.personx.cryptx.components.CyberpunkOutputSection
 import com.personx.cryptx.data.CryptoParams
 import com.personx.cryptx.ui.theme.CryptXTheme
 import com.personx.cryptx.utils.CryptoUtils.decodeStringToByteArray
@@ -31,11 +56,14 @@ import com.personx.cryptx.utils.CryptoUtils.encodeByteArrayToString
 import com.personx.cryptx.utils.CryptoUtils.generateRandomIV
 import com.personx.cryptx.utils.CryptoUtils.generateSecretKey
 import com.personx.cryptx.utils.CryptoUtils.padTextToBlockSize
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.security.SecureRandom
 
 @Composable
 fun MostUsedAlgo() {
     val context = LocalContext.current
+    val clipboard = LocalClipboardManager.current
     val algorithms = stringArrayResource(R.array.supported_algorithms_list).toList()
     val selectedAlgorithm = remember { mutableStateOf(algorithms.first()) }
 
@@ -53,6 +81,8 @@ fun MostUsedAlgo() {
 
     val enableIV = remember { mutableStateOf(false) }
     val isBase64Enabled = remember { mutableStateOf(false) }
+    val showCopiedToast = remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
 
     // Re-generate key and mode list when algorithm changes
     LaunchedEffect(selectedAlgorithm.value) {
@@ -79,7 +109,6 @@ fun MostUsedAlgo() {
             enableIV.value = false
             ivText.value = ""
         }
-
     }
 
     Column(
@@ -87,40 +116,65 @@ fun MostUsedAlgo() {
             .fillMaxSize()
             .padding(bottom = 16.dp)
             .verticalScroll(rememberScrollState()),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        MaterialDropdownMenu(
+        // Header
+        Text(
+            text = "CRYPTOGRAPHY TOOL",
+            style = MaterialTheme.typography.headlineLarge.copy(
+                fontFamily = FontFamily.Monospace,
+                fontWeight = FontWeight.ExtraBold,
+                color = Color(0xFF00FFAA)
+            ),
+            modifier = Modifier.padding(vertical = 24.dp)
+        )
+
+        // Algorithm Selection
+        CyberpunkDropdown(
             items = algorithms,
+            selectedItem = selectedAlgorithm.value,
             onItemSelected = { selectedAlgorithm.value = it },
-            label = "Algorithms",
+            label = "SELECT ALGORITHM",
             modifier = Modifier.padding(horizontal = 16.dp)
         )
 
         if (selectedAlgorithm.value != "RSA") {
-            CryptographicTextBox(
-                transformationList = transformationList.value,
-                onTransformationSelected = {
+            // Mode Selection
+            CyberpunkDropdown(
+                items = transformationList.value,
+                selectedItem = selectedMode.value,
+                onItemSelected = {
                     selectedMode.value = it
                     enableIV.value = !it.contains("ECB")
                     if (!enableIV.value) ivText.value = ""
                 },
-                keyList = keySizeList.value,
-                onKeySelected = { selectedKeySize.intValue = it.toInt() },
-                placeholder1 = "Enter Text to Encrypt",
-                placeholder2 = "The Encrypted Text Will Appear Here",
-                enableTextInput = true,
-                text1 = inputText.value,
-                text2 = outputText.value,
-                onText1Change = { inputText.value = it },
-                checkSwitch = isBase64Enabled.value,
-                onSwitchChange = { isBase64Enabled.value = it },
-                enableIV = enableIV.value,
-                ivText = ivText.value,
-                onIvTextChange = { ivText.value = it },
+                label = "SELECT MODE",
+                modifier = Modifier.padding(horizontal = 16.dp)
+            )
+
+            // Key Size Selection
+            CyberpunkDropdown(
+                items = keySizeList.value,
+                selectedItem = selectedKeySize.intValue.toString(),
+                onItemSelected = { selectedKeySize.intValue = it.toInt() },
+                label = "SELECT KEY SIZE",
+                modifier = Modifier.padding(horizontal = 16.dp)
+            )
+
+            // Input Section
+            CyberpunkInputBox(
+                value = inputText.value,
+                onValueChange = { inputText.value = it },
+                placeholder = "Enter text to encrypt...",
+                modifier = Modifier.padding(horizontal = 16.dp)
+            )
+
+            // Key Section
+            CyberpunkKeySection(
                 keyText = keyText.value,
                 onKeyTextChange = { keyText.value = it },
-                onKeyGenerateClicked = {
+                onGenerateKey = {
                     try {
                         val newKey = generateSecretKey(selectedAlgorithm.value, selectedKeySize.intValue)
                         keyText.value = encodeByteArrayToString(newKey.encoded).trim()
@@ -128,32 +182,69 @@ fun MostUsedAlgo() {
                         outputText.value = "Key generation failed: ${e.message}"
                     }
                 },
-                onText2Change = { outputText.value = it },
-                onSubmit = {
+                modifier = Modifier.padding(horizontal = 16.dp)
+            )
+
+            // IV Section (conditionally shown)
+            if (enableIV.value) {
+                CyberpunkInputBox(
+                    value = ivText.value,
+                    onValueChange = { ivText.value = it },
+                    placeholder = "Enter IV (or leave blank for random)...",
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
+            }
+
+            // Options Row
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = "Base64 Output",
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        fontFamily = FontFamily.Monospace,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                )
+                Switch(
+                    checked = isBase64Enabled.value,
+                    onCheckedChange = { isBase64Enabled.value = it },
+                    colors = SwitchDefaults.colors(
+                        checkedThumbColor = Color(0xFF00FFAA),
+                        checkedTrackColor = Color(0xFF00FFAA).copy(alpha = 0.5f)
+                    )
+                )
+            }
+
+            // Encrypt Button
+            CyberpunkButton(
+                onClick = {
                     try {
                         if (inputText.value.isBlank()) {
                             outputText.value = "Input text cannot be empty."
-                            return@CryptographicTextBox
+                            return@CyberpunkButton
                         }
 
                         val iv = try {
                             if (!enableIV.value || ivText.value.isBlank()) {
-                                // Generate a random IV of 16 bytes (for AES, Blowfish)
                                 SecureRandom().generateSeed(16)
                             } else {
                                 decodeStringToByteArray(ivText.value)
                             }
                         } catch (e: Exception) {
                             outputText.value = "Invalid IV: ${e.message}"
-                            return@CryptographicTextBox
+                            return@CyberpunkButton
                         }
-
 
                         val key = try {
                             decodeBase64ToSecretKey(keyText.value, selectedAlgorithm.value)
                         } catch (e: Exception) {
                             outputText.value = "Invalid key: ${e.message}"
-                            return@CryptographicTextBox
+                            return@CyberpunkButton
                         }
 
                         val blockSize = when (selectedAlgorithm.value) {
@@ -184,12 +275,34 @@ fun MostUsedAlgo() {
                         outputText.value = "Encryption failed: ${e.message}"
                     }
                 },
+                icon = Icons.Default.Lock,
+                text = "ENCRYPT",
+                modifier = Modifier.padding(horizontal = 16.dp)
             )
+
+            // Output Section
+            if (outputText.value.isNotEmpty()) {
+                CyberpunkOutputSection(
+                    output = outputText.value,
+                    onCopy = {
+                        scope.launch {
+                            clipboard.setText(AnnotatedString(outputText.value))
+                            showCopiedToast.value = true
+                            delay(2000)
+                            showCopiedToast.value = false
+                        }
+                    },
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
+            }
         }
     }
-}
 
-// -- Helper Functions --
+    // Toast notification
+    if (showCopiedToast.value) {
+        android.widget.Toast.makeText(context, "Output copied to clipboard!", android.widget.Toast.LENGTH_SHORT).show()
+    }
+}
 
 
 fun getTransformations(context: Context, algorithm: String): List<String> = when (algorithm) {
@@ -209,53 +322,6 @@ fun getKeySizes(context: Context, algorithm: String): List<String> = when (algor
     "ChaCha20" -> context.resources.getStringArray(R.array.chacha_keysize_list).toList()
     else -> emptyList()
 }
-
-//@Composable
-//fun MostUsedAlgorithmsLayout(
-//    algorithms: List<String>,
-//    modifier: Modifier = Modifier
-//) {
-//    Column (
-//        modifier = modifier
-//            .padding(16.dp),
-//        verticalArrangement = Arrangement.spacedBy(16.dp),
-//        horizontalAlignment = Alignment.CenterHorizontally
-//    ) {
-//        Row(
-//            modifier = Modifier.fillMaxWidth(),
-//            horizontalArrangement = Arrangement.SpaceEvenly
-//        ) {
-//            algorithms.take(3).forEach { algorithm ->
-//                AlgorithmCard(algorithm)
-//            }
-//        }
-//    }
-//}
-
-//@Composable
-//fun AlgorithmCard(algorithm: String) {
-//    Box(
-//        modifier = Modifier
-//            .width(100.dp)
-//            .background(
-//                MaterialTheme.colorScheme.onPrimary,
-//                shape = RoundedCornerShape(8.dp)
-//            )
-//            .border(
-//                1.dp,
-//                color = MaterialTheme.colorScheme.onSurface,
-//                shape = RoundedCornerShape(5.dp)
-//            )
-//            .padding(8.dp),
-//        contentAlignment = Alignment.Center
-//    ) {
-//        Text(
-//            text = algorithm,
-//            style = MaterialTheme.typography.bodyMedium,
-//            color = MaterialTheme.colorScheme.onSurface
-//        )
-//    }
-//}
 
 @Preview
 @Composable
