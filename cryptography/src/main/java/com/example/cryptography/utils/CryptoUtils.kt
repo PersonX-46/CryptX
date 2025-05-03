@@ -46,10 +46,4 @@ object CryptoUtils {
         return bytes.joinToString("") { "%02x".format(it) }
     }
 
-    fun generateRandomIV(size: Int): ByteArray {
-        val iv = ByteArray(size)
-        SecureRandom().nextBytes(iv)
-        return iv
-    }
-
 }
