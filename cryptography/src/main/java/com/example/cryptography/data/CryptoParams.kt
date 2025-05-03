@@ -1,4 +1,4 @@
-package com.personx.cryptx.data
+package com.example.cryptography.data
 
 import javax.crypto.SecretKey
 

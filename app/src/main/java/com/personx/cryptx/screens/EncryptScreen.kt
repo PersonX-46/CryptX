@@ -42,20 +42,19 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.personx.cryptx.R
-import com.personx.cryptx.algorithms.SymmetricBasedAlgorithm
+import com.example.cryptography.algorithms.SymmetricBasedAlgorithm
 import com.personx.cryptx.components.CyberpunkButton
 import com.personx.cryptx.components.CyberpunkDropdown
 import com.personx.cryptx.components.CyberpunkInputBox
 import com.personx.cryptx.components.CyberpunkKeySection
 import com.personx.cryptx.components.CyberpunkOutputSection
-import com.personx.cryptx.data.CryptoParams
+import com.example.cryptography.data.CryptoParams
 import com.personx.cryptx.ui.theme.CryptXTheme
-import com.personx.cryptx.utils.CryptoUtils.decodeStringToByteArray
-import com.personx.cryptx.utils.CryptoUtils.decodeBase64ToSecretKey
-import com.personx.cryptx.utils.CryptoUtils.encodeByteArrayToString
-import com.personx.cryptx.utils.CryptoUtils.generateRandomIV
-import com.personx.cryptx.utils.CryptoUtils.generateSecretKey
-import com.personx.cryptx.utils.CryptoUtils.padTextToBlockSize
+import com.example.cryptography.utils.CryptoUtils.decodeStringToByteArray
+import com.example.cryptography.utils.CryptoUtils.decodeBase64ToSecretKey
+import com.example.cryptography.utils.CryptoUtils.encodeByteArrayToString
+import com.example.cryptography.utils.CryptoUtils.generateRandomIV
+import com.example.cryptography.utils.CryptoUtils.padTextToBlockSize
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.security.SecureRandom
@@ -91,7 +90,7 @@ fun MostUsedAlgo() {
         selectedKeySize.intValue = keySizeList.value.firstOrNull()?.toIntOrNull() ?: 128
         selectedMode.value = transformationList.value.firstOrNull() ?: ""
         keyText.value = encodeByteArrayToString(
-            generateSecretKey(selectedAlgorithm.value, selectedKeySize.intValue).encoded
+            SymmetricBasedAlgorithm().generateKey(selectedAlgorithm.value, selectedKeySize.intValue).encoded
         ).trim()
         ivText.value = encodeByteArrayToString(generateRandomIV(16))
     }
@@ -99,12 +98,12 @@ fun MostUsedAlgo() {
     LaunchedEffect(selectedMode.value) {
         if (!selectedMode.value.contains("ECB")) {
             keyText.value = encodeByteArrayToString(
-                generateSecretKey(selectedAlgorithm.value, selectedKeySize.intValue).encoded
+                SymmetricBasedAlgorithm().generateKey(selectedAlgorithm.value, selectedKeySize.intValue).encoded
             ).trim()
-            ivText.value = encodeByteArrayToString(generateRandomIV(16))
+            ivText.value = encodeByteArrayToString(SymmetricBasedAlgorithm().generateIV(16))
         } else {
             keyText.value = encodeByteArrayToString(
-                generateSecretKey(selectedAlgorithm.value, selectedKeySize.intValue).encoded
+                SymmetricBasedAlgorithm().generateKey(selectedAlgorithm.value, selectedKeySize.intValue).encoded
             ).trim()
             enableIV.value = false
             ivText.value = ""
@@ -176,7 +175,7 @@ fun MostUsedAlgo() {
                 onKeyTextChange = { keyText.value = it },
                 onGenerateKey = {
                     try {
-                        val newKey = generateSecretKey(selectedAlgorithm.value, selectedKeySize.intValue)
+                        val newKey = SymmetricBasedAlgorithm().generateKey(selectedAlgorithm.value, selectedKeySize.intValue)
                         keyText.value = encodeByteArrayToString(newKey.encoded).trim()
                     } catch (e: Exception) {
                         outputText.value = "Key generation failed: ${e.message}"

@@ -1,4 +1,4 @@
-package com.personx.cryptx.utils
+package com.example.cryptography.utils
 
 import android.util.Base64
 import java.security.SecureRandom
@@ -7,29 +7,6 @@ import javax.crypto.SecretKey
 import javax.crypto.spec.SecretKeySpec
 
 object CryptoUtils {
-
-    fun generateSecretKey(algorithm: String, keySize: Int): SecretKey {
-        val keyGen = KeyGenerator.getInstance(algorithm)
-        when (algorithm) {
-            "DES" -> keyGen.init(56) // DES only supports 56-bit keys (but uses 64 bits incl. parity)
-            "3DES" -> keyGen.init(168)
-            else -> keyGen.init(keySize)
-        }
-        return keyGen.generateKey()
-    }
-
-//    fun secretKeyToHex(secretKey: SecretKey): String {
-//        val keyBytes = secretKey.encoded
-//        return keyBytes.joinToString("") { "%02x".format(it) }
-//    }
-//
-//    fun hexToSecretKey(hex: String, algorithm: String): SecretKey {
-//        val bytes = hex.chunked(2)
-//            .map { it.toInt(16).toByte() }
-//            .toByteArray()
-//
-//        return SecretKeySpec(bytes, algorithm)
-//    }
 
     fun decodeBase64ToSecretKey(keyString: String, algorithm: String): SecretKey {
         val decodedKey = Base64.decode(keyString, Base64.NO_WRAP)

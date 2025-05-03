@@ -1,4 +1,4 @@
-package com.personx.cryptx.utils
+package com.example.cryptography.utils
 
 import java.util.regex.Pattern
 

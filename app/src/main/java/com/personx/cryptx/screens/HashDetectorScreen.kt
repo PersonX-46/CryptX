@@ -34,7 +34,7 @@ import com.personx.cryptx.components.CyberpunkButton
 import com.personx.cryptx.components.CyberpunkInputBox
 import com.personx.cryptx.components.PlaceholderInfo
 import com.personx.cryptx.ui.theme.CryptXTheme
-import com.personx.cryptx.utils.HashIdentifier
+import com.example.cryptography.utils.HashIdentifier
 
 @Composable
 fun HashDetector() {

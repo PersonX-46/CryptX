@@ -21,4 +21,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "CryptX"
 include(":app")
- 
+include(":cryptography")

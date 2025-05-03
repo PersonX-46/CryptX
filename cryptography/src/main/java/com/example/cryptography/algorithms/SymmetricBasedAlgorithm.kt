@@ -1,12 +1,15 @@
-package com.personx.cryptx.algorithms
+package com.example.cryptography.algorithms
 
 import android.util.Base64
-import com.personx.cryptx.data.CryptoParams
-import com.personx.cryptx.interfaces.SymmetricAlgorithm
-import com.personx.cryptx.utils.CryptoUtils.byteArrayToHexString
-import com.personx.cryptx.utils.CryptoUtils.encodeByteArrayToString
-import com.personx.cryptx.utils.CryptoUtils.hexStringToByteArray
+import com.example.cryptography.data.CryptoParams
+import com.example.cryptography.interfaces.SymmetricAlgorithm
+import com.example.cryptography.utils.CryptoUtils.byteArrayToHexString
+import com.example.cryptography.utils.CryptoUtils.encodeByteArrayToString
+import com.example.cryptography.utils.CryptoUtils.hexStringToByteArray
+import java.security.SecureRandom
 import javax.crypto.Cipher
+import javax.crypto.KeyGenerator
+import javax.crypto.SecretKey
 import javax.crypto.spec.IvParameterSpec
 
 class SymmetricBasedAlgorithm: SymmetricAlgorithm {
@@ -43,5 +46,21 @@ class SymmetricBasedAlgorithm: SymmetricAlgorithm {
 
         val decryptedBytes = cipher.doFinal(encryptedBytes)
         return String(decryptedBytes)
+    }
+
+    override fun generateKey(algorithm: String, keySize: Int): SecretKey {
+        val keyGen = KeyGenerator.getInstance(algorithm)
+        when (algorithm) {
+            "DES" -> keyGen.init(56) // DES only supports 56-bit keys (but uses 64 bits incl. parity)
+            "3DES" -> keyGen.init(168)
+            else -> keyGen.init(keySize)
+        }
+        return keyGen.generateKey()
+    }
+
+    override fun generateIV(ivSize: Int): ByteArray {
+        val iv = ByteArray(ivSize)
+        SecureRandom().nextBytes(iv)
+        return iv
     }
 }

@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "com.personx.cryptx"
+    namespace = "com.example.cryptography"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.personx.cryptx"
+        applicationId = "com.example.cryptography"
         minSdk = 24
         targetSdk = 35
         versionCode = 1
@@ -49,8 +49,6 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
-    implementation(libs.androidx.material.icons.extended)
-    implementation(project(":cryptography"))
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
