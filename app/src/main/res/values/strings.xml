@@ -6,7 +6,7 @@
     <string-array name="supported_algorithms_list">
         <item>AES</item>
         <item>DES</item>
-        <item>3DES</item>
+        <item>DESede</item>
         <item>RSA</item>
         <item>Blowfish</item>
         <item>ChaCha20</item>
