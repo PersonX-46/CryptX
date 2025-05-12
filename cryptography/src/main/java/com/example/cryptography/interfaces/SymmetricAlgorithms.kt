@@ -8,5 +8,5 @@ interface SymmetricAlgorithm {
     fun decrypt(params: CryptoParams): String
 
     fun generateKey(algorithm: String, keySize: Int): SecretKey
-    fun generateIV(ivSize: Int): ByteArray
+    fun generateIV(algorithm: String, ivsize: Int): ByteArray
 }

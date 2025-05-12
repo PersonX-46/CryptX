@@ -48,7 +48,7 @@ fun CyberpunkDropdown(
                     .fillMaxWidth()
                     .clickable { expanded.value = true }
                     .background(
-                        Color.Transparent,
+                        color = Color.Transparent,
                         shape = RoundedCornerShape(8.dp)
                     )
                     .border(

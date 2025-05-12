@@ -54,6 +54,7 @@ import com.personx.cryptx.screens.DecryptionScreen
 import com.personx.cryptx.screens.HashDetector
 import com.personx.cryptx.screens.HashGeneratorScreen
 import com.personx.cryptx.screens.MostUsedAlgo
+import com.personx.cryptx.screens.SteganographyScreen
 import com.personx.cryptx.ui.theme.CryptXTheme
 
 
@@ -222,7 +223,7 @@ fun HomeScreen() {
                     HashDetector()
                 }
                 "Steganography" -> {
-                    MostUsedAlgo()
+                    SteganographyScreen()
                 }
                 "More" -> {
                     MostUsedAlgo()

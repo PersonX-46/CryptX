@@ -58,9 +58,18 @@ class SymmetricBasedAlgorithm: SymmetricAlgorithm {
         return keyGen.generateKey()
     }
 
-    override fun generateIV(ivSize: Int): ByteArray {
+    override fun generateIV(algorithm: String, ivsize: Int): ByteArray {
+        val ivSize = when (algorithm.uppercase()) {
+            "AES", "AES/CBC/PKCS5PADDING", "AES/CBC/PKCS7PADDING", "AES/GCM/NO PADDING", "AES/GCM/NOPADDING" -> 16
+            "CHACHA20", "CHACHA20-POLY1305" -> 12
+            "DES" -> 8
+            "TRIPLEDES", "3DES" -> 8
+            else -> ivsize
+        }
+
         val iv = ByteArray(ivSize)
         SecureRandom().nextBytes(iv)
         return iv
     }
+
 }

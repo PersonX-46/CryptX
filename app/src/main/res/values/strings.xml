@@ -7,7 +7,6 @@
         <item>AES</item>
         <item>DES</item>
         <item>DESede</item>
-        <item>RSA</item>
         <item>Blowfish</item>
         <item>ChaCha20</item>
     </string-array>

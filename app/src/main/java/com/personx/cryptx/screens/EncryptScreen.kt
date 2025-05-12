@@ -2,24 +2,16 @@ package com.personx.cryptx.screens
 
 
 import android.content.Context
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
@@ -41,20 +33,19 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.personx.cryptx.R
 import com.example.cryptography.algorithms.SymmetricBasedAlgorithm
+import com.example.cryptography.data.CryptoParams
+import com.example.cryptography.utils.CryptoUtils.decodeBase64ToSecretKey
+import com.example.cryptography.utils.CryptoUtils.decodeStringToByteArray
+import com.example.cryptography.utils.CryptoUtils.encodeByteArrayToString
+import com.example.cryptography.utils.CryptoUtils.padTextToBlockSize
+import com.personx.cryptx.R
 import com.personx.cryptx.components.CyberpunkButton
 import com.personx.cryptx.components.CyberpunkDropdown
 import com.personx.cryptx.components.CyberpunkInputBox
 import com.personx.cryptx.components.CyberpunkKeySection
 import com.personx.cryptx.components.CyberpunkOutputSection
-import com.example.cryptography.data.CryptoParams
 import com.personx.cryptx.ui.theme.CryptXTheme
-import com.example.cryptography.utils.CryptoUtils.decodeStringToByteArray
-import com.example.cryptography.utils.CryptoUtils.decodeBase64ToSecretKey
-import com.example.cryptography.utils.CryptoUtils.encodeByteArrayToString
-import com.example.cryptography.utils.CryptoUtils.generateRandomIV
-import com.example.cryptography.utils.CryptoUtils.padTextToBlockSize
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.security.SecureRandom
@@ -92,7 +83,7 @@ fun MostUsedAlgo() {
         keyText.value = encodeByteArrayToString(
             SymmetricBasedAlgorithm().generateKey(selectedAlgorithm.value, selectedKeySize.intValue).encoded
         ).trim()
-        ivText.value = encodeByteArrayToString(generateRandomIV(16))
+        ivText.value = encodeByteArrayToString(SymmetricBasedAlgorithm().generateIV(selectedAlgorithm.value, 16))
     }
 
     LaunchedEffect(selectedMode.value) {
@@ -100,7 +91,7 @@ fun MostUsedAlgo() {
             keyText.value = encodeByteArrayToString(
                 SymmetricBasedAlgorithm().generateKey(selectedAlgorithm.value, selectedKeySize.intValue).encoded
             ).trim()
-            ivText.value = encodeByteArrayToString(SymmetricBasedAlgorithm().generateIV(16))
+            ivText.value = encodeByteArrayToString(SymmetricBasedAlgorithm().generateIV(selectedAlgorithm.value,16))
         } else {
             keyText.value = encodeByteArrayToString(
                 SymmetricBasedAlgorithm().generateKey(selectedAlgorithm.value, selectedKeySize.intValue).encoded
