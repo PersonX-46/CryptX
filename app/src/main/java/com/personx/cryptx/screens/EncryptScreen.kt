@@ -166,22 +166,43 @@ fun MostUsedAlgo() {
                 onKeyTextChange = { keyText.value = it },
                 onGenerateKey = {
                     try {
-                        val newKey = SymmetricBasedAlgorithm().generateKey(selectedAlgorithm.value, selectedKeySize.intValue)
+                        val newKey = SymmetricBasedAlgorithm().generateKey(
+                            selectedAlgorithm.value,
+                            selectedKeySize.intValue
+                        )
                         keyText.value = encodeByteArrayToString(newKey.encoded).trim()
                     } catch (e: Exception) {
                         outputText.value = "Key generation failed: ${e.message}"
                     }
                 },
-                modifier = Modifier.padding(horizontal = 16.dp)
+                modifier = Modifier.padding(horizontal = 16.dp),
+                title = "KEY SECTION"
             )
 
             // IV Section (conditionally shown)
             if (enableIV.value) {
-                CyberpunkInputBox(
-                    value = ivText.value,
-                    onValueChange = { ivText.value = it },
-                    placeholder = "Enter IV (or leave blank for random)...",
-                    modifier = Modifier.padding(horizontal = 16.dp)
+//                CyberpunkInputBox(
+//                    value = ivText.value,
+//                    onValueChange = { ivText.value = it },
+//                    placeholder = "Enter IV (or leave blank for random)...",
+//                    modifier = Modifier.padding(horizontal = 16.dp)
+//                )
+                CyberpunkKeySection(
+                    keyText = ivText.value,
+                    onKeyTextChange = { ivText.value = it },
+                    onGenerateKey = {
+                        try {
+                            val newKey = SymmetricBasedAlgorithm().generateIV(
+                                selectedAlgorithm.value,
+                                ivsize = 8
+                            )
+                            ivText.value = encodeByteArrayToString(newKey).trim()
+                        } catch (e: Exception) {
+                            outputText.value = "Key generation failed: ${e.message}"
+                        }
+                    },
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    title = "IV SECTION"
                 )
             }
 
@@ -298,7 +319,7 @@ fun MostUsedAlgo() {
 fun getTransformations(context: Context, algorithm: String): List<String> = when (algorithm) {
     "AES" -> context.resources.getStringArray(R.array.aes_transformation_list).toList()
     "DES" -> context.resources.getStringArray(R.array.des_transformation_list).toList()
-    "3DES" -> context.resources.getStringArray(R.array.desede_transformation_list).toList()
+    "DESede" -> context.resources.getStringArray(R.array.desede_transformation_list).toList()
     "Blowfish" -> context.resources.getStringArray(R.array.blowfish_transformation_list).toList()
     "ChaCha20" -> listOf("ChaCha20")
     else -> emptyList()
@@ -307,7 +328,7 @@ fun getTransformations(context: Context, algorithm: String): List<String> = when
 fun getKeySizes(context: Context, algorithm: String): List<String> = when (algorithm) {
     "AES" -> context.resources.getStringArray(R.array.aes_keysize_list).toList()
     "DES" -> context.resources.getStringArray(R.array.des_keysize_list).toList()
-    "3DES" -> context.resources.getStringArray(R.array.desede_keysize_list).toList()
+    "DESede" -> context.resources.getStringArray(R.array.desede_keysize_list).toList()
     "Blowfish" -> context.resources.getStringArray(R.array.blowfish_keysize_list).toList()
     "ChaCha20" -> context.resources.getStringArray(R.array.chacha_keysize_list).toList()
     else -> emptyList()

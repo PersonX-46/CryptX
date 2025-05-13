@@ -52,7 +52,7 @@ class SymmetricBasedAlgorithm: SymmetricAlgorithm {
         val keyGen = KeyGenerator.getInstance(algorithm)
         when (algorithm) {
             "DES" -> keyGen.init(56) // DES only supports 56-bit keys (but uses 64 bits incl. parity)
-            "3DES" -> keyGen.init(168)
+            "DESede" -> keyGen.init(168)
             else -> keyGen.init(keySize)
         }
         return keyGen.generateKey()
@@ -63,7 +63,7 @@ class SymmetricBasedAlgorithm: SymmetricAlgorithm {
             "AES", "AES/CBC/PKCS5PADDING", "AES/CBC/PKCS7PADDING", "AES/GCM/NO PADDING", "AES/GCM/NOPADDING" -> 16
             "CHACHA20", "CHACHA20-POLY1305" -> 12
             "DES" -> 8
-            "TRIPLEDES", "3DES" -> 8
+            "DESede"-> 8
             else -> ivsize
         }
 

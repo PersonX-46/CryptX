@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun CyberpunkKeySection(
+    title: String,
     keyText: String,
     onKeyTextChange: (String) -> Unit,
     onGenerateKey: () -> Unit,
@@ -25,7 +26,7 @@ fun CyberpunkKeySection(
 ) {
     Column(modifier = modifier.fillMaxWidth()) {
         Text(
-            text = "ENCRYPTION KEY",
+            text = title,
             style = MaterialTheme.typography.labelMedium.copy(
                 fontFamily = FontFamily.Monospace,
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)

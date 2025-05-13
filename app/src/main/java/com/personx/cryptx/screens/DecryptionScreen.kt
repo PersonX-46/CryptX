@@ -136,13 +136,17 @@ fun DecryptionScreen() {
                 onKeyTextChange = { keyText.value = it },
                 onGenerateKey = {
                     try {
-                        val newKey =  SymmetricBasedAlgorithm().generateKey(selectedAlgorithm.value, selectedKeySize.intValue)
+                        val newKey = SymmetricBasedAlgorithm().generateKey(
+                            selectedAlgorithm.value,
+                            selectedKeySize.intValue
+                        )
                         keyText.value = encodeByteArrayToString(newKey.encoded).trim()
                     } catch (e: Exception) {
                         outputText.value = "Key generation failed: ${e.message}"
                     }
                 },
-                modifier = Modifier.padding(horizontal = 16.dp)
+                modifier = Modifier.padding(horizontal = 16.dp),
+                title = "KEY SECTION"
             )
 
             // IV Section (conditionally shown)
