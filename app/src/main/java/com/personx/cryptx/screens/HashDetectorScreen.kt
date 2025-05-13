@@ -5,13 +5,11 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Fingerprint
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -21,20 +19,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.cryptography.utils.HashUtils
 import com.personx.cryptx.components.CyberpunkButton
 import com.personx.cryptx.components.CyberpunkInputBox
 import com.personx.cryptx.components.PlaceholderInfo
 import com.personx.cryptx.ui.theme.CryptXTheme
-import com.example.cryptography.utils.HashIdentifier
 
 @Composable
 fun HashDetector() {
@@ -45,9 +41,9 @@ fun HashDetector() {
 
     // Update detection when input changes
     LaunchedEffect(inputHash.value) {
-        detectedHashes.value = HashIdentifier.identifyHash(inputHash.value)
+        detectedHashes.value = HashUtils.identifyHash(inputHash.value)
         hashInfo.value = if (detectedHashes.value.isNotEmpty()) {
-            HashIdentifier.getHashInfo(detectedHashes.value.first())
+            HashUtils.getHashInfo(detectedHashes.value.first())
         } else {
             "No hash detected"
         }
