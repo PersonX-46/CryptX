@@ -1,8 +1,9 @@
 package com.example.cryptography.utils
 
+import java.security.MessageDigest
 import java.util.regex.Pattern
 
-object HashIdentifier {
+object HashUtils {
     private val hashPatterns = mapOf(
         "MD5" to "^[a-f0-9]{32}$",
         "SHA-1" to "^[a-f0-9]{40}$",
@@ -77,6 +78,16 @@ object HashIdentifier {
             "SHA-3-256" -> "SHA-3-256: 256-bit hash, part of SHA-3 (Keccak) family"
             "SHA-3-512" -> "SHA-3-512: 512-bit hash, part of SHA-3 (Keccak) family"
             else -> "No information available about this hash algorithm"
+        }
+    }
+
+    fun computeHash(input: String, algorithm: String): String {
+        return try {
+            val digest = MessageDigest.getInstance(algorithm)
+            val hashBytes = digest.digest(input.toByteArray())
+            hashBytes.joinToString("") { "%02x".format(it) } // Convert bytes to hex
+        } catch (e: Exception) {
+            "Error: ${e.message}" // Handle unsupported algorithms
         }
     }
 }
