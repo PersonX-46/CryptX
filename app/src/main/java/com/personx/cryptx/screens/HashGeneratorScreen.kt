@@ -2,11 +2,9 @@ package com.personx.cryptx.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -15,10 +13,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ContentCopy
-import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.outlined.Code
-import androidx.compose.material.icons.outlined.Security
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -33,11 +28,10 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.cryptography.utils.HashUtils
 import com.personx.cryptx.R
 import com.personx.cryptx.components.CyberpunkButton
 import com.personx.cryptx.components.CyberpunkDropdown
@@ -47,17 +41,6 @@ import com.personx.cryptx.components.Toast
 import com.personx.cryptx.ui.theme.CryptXTheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.security.MessageDigest
-
-fun computeHash(input: String, algorithm: String): String {
-    return try {
-        val digest = MessageDigest.getInstance(algorithm)
-        val hashBytes = digest.digest(input.toByteArray())
-        hashBytes.joinToString("") { "%02x".format(it) } // Convert bytes to hex
-    } catch (e: Exception) {
-        "Error: ${e.message}" // Handle unsupported algorithms
-    }
-}
 
 @Composable
 fun HashGeneratorScreen() {
@@ -66,7 +49,7 @@ fun HashGeneratorScreen() {
     val selectedAlgorithm = remember { mutableStateOf(algorithms.first()) }
     val inputText = remember { mutableStateOf("") }
     val generatedHash = remember { derivedStateOf {
-        computeHash(inputText.value, selectedAlgorithm.value)
+        HashUtils.computeHash(inputText.value, selectedAlgorithm.value)
     } }
     val clipboardManager = LocalClipboardManager.current
     val scope = rememberCoroutineScope()
