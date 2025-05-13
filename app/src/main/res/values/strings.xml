@@ -76,10 +76,6 @@
         <item>SHA-256</item>
         <item>SHA-384</item>
         <item>SHA-512</item>
-        <item>SHA3-224</item>
-        <item>SHA3-256</item>
-        <item>SHA3-384</item>
-        <item>SHA3-512</item>
     </string-array>
 
 

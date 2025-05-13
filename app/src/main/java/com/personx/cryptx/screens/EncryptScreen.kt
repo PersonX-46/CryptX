@@ -111,7 +111,7 @@ fun MostUsedAlgo() {
     ) {
         // Header
         Text(
-            text = "CRYPTOGRAPHY TOOL",
+            text = "ENCRYPTION",
             style = MaterialTheme.typography.headlineLarge.copy(
                 fontFamily = FontFamily.Monospace,
                 fontWeight = FontWeight.ExtraBold,

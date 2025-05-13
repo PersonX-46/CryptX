@@ -90,7 +90,7 @@ fun DecryptionScreen() {
     ) {
         // Header
         Text(
-            text = "DECRYPTION TOOL",
+            text = "DECRYPTION",
             style = MaterialTheme.typography.headlineLarge.copy(
                 fontFamily = FontFamily.Monospace,
                 fontWeight = FontWeight.ExtraBold,
