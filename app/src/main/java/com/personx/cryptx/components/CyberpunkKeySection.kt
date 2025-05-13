@@ -50,7 +50,6 @@ fun CyberpunkKeySection(
                 onClick = onGenerateKey,
                 icon = Icons.Default.Refresh,
                 text = "GEN",
-                modifier = Modifier.width(80.dp)
             )
         }
     }

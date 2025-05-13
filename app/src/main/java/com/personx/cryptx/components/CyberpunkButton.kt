@@ -36,7 +36,7 @@ fun CyberpunkButton(
             .height(48.dp),
         colors = ButtonDefaults.buttonColors(
             containerColor = Color.Transparent,
-            contentColor = Color(0xFF00FFAA)
+            contentColor = MaterialTheme.colorScheme.onSurface,
         ),
         border = BorderStroke(1.dp, Color(0xFF00FFAA)),
         shape = RoundedCornerShape(24.dp)
