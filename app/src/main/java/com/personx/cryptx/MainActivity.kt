@@ -64,7 +64,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            CryptXTheme() {
+            CryptXTheme(darkTheme = true) {
                 // Changed to background color for better edge-to-edge experience
                 Surface(
                     modifier = Modifier.
@@ -123,7 +123,7 @@ fun HomeScreen() {
         ),
         FeatureItem(
             icon = Icons.Default.MoreHoriz,
-            label = "More Tools",
+            label = "Coming Soon",
             onClick = { currentScreen.value = "More" }
         )
     )
@@ -200,7 +200,7 @@ fun HomeScreen() {
                             .weight(1f)
                             .padding(24.dp),
                         verticalArrangement = Arrangement.spacedBy(24.dp),
-                        horizontalArrangement = Arrangement.spacedBy(24.dp)
+                        horizontalArrangement = Arrangement.spacedBy(24.dp, Alignment.CenterHorizontally),
                     ) {
                         items(featuredItem.size) { index ->
                             val item = featuredItem[index]
