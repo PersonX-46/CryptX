@@ -10,7 +10,7 @@ CryptX is a personal project I built during my free time while studying Informat
 
 ---
 
-## 📱 Features
+# 📱 Features
 
 ### 🔸 Encryption & Decryption
 Supports popular symmetric encryption algorithms:
@@ -35,24 +35,13 @@ You can easily encrypt and decrypt any text using these algorithms with your own
 Output files are saved in: /Download/cryptx/
 
 ## 📸 Screenshots
+![FileSteg](https://github.com/user-attachments/assets/68a85f9d-0c4c-464e-ad18-80dde35a5423)
+![EncryptScreen](https://github.com/user-attachments/assets/18c56301-dd00-4b7b-bb81-170f51a762e6)
+![DecryptScreen](ht![HomeScreen](https://github.com/user-attachments/assets/1860cd9a-a357-4a06-8b05-25cc0c450fe4)
+![HashGenerator](https://github.com/user-attachments/assets/b003fbba-281b-41bd-963d-5e5ac68b938b)
+![HashDetector](https://github.com/user-attachments/assets/3b68d148-9434-43d9-9863-6ebe3ab4aafc)
+![HomeScreen](https://github.com/user-attachments/assets/89f21e42-e16b-4d89-899b-14a92e667875)
 
-### 🔐 Home Screen
-![Home Screen](screenshots/home_screen.png)
-
-### 🔏 Encryption Screen
-![Encryption Screen](screenshots/EncryptScreen.png)
-
-### 🔏 Decryption Screen
-![Encryption Screen](screenshots/DecryptScreen.png)
-
-### 🔏 Decryption Generator
-![Encryption Screen](screenshots/HashGenerator.png)
-
-### 🔏 Hash Detector
-![Encryption Screen](screenshots/HashDetector.png)
-
-### 🖼️ Steganography Feature
-![Steganography Feature](screenshots/FileSteg.png)
 ```
 
 ````
