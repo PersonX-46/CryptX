@@ -86,10 +86,9 @@ fun HomeScreen() {
 
     // Start the glowing animation loop
     LaunchedEffect(Unit) {
-        while (true) {
-            glowAnimation.animateTo(1f, animationSpec = tween(1000))
-            glowAnimation.animateTo(0f, animationSpec = tween(1000))
-        }
+        glowAnimation.animateTo(1f, animationSpec = tween(1000))
+        glowAnimation.animateTo(1f, animationSpec = tween(1000))
+
     }
 
     val featuredItem = listOf(
@@ -138,7 +137,7 @@ fun HomeScreen() {
                 Brush.verticalGradient(
                     colors = listOf(
                         MaterialTheme.colorScheme.onSurface.copy(0.05f),
-                        MaterialTheme.colorScheme.onPrimary
+                        MaterialTheme.colorScheme.onPrimary.copy(0.01F)
                     )
                 )
             )
