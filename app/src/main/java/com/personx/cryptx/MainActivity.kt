@@ -2,6 +2,7 @@ package com.personx.cryptx
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.core.Animatable
@@ -27,7 +28,6 @@ import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.LockOpen
 import androidx.compose.material.icons.filled.MoreHoriz
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -81,6 +81,10 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun HomeScreen() {
+    BackHandler(enabled = true) {
+        // Do nothing — this disables the back action
+    }
+
     val currentScreen = remember { mutableStateOf("Home") }
     val glowAnimation = remember { Animatable(0f) }
 
@@ -126,8 +130,11 @@ fun HomeScreen() {
 
     val navItems = listOf(
         NavBarItem(Icons.Filled.Home, "Home", Color(0xFF00FFAA)),
-        NavBarItem(Icons.Filled.Search, "Search", Color(0xFF00FFAA)),
-        NavBarItem(Icons.Filled.Settings, "Settings", Color(0xFF00FFAA)),
+        NavBarItem(Icons.Filled.Lock, "Encrypt", Color(0xFF00FFAA)),
+        NavBarItem(Icons.Filled.LockOpen, "Decrypt", Color(0xFF00FFAA)),
+        NavBarItem(Icons.Filled.Code, "Hash Generator", Color(0xFF00FFAA)),
+        NavBarItem(Icons.Filled.Search, "Hash Detector", Color(0xFF00FFAA)),
+        NavBarItem(Icons.Filled.VisibilityOff, "Steganography", Color(0xFF00FFAA)),
     )
 
     Box(
@@ -224,9 +231,6 @@ fun HomeScreen() {
                 "Steganography" -> {
                     SteganographyScreen()
                 }
-                "More" -> {
-                    MostUsedAlgo()
-                }
             }
         }
 
@@ -239,7 +243,11 @@ fun HomeScreen() {
         ) { selectedItem ->
             currentScreen.value = when (selectedItem.label) {
                 "Home" -> "Home"
-                "Search" -> "Search"
+                "Encrypt" -> "Encrypt"
+                "Decrypt" -> "Decrypt"
+                "Hash Generator" -> "Hash Generator"
+                "Hash Detector" -> "Hash Detector"
+                "Steganography" -> "Steganography"
                 else -> currentScreen.value
             }
         }
