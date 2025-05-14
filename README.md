@@ -1,7 +1,9 @@
 
----
+<div align="center">
+  <img src="https://github.com/user-attachments/assets/5165f719-6889-45c3-9795-6416e8fd60ac" alt="CRYPTX Banner" style="border: 2px solid #444; border-radius: 12px; max-width: 100%; box-shadow: 0 0 20px rgba(0,255,255,0.3);"/>
+</div>
 
-```markdown
+
 # 🔐 CryptX — Simple Android Security Toolkit
 
 CryptX is a personal project I built during my free time while studying Information Technology and learning about network security in college. It's not perfect, but it's something I made with passion and curiosity while experimenting with encryption and steganography. 😊
@@ -34,18 +36,18 @@ You can easily encrypt and decrypt any text using these algorithms with your own
 
 Output files are saved in: /Download/cryptx/
 
-## 📸 Screenshots
-![FileSteg](https://github.com/user-attachments/assets/68a85f9d-0c4c-464e-ad18-80dde35a5423)
-![EncryptScreen](https://github.com/user-attachments/assets/18c56301-dd00-4b7b-bb81-170f51a762e6)
-![DecryptScreen](ht![HomeScreen](https://github.com/user-attachments/assets/1860cd9a-a357-4a06-8b05-25cc0c450fe4)
-![HashGenerator](https://github.com/user-attachments/assets/b003fbba-281b-41bd-963d-5e5ac68b938b)
-![HashDetector](https://github.com/user-attachments/assets/3b68d148-9434-43d9-9863-6ebe3ab4aafc)
-![HomeScreen](https://github.com/user-attachments/assets/89f21e42-e16b-4d89-899b-14a92e667875)
+<h2>📸 Screenshots</h2>
 
-```
+<div style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; align-items: center;">
 
-````
+  <img src="https://github.com/user-attachments/assets/68a85f9d-0c4c-464e-ad18-80dde35a5423" alt="FileSteg" width="200"/>
+  <img src="https://github.com/user-attachments/assets/18c56301-dd00-4b7b-bb81-170f51a762e6" alt="EncryptScreen" width="200"/>
+  <img src="https://github.com/user-attachments/assets/1860cd9a-a357-4a06-8b05-25cc0c450fe4" alt="DecryptScreen" width="200"/>
+  <img src="https://github.com/user-attachments/assets/b003fbba-281b-41bd-963d-5e5ac68b938b" alt="HashGenerator" width="200"/>
+  <img src="https://github.com/user-attachments/assets/3b68d148-9434-43d9-9863-6ebe3ab4aafc" alt="HashDetector" width="200"/>
+  <img src="https://github.com/user-attachments/assets/89f21e42-e16b-4d89-899b-14a92e667875" alt="HomeScreen" width="200"/>
 
+</div>
 ---
 
 ## 🧠 Why I Made This
@@ -119,7 +121,6 @@ I might be slow to reply since I’m doing this in my free time while studying, 
 <div align="center">
   <sub>Made with ❤️ by a student learning network security | "Still learning, still building"</sub>
 </div>
-```
 
 ---
 
