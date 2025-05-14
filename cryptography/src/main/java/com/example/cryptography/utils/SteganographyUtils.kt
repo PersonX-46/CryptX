@@ -1,170 +1,77 @@
 package com.example.cryptography.utils
 
 
-import android.content.Context
+// File: SteganographyUtils.kt
+
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.net.Uri
+import java.nio.ByteBuffer
+import java.nio.charset.StandardCharsets
 import androidx.core.graphics.get
 import androidx.core.graphics.set
 
-class SteganographyUtils {
+object SteganographyUtils {
 
-    companion object {
+    private const val HEADER_SIZE = 8  // 4 bytes for length, 4 bytes for name length
 
-        // Encode message into image (blocking call)
-        fun encodeMessageToImage(
-            context: Context,
-            imageUri: Uri,
-            message: String
-        ): Bitmap? {
-            return try {
-                val inputStream = context.contentResolver.openInputStream(imageUri)
-                val originalBitmap = BitmapFactory.decodeStream(inputStream)
-                inputStream?.close()
+    private fun canEmbed(image: Bitmap, fileBytes: ByteArray, fileName: String): Boolean {
+        val imageCapacity = image.width * image.height  // 1 byte per pixel (blue channel LSB)
+        val metaSize = HEADER_SIZE + fileName.toByteArray().size
+        return fileBytes.size + metaSize <= imageCapacity / 8
+    }
 
-                // Convert message to binary with length header
-                val messageBytes = message.toByteArray(Charsets.UTF_8)
-                val messageLength = messageBytes.size
-                val binaryMessage = messageBytes.toBinaryString()
-                val lengthHeader = messageLength.toBinaryString(32) // 32-bit header
+    fun embedFileInImage(image: Bitmap, fileBytes: ByteArray, fileName: String): Bitmap? {
+        if (!canEmbed(image, fileBytes, fileName)) return null
 
-                // Create mutable copy of bitmap
-                val encodedBitmap = originalBitmap.copy(Bitmap.Config.ARGB_8888, true)
+        val metaBuffer = ByteBuffer.allocate(HEADER_SIZE)
+        val fileNameBytes = fileName.toByteArray(StandardCharsets.UTF_8)
+        metaBuffer.putInt(fileBytes.size)
+        metaBuffer.putInt(fileNameBytes.size)
 
-                var bitIndex = 0
-                val totalBits = lengthHeader.length + binaryMessage.length
+        val allBytes = metaBuffer.array() + fileNameBytes + fileBytes
+        val bitStream = allBytes.flatMap { byte -> (7 downTo 0).map { (byte.toInt() shr it) and 1 } }
 
-                // Loop through pixels and hide data in LSB of RGB channels
-                loop@ for (x in 0 until encodedBitmap.width) {
-                    for (y in 0 until encodedBitmap.height) {
-                        if (bitIndex >= totalBits) break@loop
+        val mutableImage = image.copy(Bitmap.Config.ARGB_8888, true)
+        var bitIndex = 0
 
-                        val pixel = encodedBitmap[x, y]
-                        val alpha = android.graphics.Color.alpha(pixel)
-                        var red = android.graphics.Color.red(pixel)
-                        var green = android.graphics.Color.green(pixel)
-                        var blue = android.graphics.Color.blue(pixel)
+        loop@ for (y in 0 until image.height) {
+            for (x in 0 until image.width) {
+                if (bitIndex >= bitStream.size) break@loop
 
-                        // Encode in all 3 channels for better capacity
-                        if (bitIndex < lengthHeader.length) {
-                            red = red.replaceLSB(lengthHeader[bitIndex])
-                            if (bitIndex + 1 < lengthHeader.length) green = green.replaceLSB(lengthHeader[bitIndex + 1])
-                            if (bitIndex + 2 < lengthHeader.length) blue = blue.replaceLSB(lengthHeader[bitIndex + 2])
-                        } else {
-                            val dataIndex = bitIndex - lengthHeader.length
-                            red = red.replaceLSB(binaryMessage[dataIndex])
-                            if (dataIndex + 1 < binaryMessage.length) green = green.replaceLSB(binaryMessage[dataIndex + 1])
-                            if (dataIndex + 2 < binaryMessage.length) blue = blue.replaceLSB(binaryMessage[dataIndex + 2])
-                        }
+                val pixel = mutableImage[x, y]
+                val blue = pixel and 0xFF
+                val newBlue = (blue and 0xFE) or bitStream[bitIndex++]
+                val newPixel = (pixel and 0xFFFFFF00.toInt()) or newBlue
+                mutableImage[x, y] = newPixel
+            }
+        }
+        return mutableImage
+    }
 
-                        encodedBitmap[x, y] = android.graphics.Color.argb(alpha, red, green, blue)
-                        bitIndex += 3 // We encode 3 bits per pixel
-                    }
-                }
+    fun extractFileFromImage(image: Bitmap): Pair<String, ByteArray>? {
+        val bits = mutableListOf<Int>()
 
-                encodedBitmap
-            } catch (e: Exception) {
-                e.printStackTrace()
-                null
+        loop@ for (y in 0 until image.height) {
+            for (x in 0 until image.width) {
+                val pixel = image[x, y]
+                val blue = pixel and 0xFF
+                bits.add(blue and 1)
             }
         }
 
-        // Decode message from image (blocking call)
-        fun decodeMessageFromImage(
-            context: Context,
-            imageUri: Uri
-        ): String {
-            return try {
-                val inputStream = context.contentResolver.openInputStream(imageUri)
-                val encodedBitmap = BitmapFactory.decodeStream(inputStream)
-                inputStream?.close()
+        val byteArray = bits.chunked(8) { chunk ->
+            chunk.fold(0) { acc, bit -> (acc shl 1) or bit }
+        }.map { it.toByte() }.toByteArray()
 
-                val binaryBuilder = StringBuilder()
-                var messageLength = 0
-                var readingHeader = true
-                var bitsRead = 0
+        val buffer = ByteBuffer.wrap(byteArray)
+        val fileSize = buffer.int
+        val nameSize = buffer.int
 
-                // First read 32-bit length header
-                loop@ for (x in 0 until encodedBitmap.width) {
-                    for (y in 0 until encodedBitmap.height) {
-                        if (readingHeader && bitsRead >= 32) {
-                            messageLength = binaryBuilder.toString().substring(0, 32).toInt(2)
-                            binaryBuilder.clear()
-                            readingHeader = false
-                        }
+        if (byteArray.size < HEADER_SIZE + nameSize + fileSize) return null
 
-                        if (!readingHeader && bitsRead >= 32 + messageLength * 8) break@loop
+        val fileNameBytes = byteArray.copyOfRange(HEADER_SIZE, HEADER_SIZE + nameSize)
+        val fileContentBytes = byteArray.copyOfRange(HEADER_SIZE + nameSize, HEADER_SIZE + nameSize + fileSize)
 
-                        val pixel = encodedBitmap[x, y]
-                        val red = android.graphics.Color.red(pixel)
-                        val green = android.graphics.Color.green(pixel)
-                        val blue = android.graphics.Color.blue(pixel)
-
-                        // Read from all 3 channels
-                        binaryBuilder.append(red.getLSB())
-                        bitsRead++
-                        if (!readingHeader && bitsRead < 32 + messageLength * 8) {
-                            binaryBuilder.append(green.getLSB())
-                            bitsRead++
-                        }
-                        if (!readingHeader && bitsRead < 32 + messageLength * 8) {
-                            binaryBuilder.append(blue.getLSB())
-                            bitsRead++
-                        }
-                    }
-                }
-
-                // Convert binary to string
-                val messageBinary = binaryBuilder.toString()
-                    .substring(32, 32 + messageLength * 8) // Skip header
-
-                messageBinary.binaryToString()
-            } catch (e: Exception) {
-                e.printStackTrace()
-                "Error: ${e.message}"
-            }
-        }
-
-        // Save bitmap to file (optional helper function)
-        fun saveBitmapToFile(context: Context, bitmap: Bitmap, filename: String): Boolean {
-            return try {
-                val outputStream = context.openFileOutput(filename, Context.MODE_PRIVATE)
-                bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
-                outputStream.close()
-                true
-            } catch (e: Exception) {
-                false
-            }
-        }
-
-        // Extension function to replace LSB of a byte
-        private fun Int.replaceLSB(bit: Char): Int {
-            return (this and 0xFE) or bit.toString().toInt(2)
-        }
-
-        // Extension function to get LSB of a byte
-        private fun Int.getLSB(): Char {
-            return (this and 0x1).toString()[0]
-        }
-
-        // Extension function to convert ByteArray to binary string
-        private fun ByteArray.toBinaryString(): String {
-            return this.joinToString("") { byte ->
-                byte.toInt().and(0xFF).toString(2).padStart(8, '0')
-            }
-        }
-
-        // Extension function to convert Int to binary string with specific length
-        private fun Int.toBinaryString(bits: Int): String {
-            return this.toString(2).padStart(bits, '0')
-        }
-
-        // Extension function to convert binary string to original string
-        private fun String.binaryToString(): String {
-            return this.chunked(8).map { byteStr ->
-                byteStr.toInt(2).toChar()
-            }.joinToString("")
-        }
+        val fileName = String(fileNameBytes, StandardCharsets.UTF_8)
+        return Pair(fileName, fileContentBytes)
     }
 }
