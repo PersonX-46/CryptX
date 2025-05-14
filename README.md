@@ -42,7 +42,6 @@ Output files are saved in: /Download/cryptx/
 
   <img src="https://github.com/user-attachments/assets/68a85f9d-0c4c-464e-ad18-80dde35a5423" alt="FileSteg" width="200"/>
   <img src="https://github.com/user-attachments/assets/18c56301-dd00-4b7b-bb81-170f51a762e6" alt="EncryptScreen" width="200"/>
-  <img src="https://github.com/user-attachments/assets/1860cd9a-a357-4a06-8b05-25cc0c450fe4" alt="DecryptScreen" width="200"/>
   <img src="https://github.com/user-attachments/assets/b003fbba-281b-41bd-963d-5e5ac68b938b" alt="HashGenerator" width="200"/>
   <img src="https://github.com/user-attachments/assets/3b68d148-9434-43d9-9863-6ebe3ab4aafc" alt="HashDetector" width="200"/>
 
