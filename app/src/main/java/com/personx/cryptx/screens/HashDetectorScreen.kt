@@ -57,16 +57,6 @@ fun HashDetector() {
         verticalArrangement = Arrangement.spacedBy(12.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Header
-        Text(
-            text = "HASH IDENTIFIER",
-            style = MaterialTheme.typography.headlineLarge.copy(
-                fontFamily = FontFamily.Monospace,
-                fontWeight = FontWeight.ExtraBold,
-                color = Color(0xFF00FFAA)
-            ),
-            modifier = Modifier.padding(vertical = 24.dp)
-        )
 
         // Input Box
         CyberpunkInputBox(

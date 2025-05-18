@@ -176,16 +176,6 @@ fun SteganographyScreen() {
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Header
-            Text(
-                text = "FILE STEGANOGRAPHY",
-                style = MaterialTheme.typography.headlineLarge.copy(
-                    fontFamily = FontFamily.Monospace,
-                    fontWeight = FontWeight.ExtraBold,
-                    color = cyberpunkGreen
-                ),
-                modifier = Modifier.align(Alignment.CenterHorizontally)
-            )
 
             // Mode Toggle
             Row(

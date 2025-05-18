@@ -1,5 +1,6 @@
 package com.personx.cryptx
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
@@ -8,32 +9,23 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Code
-import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.LockOpen
 import androidx.compose.material.icons.filled.MoreHoriz
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.VisibilityOff
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
@@ -41,21 +33,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shadow
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.compose.rememberNavController
 import com.personx.cryptx.components.FeatureCardButton
+import com.personx.cryptx.components.Header
 import com.personx.cryptx.data.FeatureItem
-import com.personx.cryptx.data.NavBarItem
-import com.personx.cryptx.screens.DecryptionScreen
-import com.personx.cryptx.screens.HashDetector
-import com.personx.cryptx.screens.HashGeneratorScreen
-import com.personx.cryptx.screens.MostUsedAlgo
-import com.personx.cryptx.screens.SteganographyScreen
 import com.personx.cryptx.ui.theme.CryptXTheme
+
 
 
 class MainActivity : ComponentActivity() {
@@ -66,6 +52,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             CryptXTheme(darkTheme = true) {
                 // Changed to background color for better edge-to-edge experience
+                val navController = rememberNavController()
                 Surface(
                     modifier = Modifier.
                         fillMaxSize()
@@ -81,6 +68,7 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun HomeScreen() {
+    val context = LocalContext.current
     BackHandler(enabled = true) {
         // Do nothing — this disables the back action
     }
@@ -99,42 +87,58 @@ fun HomeScreen() {
         FeatureItem(
             icon = Icons.Default.Lock,
             label = "Encrypt",
-            onClick = { currentScreen.value = "Encrypt" }
+            onClick = {
+                val intent = Intent(context, FeaturedActivity::class.java).apply {
+                    putExtra(FeaturedActivity.EXTRA_SCREEN, "encrypt")
+                }
+                context.startActivity(intent)
+            }
         ),
         FeatureItem(
             icon = Icons.Filled.LockOpen,
             label = "Decrypt",
-            onClick = { currentScreen.value = "Decrypt" }
+            onClick = {
+                val intent = Intent(context, FeaturedActivity::class.java).apply {
+                    putExtra(FeaturedActivity.EXTRA_SCREEN, "decrypt")
+                }
+                context.startActivity(intent)
+            }
         ),
         FeatureItem(
             icon = Icons.Default.Code,
             label = "Hash Generator",
-            onClick = { currentScreen.value = "Hash Generator" }
+            onClick = {
+                val intent = Intent(context, FeaturedActivity::class.java).apply {
+                    putExtra(FeaturedActivity.EXTRA_SCREEN, "hash_generator")
+                }
+                context.startActivity(intent)
+            }
         ),
         FeatureItem(
             icon = Icons.Default.Search,
             label = "Hash Detector",
-            onClick = { currentScreen.value = "Hash Detector" }
+            onClick = {
+                val intent = Intent(context, FeaturedActivity::class.java).apply {
+                    putExtra(FeaturedActivity.EXTRA_SCREEN, "hash_detector")
+                }
+                context.startActivity(intent)
+            }
         ),
         FeatureItem(
             icon = Icons.Default.VisibilityOff,
             label = "Steganography",
-            onClick = { currentScreen.value = "Steganography" }
+            onClick = {
+                val intent = Intent(context, FeaturedActivity::class.java).apply {
+                    putExtra(FeaturedActivity.EXTRA_SCREEN, "steganography")
+                }
+                context.startActivity(intent)
+            }
         ),
         FeatureItem(
             icon = Icons.Default.MoreHoriz,
             label = "Coming Soon",
-            onClick = { currentScreen.value = "More" }
+            onClick = { /* maybe show a toast */ }
         )
-    )
-
-    val navItems = listOf(
-        NavBarItem(Icons.Filled.Home, "Home", Color(0xFF00FFAA)),
-        NavBarItem(Icons.Filled.Lock, "Encrypt", Color(0xFF00FFAA)),
-        NavBarItem(Icons.Filled.LockOpen, "Decrypt", Color(0xFF00FFAA)),
-        NavBarItem(Icons.Filled.Code, "Hash Generator", Color(0xFF00FFAA)),
-        NavBarItem(Icons.Filled.Search, "Hash Detector", Color(0xFF00FFAA)),
-        NavBarItem(Icons.Filled.VisibilityOff, "Steganography", Color(0xFF00FFAA)),
     )
 
     Box(
@@ -158,142 +162,32 @@ fun HomeScreen() {
             // Glowing header
             Box(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .height(120.dp)
-                    .background(
-                        Brush.verticalGradient(
-                            colors = listOf(
-                                Color(0xFF00FFAA).copy(alpha = glowAnimation.value * 0.1f),
-                                Color.Transparent
-                            )
-                        )
-                    ),
+                    .fillMaxWidth(),
                 contentAlignment = Alignment.Center
             ) {
-                Text(
-                    text = "CRYPTX",
-                    style = MaterialTheme.typography.displayLarge.copy(
-                        fontFamily = FontFamily.Monospace,
-                        fontWeight = FontWeight.ExtraBold,
-                        color = Color(0xFF00FFAA),
-                        shadow = Shadow(
-                            color = Color(0xFF00FFAA).copy(alpha = 0.5f),
-                            blurRadius = glowAnimation.value * 20f
-                        )
-                    ),
-                    modifier = Modifier.padding(top = 32.dp)
-                )
+                Header("SECURITY TOOLKIT")
             }
-            when (currentScreen.value) {
-                "Home" -> {
-                    Text(
-                        text = "SECURITY TOOLKIT",
-                        style = MaterialTheme.typography.titleLarge.copy(
-                            fontFamily = FontFamily.Monospace,
-                            color = Color(0xFF00FFAA).copy(alpha = 0.7f)
-                        ),
-                        modifier = Modifier.padding(bottom = 16.dp)
-                    )
-                    LazyVerticalGrid(
-                        columns = GridCells.Fixed(2),
-                        modifier = Modifier
-                            .weight(1f)
-                            .padding(24.dp),
-                        verticalArrangement = Arrangement.spacedBy(24.dp),
-                        horizontalArrangement = Arrangement.spacedBy(24.dp, Alignment.CenterHorizontally),
-                    ) {
-                        items(featuredItem.size) { index ->
-                            val item = featuredItem[index]
-                            FeatureCardButton(
-                                icon = item.icon,
-                                label = item.label,
-                                onClick = item.onClick,
-                                cardSize = 140.dp,
-                                iconSize = 40.dp,
-                                cornerSize = 28.dp,
-                                borderWidth = 1.dp
-                            )
-                        }
-                    }
-                }
-                "Encrypt" -> {
-                    MostUsedAlgo()
-                }
-                "Decrypt" -> {
-                    DecryptionScreen()
-                }
-                "Hash Generator" -> {
-                    HashGeneratorScreen()
-                }
-                "Hash Detector" -> {
-                    HashDetector()
-                }
-                "Steganography" -> {
-                    SteganographyScreen()
-                }
-            }
-        }
 
-        // Floating cyberpunk navigation bar
-        CyberpunkNavBar(
-            items = navItems,
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .padding(bottom = 20.dp)
-        ) { selectedItem ->
-            currentScreen.value = when (selectedItem.label) {
-                "Home" -> "Home"
-                "Encrypt" -> "Encrypt"
-                "Decrypt" -> "Decrypt"
-                "Hash Generator" -> "Hash Generator"
-                "Hash Detector" -> "Hash Detector"
-                "Steganography" -> "Steganography"
-                else -> currentScreen.value
-            }
-        }
-    }
-}
-
-
-
-@Composable
-fun CyberpunkNavBar(
-    items: List<NavBarItem>,
-    modifier: Modifier = Modifier,
-    onItemSelected: (NavBarItem) -> Unit
-) {
-    val selectedItem = remember { mutableStateOf(items[0]) }
-
-    Row(
-        modifier = modifier
-            .height(60.dp)
-            .background(
-                color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.2f),
-                shape = RoundedCornerShape(30.dp)
-            )
-            .border(
-                width = 1.dp,
-                color = Color(0xFF00FFAA).copy(alpha = 0.5f),
-                shape = RoundedCornerShape(30.dp)
-            )
-            .padding(horizontal = 16.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceAround
-    ) {
-        items.forEach { item ->
-            IconButton(
-                onClick = {
-                    selectedItem.value = item
-                    onItemSelected(item)
-                },
-                modifier = Modifier.size(40.dp)
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(2),
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(24.dp),
+                verticalArrangement = Arrangement.spacedBy(24.dp),
+                horizontalArrangement = Arrangement.spacedBy(24.dp, Alignment.CenterHorizontally),
             ) {
-                Icon(
-                    imageVector = item.icon,
-                    contentDescription = item.label,
-                    tint = if (selectedItem.value == item) item.color else item.color.copy(alpha = 0.5f),
-                    modifier = Modifier.size(24.dp)
-                )
+                items(featuredItem.size) { index ->
+                    val item = featuredItem[index]
+                    FeatureCardButton(
+                        icon = item.icon,
+                        label = item.label,
+                        onClick = item.onClick,
+                        cardSize = 140.dp,
+                        iconSize = 40.dp,
+                        cornerSize = 28.dp,
+                        borderWidth = 1.dp
+                    )
+                }
             }
         }
     }

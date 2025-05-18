@@ -88,16 +88,6 @@ fun DecryptionScreen() {
         verticalArrangement = Arrangement.spacedBy(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Header
-        Text(
-            text = "DECRYPTION",
-            style = MaterialTheme.typography.headlineLarge.copy(
-                fontFamily = FontFamily.Monospace,
-                fontWeight = FontWeight.ExtraBold,
-                color = Color(0xFF00FFAA)
-            ),
-            modifier = Modifier.padding(vertical = 24.dp)
-        )
 
         // Algorithm Selection
         CyberpunkDropdown(
