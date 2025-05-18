@@ -30,15 +30,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.personx.cryptx.components.CyberpunkNavBar
 import com.personx.cryptx.components.Header
 import com.personx.cryptx.data.NavBarItem
 import com.personx.cryptx.screens.DecryptionScreen
+import com.personx.cryptx.screens.EncryptScreen
 import com.personx.cryptx.screens.HashDetector
 import com.personx.cryptx.screens.HashGeneratorScreen
-import com.personx.cryptx.screens.EncryptScreen
 import com.personx.cryptx.screens.SteganographyScreen
 import com.personx.cryptx.ui.theme.CryptXTheme
 
@@ -59,25 +60,25 @@ class FeaturedActivity : ComponentActivity() {
                 val subtitle = remember { mutableStateOf("") }
                 val selectedLabel = remember { mutableStateOf("") }
                 selectedLabel.value = when (screen) {
-                    "encrypt" -> "Encrypt"
-                    "decrypt" -> "Decrypt"
-                    "hash_generator" -> "Hash Generator"
-                    "hash_detector" -> "Hash Detector"
-                    "steganography" -> "Steganography"
-                    else -> "Home"
+                    stringResource(R.string.text_encryption) -> stringResource(R.string.text_encryption)
+                    stringResource(R.string.text_decryption) -> stringResource(R.string.text_decryption)
+                    stringResource(R.string.hash_generator) -> stringResource(R.string.hash_generator)
+                    stringResource(R.string.hash_detector) -> stringResource(R.string.hash_detector)
+                    stringResource(R.string.file_steganography) -> stringResource(R.string.file_steganography)
+                    else -> stringResource(R.string.home)
                 }
                 when (selectedScreen.value) {
-                    "encrypt" -> subtitle.value = "ENCRYPTION"
-                    "decrypt" -> subtitle.value = "DECRYPTION"
-                    "hash_generator" -> subtitle.value = "HASH GENERATOR"
-                    "hash_detector" -> subtitle.value = "HASH DETECTOR"
-                    "steganography" -> subtitle.value = "STEGANOGRAPHY"
+                    stringResource(R.string.text_encryption) -> subtitle.value = stringResource(R.string.text_encryption)
+                    stringResource(R.string.text_decryption) -> subtitle.value = stringResource(R.string.text_decryption)
+                    stringResource(R.string.hash_generator) -> subtitle.value = stringResource(R.string.hash_generator)
+                    stringResource(R.string.hash_detector)  -> subtitle.value = stringResource(R.string.hash_detector)
+                    stringResource(R.string.file_steganography)  -> subtitle.value = stringResource(R.string.file_steganography)
                     else -> subtitle.value = "Invalid screen"
                 }
                 val navItems = listOf(
                     NavBarItem(
                         Icons.Filled.Home,
-                        "Home",
+                        stringResource(R.string.home) ,
                         onclick = {
                             val intent = Intent(context, MainActivity::class.java)
                             context.startActivity(intent)
@@ -85,28 +86,28 @@ class FeaturedActivity : ComponentActivity() {
                     ),
                     NavBarItem(
                         Icons.Filled.Lock,
-                        "Encrypt",
-                        onclick = { selectedScreen.value = "encrypt" }
+                        stringResource(R.string.text_encryption) ,
+                        onclick = { selectedScreen.value = context.getString(R.string.text_encryption)  }
                     ),
                     NavBarItem(
                         Icons.Filled.LockOpen,
-                        "Decrypt",
-                        onclick = { selectedScreen.value = "decrypt" }
+                        stringResource(R.string.text_decryption) ,
+                        onclick = { selectedScreen.value = context.getString(R.string.text_decryption) }
                     ),
                     NavBarItem(
                         Icons.Filled.Code,
-                        "Hash Generator",
-                        onclick = { selectedScreen.value = "hash_generator" }
+                        stringResource(R.string.hash_generator) ,
+                        onclick = { selectedScreen.value = context.getString(R.string.hash_generator) }
                     ),
                     NavBarItem(
                         Icons.Filled.Search,
-                        "Hash Detector",
-                        onclick = { selectedScreen.value = "hash_detector" }
+                        stringResource(R.string.hash_detector) ,
+                        onclick = { selectedScreen.value = context.getString(R.string.hash_detector) }
                     ),
                     NavBarItem(
                         Icons.Filled.VisibilityOff,
-                        "Steganography",
-                        onclick = { selectedScreen.value = "steganography" }
+                        stringResource(R.string.file_steganography) ,
+                        onclick = { selectedScreen.value = context.getString(R.string.file_steganography) }
                     ),
                 )
                 Surface(
@@ -132,11 +133,11 @@ class FeaturedActivity : ComponentActivity() {
                             Header(subtitle.value)
                             Spacer(modifier = Modifier.height(30.dp))
                             when (selectedScreen.value) {
-                                "encrypt" -> EncryptScreen()
-                                "decrypt" -> DecryptionScreen()
-                                "hash_generator" -> HashGeneratorScreen()
-                                "hash_detector" -> HashDetector()
-                                "steganography" -> SteganographyScreen()
+                                stringResource(R.string.text_encryption)  -> EncryptScreen()
+                                stringResource(R.string.text_decryption)  -> DecryptionScreen()
+                                stringResource(R.string.hash_generator)  -> HashGeneratorScreen()
+                                stringResource(R.string.hash_detector)  -> HashDetector()
+                                stringResource(R.string.file_steganography)  -> SteganographyScreen()
                                 else -> Text("Invalid screen")
                             }
                         }

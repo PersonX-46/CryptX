@@ -1,5 +1,6 @@
 package com.personx.cryptx.screens
 
+import android.content.ClipData
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,28 +17,32 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalClipboardManager
-import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.platform.ClipEntry
+import androidx.compose.ui.platform.LocalClipboard
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.cryptography.utils.HashUtils
+import com.personx.cryptx.R
 import com.personx.cryptx.components.CyberpunkButton
 import com.personx.cryptx.components.CyberpunkInputBox
 import com.personx.cryptx.components.PlaceholderInfo
 import com.personx.cryptx.ui.theme.CryptXTheme
+import kotlinx.coroutines.launch
 
 @Composable
 fun HashDetector() {
     val inputHash = remember { mutableStateOf("") }
     val detectedHashes = remember { mutableStateOf<List<String>>(emptyList()) }
     val hashInfo = remember { mutableStateOf("") }
-    val clipboardManager = LocalClipboardManager.current
+    val clipboardManager = LocalClipboard.current
+    val scope = rememberCoroutineScope()
 
     // Update detection when input changes
     LaunchedEffect(inputHash.value) {
@@ -62,7 +67,7 @@ fun HashDetector() {
         CyberpunkInputBox(
             value = inputHash.value,
             onValueChange = { inputHash.value = it },
-            placeholder = "Paste hash here to identify",
+            placeholder = stringResource(R.string.paste_hash_here_to_identify),
             modifier = Modifier.padding(horizontal = 16.dp)
         )
 
@@ -76,17 +81,21 @@ fun HashDetector() {
         } else {
             PlaceholderInfo(
                 icon = Icons.Default.Fingerprint,
-                title = "Enter a hash to identify its algorithm",
-                description = "Supports: MD5, SHA-1, SHA-256, bcrypt, Argon2, and more"
+                title = stringResource(R.string.enter_a_hash_to_identify_its_algorithm),
+                description = stringResource(R.string.supports_md5_sha_1_sha_256_bcrypt_argon2_and_more)
             )
         }
 
         // Copy Button (only shown when there's input)
         if (inputHash.value.isNotEmpty()) {
             CyberpunkButton(
-                onClick = { clipboardManager.setText(AnnotatedString(inputHash.value)) },
+                onClick = {
+                    scope.launch {
+                        clipboardManager.setClipEntry(ClipEntry(ClipData.newPlainText("Copied", inputHash.value)))
+                    }
+                },
                 icon = Icons.Default.ContentCopy,
-                text = "COPY HASH"
+                text = stringResource(R.string.copy_hash)
             )
         }
     }
@@ -102,7 +111,7 @@ private fun DetectionResultsSection(
     Column(modifier = modifier.fillMaxWidth()) {
         // Detection Title
         Text(
-            text = "DETECTION RESULTS",
+            text = stringResource(R.string.detection_results),
             style = MaterialTheme.typography.titleLarge.copy(
                 fontFamily = FontFamily.Monospace,
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
@@ -112,7 +121,7 @@ private fun DetectionResultsSection(
 
         // Possible Algorithms
         Text(
-            text = "Possible Algorithms:",
+            text = stringResource(R.string.possible_algorithms),
             style = MaterialTheme.typography.bodyLarge.copy(
                 fontFamily = FontFamily.Monospace,
                 color = Color(0xFF00FFAA)
@@ -122,7 +131,7 @@ private fun DetectionResultsSection(
 
         if (detectedHashes.isEmpty()) {
             Text(
-                text = "Unable to identify hash type",
+                text = stringResource(R.string.unable_to_identify_hash_type),
                 style = MaterialTheme.typography.bodyMedium.copy(
                     fontFamily = FontFamily.Monospace,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
@@ -146,7 +155,7 @@ private fun DetectionResultsSection(
 
         // Detailed Information
         Text(
-            text = "Detailed Information:",
+            text = stringResource(R.string.detailed_information),
             style = MaterialTheme.typography.bodyLarge.copy(
                 fontFamily = FontFamily.Monospace,
                 color = Color(0xFF00FFAA)

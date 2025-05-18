@@ -38,12 +38,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.cryptography.utils.SteganographyUtils
 import com.example.cryptography.utils.SteganographyUtils.saveByteArrayToFile
+import com.personx.cryptx.R
 import com.personx.cryptx.components.CyberpunkButton
 import com.personx.cryptx.components.Toast
 import com.personx.cryptx.ui.theme.CryptXTheme
@@ -185,14 +186,14 @@ fun SteganographyScreen() {
             ) {
                 CyberpunkButton(
                     onClick = { isEncoding.value = true },
-                    text = "HIDE",
+                    text = stringResource(R.string.hide),
                     icon = Icons.Default.Lock,
                     isActive = !isEncoding.value
                 )
 
                 CyberpunkButton(
                     onClick = { isEncoding.value = false },
-                    text = "EXTRACT",
+                    text = stringResource(R.string.extract),
                     icon = Icons.Default.LockOpen,
                     isActive = isEncoding.value
                 )
@@ -200,7 +201,7 @@ fun SteganographyScreen() {
 
             // Cover Image Section
             Text(
-                text = "Cover Image:",
+                text = stringResource(R.string.cover_image),
                 style = MaterialTheme.typography.bodyLarge.copy(
                     fontFamily = FontFamily.Monospace,
                     color = cyberpunkGreen.copy(alpha = 0.8f)
@@ -222,14 +223,14 @@ fun SteganographyScreen() {
                 if (coverImage.value != null) {
                     Image(
                         bitmap = coverImage.value!!.asImageBitmap(),
-                        contentDescription = "Cover Image",
+                        contentDescription = stringResource(R.string.cover_image) ,
                         modifier = Modifier.fillMaxSize(),
                         contentScale = ContentScale.Fit
                     )
                 } else {
                     Icon(
                         imageVector = Icons.Default.Image,
-                        contentDescription = "Select Cover Image",
+                        contentDescription = stringResource(R.string.select_cover_image),
                         tint = cyberpunkGreen.copy(alpha = 0.5f),
                         modifier = Modifier.size(64.dp)
                     )
@@ -239,7 +240,7 @@ fun SteganographyScreen() {
             // File Selection (only in encode mode)
             if (isEncoding.value) {
                 Text(
-                    text = "File to Hide:",
+                    text = stringResource(R.string.file_to_hide),
                     style = MaterialTheme.typography.bodyLarge.copy(
                         fontFamily = FontFamily.Monospace,
                         color = cyberpunkGreen.copy(alpha = 0.8f)
@@ -270,7 +271,9 @@ fun SteganographyScreen() {
             // Process Button
             CyberpunkButton(
                 onClick = { processSteganography() },
-                text = if (isEncoding.value) "HIDE FILE" else "EXTRACT FILE",
+                text = if (isEncoding.value) stringResource(R.string.hide_file) else stringResource(
+                    R.string.extract_file
+                ),
                 icon = if (isEncoding.value) Icons.Default.Lock else Icons.Default.LockOpen,
                 modifier = Modifier.align(Alignment.CenterHorizontally)
             )
@@ -279,7 +282,7 @@ fun SteganographyScreen() {
             if (isEncoding.value) {
                 outputImage.value?.let { bitmap ->
                     Text(
-                        text = "Image with hidden file:",
+                        text = stringResource(R.string.image_with_hidden_file),
                         style = MaterialTheme.typography.bodyLarge.copy(
                             fontFamily = FontFamily.Monospace,
                             color = cyberpunkGreen
@@ -288,7 +291,7 @@ fun SteganographyScreen() {
 
                     Image(
                         bitmap = bitmap.asImageBitmap(),
-                        contentDescription = "Result Image",
+                        contentDescription = stringResource(R.string.result_image),
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(200.dp)
@@ -301,7 +304,7 @@ fun SteganographyScreen() {
 
                     CyberpunkButton(
                         onClick = { saveImage(bitmap) },
-                        text = "SAVE IMAGE",
+                        text = stringResource(R.string.save_image),
                         icon = Icons.Default.Save,
                         modifier = Modifier.align(Alignment.CenterHorizontally)
                     )
@@ -318,7 +321,7 @@ fun SteganographyScreen() {
 
                     CyberpunkButton(
                         onClick = { saveExtractedFile() },
-                        text = "SAVE FILE",
+                        text = stringResource(R.string.save_file),
                         icon = Icons.Default.Save,
                         modifier = Modifier.align(Alignment.CenterHorizontally)
                     )

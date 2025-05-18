@@ -77,6 +77,49 @@
         <item>SHA-384</item>
         <item>SHA-512</item>
     </string-array>
+    <string name="title_activity_featured">FeaturedActivity</string>
+    <string name="text_encryption">TEXT ENCRYPTION</string>
+    <string name="text_decryption">TEXT DECRYPTION</string>
+    <string name="hash_generator">HASH GENERATOR</string>
+    <string name="hash_detector">HASH DETECTOR</string>
+    <string name="file_steganography">FILE STEGANOGRAPHY</string>
+    <string name="home">HOME</string>
+    <string name="select_algorithm">SELECT ALGORITHM</string>
+    <string name="enter_ciphertext_to_decrypt">Enter ciphertext to decrypt…</string>
+    <string name="key_section">KEY SECTION</string>
+    <string name="enter_iv_used_for_encryption">Enter IV used for encryption…</string>
+    <string name="base64_input">Base64 Input</string>
+    <string name="input_text_cannot_be_empty">Input text cannot be empty.</string>
+    <string name="enter_text_to_encrypt">Enter text to encrypt…</string>
+    <string name="select_mode">SELECT MODE</string>
+    <string name="select_key_size">SELECT KEY SIZE</string>
+    <string name="iv_section">IV SECTION</string>
+    <string name="paste_hash_here_to_identify">Paste hash here to identify</string>
+    <string name="enter_a_hash_to_identify_its_algorithm">Enter a hash to identify its algorithm</string>
+    <string name="supports_md5_sha_1_sha_256_bcrypt_argon2_and_more">Supports: MD5, SHA-1, SHA-256, bcrypt, Argon2, and more</string>
+    <string name="copy_hash">COPY HASH</string>
+    <string name="detection_results">DETECTION RESULTS</string>
+    <string name="possible_algorithms">Possible Algorithms:</string>
+    <string name="unable_to_identify_hash_type">Unable to identify hash type</string>
+    <string name="detailed_information">Detailed Information:</string>
+    <string name="enter_text_to_hash">Enter text to hash…</string>
+    <string name="hash_generator_ready">HASH GENERATOR READY</string>
+    <string name="enter_text_and_select_algorithm_to_generate_hash">Enter text and select algorithm to generate hash</string>
+    <string name="generated_hash">GENERATED HASH</string>
+    <string name="hide">HIDE</string>
+    <string name="extract">EXTRACT</string>
+    <string name="cover_image">Cover Image:</string>
+    <string name="select_cover_image">Select Cover Image</string>
+    <string name="file_to_hide">File to Hide:</string>
+    <string name="hide_file">HIDE FILE</string>
+    <string name="extract_file">EXTRACT FILE</string>
+    <string name="image_with_hidden_file">Image with hidden file:</string>
+    <string name="result_image">Result Image</string>
+    <string name="save_image">SAVE IMAGE</string>
+    <string name="save_file">SAVE FILE</string>
+    <string name="enter_encryption_key">Enter encryption key…</string>
+    <string name="encrypted_output">ENCRYPTED OUTPUT</string>
+    <string name="copy_output">COPY OUTPUT</string>
 
 
 </resources>

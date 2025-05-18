@@ -1,6 +1,7 @@
 package com.personx.cryptx.screens
 
 
+import android.content.ClipData
 import android.content.Context
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -25,10 +26,11 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.ClipEntry
+import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringArrayResource
-import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -52,7 +54,7 @@ import java.security.SecureRandom
 @Composable
 fun EncryptScreen() {
     val context = LocalContext.current
-    val clipboard = LocalClipboardManager.current
+    val clipboard = LocalClipboard.current
     val algorithms = stringArrayResource(R.array.supported_algorithms_list).toList()
     val selectedAlgorithm = remember { mutableStateOf(algorithms.first()) }
 
@@ -114,7 +116,7 @@ fun EncryptScreen() {
             items = algorithms,
             selectedItem = selectedAlgorithm.value,
             onItemSelected = { selectedAlgorithm.value = it },
-            label = "SELECT ALGORITHM",
+            label = stringResource(R.string.select_algorithm) ,
             modifier = Modifier.padding(horizontal = 16.dp)
         )
 
@@ -128,7 +130,7 @@ fun EncryptScreen() {
                     enableIV.value = !it.contains("ECB")
                     if (!enableIV.value) ivText.value = ""
                 },
-                label = "SELECT MODE",
+                label = stringResource(R.string.select_mode),
                 modifier = Modifier.padding(horizontal = 16.dp)
             )
 
@@ -137,7 +139,7 @@ fun EncryptScreen() {
                 items = keySizeList.value,
                 selectedItem = selectedKeySize.intValue.toString(),
                 onItemSelected = { selectedKeySize.intValue = it.toInt() },
-                label = "SELECT KEY SIZE",
+                label = stringResource(R.string.select_key_size),
                 modifier = Modifier.padding(horizontal = 16.dp)
             )
 
@@ -145,7 +147,7 @@ fun EncryptScreen() {
             CyberpunkInputBox(
                 value = inputText.value,
                 onValueChange = { inputText.value = it },
-                placeholder = "Enter text to encrypt...",
+                placeholder = stringResource(R.string.enter_text_to_encrypt),
                 modifier = Modifier.padding(horizontal = 16.dp)
             )
 
@@ -165,7 +167,7 @@ fun EncryptScreen() {
                     }
                 },
                 modifier = Modifier.padding(horizontal = 16.dp),
-                title = "KEY SECTION"
+                title = stringResource(R.string.key_section)
             )
 
             // IV Section (conditionally shown)
@@ -191,7 +193,7 @@ fun EncryptScreen() {
                         }
                     },
                     modifier = Modifier.padding(horizontal = 16.dp),
-                    title = "IV SECTION"
+                    title = stringResource(R.string.iv_section)
                 )
             }
 
@@ -204,7 +206,7 @@ fun EncryptScreen() {
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = "Base64 Output",
+                    text = stringResource(R.string.base64_input) ,
                     style = MaterialTheme.typography.bodyMedium.copy(
                         fontFamily = FontFamily.Monospace,
                         color = MaterialTheme.colorScheme.onSurface
@@ -225,7 +227,7 @@ fun EncryptScreen() {
                 onClick = {
                     try {
                         if (inputText.value.isBlank()) {
-                            outputText.value = "Input text cannot be empty."
+                            outputText.value = context.getString(R.string.input_text_cannot_be_empty)
                             return@CyberpunkButton
                         }
 
@@ -286,7 +288,7 @@ fun EncryptScreen() {
                     output = outputText.value,
                     onCopy = {
                         scope.launch {
-                            clipboard.setText(AnnotatedString(outputText.value))
+                            clipboard.setClipEntry(ClipEntry(ClipData.newPlainText("Copied", outputText.value)))
                             showCopiedToast.value = true
                             delay(2000)
                             showCopiedToast.value = false

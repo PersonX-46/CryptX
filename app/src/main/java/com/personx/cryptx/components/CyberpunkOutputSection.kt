@@ -14,8 +14,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
+import com.personx.cryptx.R
 
 @Composable
 fun CyberpunkOutputSection(
@@ -25,7 +27,7 @@ fun CyberpunkOutputSection(
 ) {
     Column(modifier = modifier.fillMaxWidth()) {
         Text(
-            text = "ENCRYPTED OUTPUT",
+            text = stringResource(R.string.encrypted_output),
             style = MaterialTheme.typography.titleLarge.copy(
                 fontFamily = FontFamily.Monospace,
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
@@ -60,7 +62,7 @@ fun CyberpunkOutputSection(
         CyberpunkButton(
             onClick = onCopy,
             icon = Icons.Default.ContentCopy,
-            text = "COPY OUTPUT",
+            text = stringResource(R.string.copy_output),
             modifier = Modifier.padding(top = 16.dp)
         )
     }

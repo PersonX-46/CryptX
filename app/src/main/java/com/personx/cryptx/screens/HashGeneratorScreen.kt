@@ -1,5 +1,6 @@
 package com.personx.cryptx.screens
 
+import android.content.ClipData
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -24,11 +25,11 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.ClipEntry
+import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.cryptography.utils.HashUtils
@@ -51,7 +52,7 @@ fun HashGeneratorScreen() {
     val generatedHash = remember { derivedStateOf {
         HashUtils.computeHash(inputText.value, selectedAlgorithm.value)
     } }
-    val clipboardManager = LocalClipboardManager.current
+    val clipboardManager = LocalClipboard.current
     val scope = rememberCoroutineScope()
     val showCopiedToast = remember { mutableStateOf(false) }
 
@@ -68,7 +69,7 @@ fun HashGeneratorScreen() {
             items = algorithms,
             selectedItem = selectedAlgorithm.value,
             onItemSelected = { selectedAlgorithm.value = it },
-            label = "SELECT ALGORITHM",
+            label = stringResource(R.string.select_algorithm) ,
             modifier = Modifier.padding(horizontal = 16.dp)
         )
 
@@ -76,7 +77,7 @@ fun HashGeneratorScreen() {
         CyberpunkInputBox(
             value = inputText.value,
             onValueChange = { inputText.value = it },
-            placeholder = "Enter text to hash...",
+            placeholder = stringResource(R.string.enter_text_to_hash),
             modifier = Modifier.padding(horizontal = 16.dp)
         )
 
@@ -87,7 +88,7 @@ fun HashGeneratorScreen() {
                 algorithm = selectedAlgorithm.value,
                 onCopy = {
                     scope.launch {
-                        clipboardManager.setText(AnnotatedString(generatedHash.value))
+                        clipboardManager.setClipEntry(ClipEntry(ClipData.newPlainText("Copied", generatedHash.value)))
                         showCopiedToast.value = true
                         delay(2000)
                         showCopiedToast.value = false
@@ -98,8 +99,8 @@ fun HashGeneratorScreen() {
         } else {
             PlaceholderInfo(
                 icon = Icons.Outlined.Code,
-                title = "HASH GENERATOR READY",
-                description = "Enter text and select algorithm to generate hash"
+                title = stringResource(R.string.hash_generator_ready),
+                description = stringResource(R.string.enter_text_and_select_algorithm_to_generate_hash)
             )
         }
     }
@@ -120,7 +121,7 @@ private fun HashOutputSection(
     Column(modifier = modifier.fillMaxWidth()) {
         // Section Title
         Text(
-            text = "GENERATED HASH",
+            text = stringResource(R.string.generated_hash),
             style = MaterialTheme.typography.titleLarge.copy(
                 fontFamily = FontFamily.Monospace,
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
@@ -167,7 +168,7 @@ private fun HashOutputSection(
         CyberpunkButton(
             onClick = onCopy,
             icon = Icons.Default.ContentCopy,
-            text = "COPY HASH",
+            text = stringResource(R.string.copy_hash) ,
             modifier = Modifier.padding(top = 16.dp)
         )
 
