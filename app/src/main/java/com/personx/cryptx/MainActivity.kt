@@ -52,7 +52,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             CryptXTheme(darkTheme = true) {
                 // Changed to background color for better edge-to-edge experience
-                val navController = rememberNavController()
+                rememberNavController()
                 Surface(
                     modifier = Modifier.
                         fillMaxSize()
@@ -73,7 +73,7 @@ fun HomeScreen() {
         // Do nothing — this disables the back action
     }
 
-    val currentScreen = remember { mutableStateOf("Home") }
+    remember { mutableStateOf("Home") }
     val glowAnimation = remember { Animatable(0f) }
 
     // Start the glowing animation loop
@@ -109,7 +109,7 @@ fun HomeScreen() {
             label = "Hash Generator",
             onClick = {
                 val intent = Intent(context, FeaturedActivity::class.java).apply {
-                    putExtra(FeaturedActivity.EXTRA_SCREEN, "hash_generator")
+                    putExtra(FeaturedActivity.EXTRA_SCREEN, "hashGenerator")
                 }
                 context.startActivity(intent)
             }
@@ -119,7 +119,7 @@ fun HomeScreen() {
             label = "Hash Detector",
             onClick = {
                 val intent = Intent(context, FeaturedActivity::class.java).apply {
-                    putExtra(FeaturedActivity.EXTRA_SCREEN, "hash_detector")
+                    putExtra(FeaturedActivity.EXTRA_SCREEN, "hashDetector")
                 }
                 context.startActivity(intent)
             }

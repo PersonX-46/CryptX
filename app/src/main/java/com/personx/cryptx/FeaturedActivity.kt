@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -59,18 +60,18 @@ class FeaturedActivity : ComponentActivity() {
                 val subtitle = remember { mutableStateOf("") }
                 val selectedLabel = remember { mutableStateOf("") }
                 selectedLabel.value = when (screen) {
-                    "TEXT ENCRYPTION" -> "TEXT ENCRYPTION"
-                    "TEXT DECRYPTION" -> "TEXT DECRYPTION"
-                    "HASH GENERATOR" -> "HASH GENERATOR"
-                    "HASH DETECTOR" -> "HASH DETECTOR"
-                    "FILE STEGANOGRAPHY" -> "FILE STEGANOGRAPHY"
+                    "encrypt" -> "encrypt"
+                    "decrypt" -> "decrypt"
+                    "hashGenerator" -> "hashGenerator"
+                    "hashDetector" -> "hashDetector"
+                    "steganography" -> "steganography"
                     else -> "H"
                 }
                 when (selectedScreen.value) {
                     "encrypt" -> subtitle.value = "ENCRYPTION"
                     "decrypt" -> subtitle.value = "DECRYPTION"
-                    "hash_generator" -> subtitle.value = "HASH GENERATOR"
-                    "hash_detector" -> subtitle.value = "HASH DETECTOR"
+                    "hashGenerator" -> subtitle.value = "HASH GENERATOR"
+                    "hashDetector" -> subtitle.value = "HASH DETECTOR"
                     "steganography" -> subtitle.value = "STEGANOGRAPHY"
                     else -> subtitle.value = "Invalid screen"
                 }
@@ -95,13 +96,13 @@ class FeaturedActivity : ComponentActivity() {
                     ),
                     NavBarItem(
                         Icons.Filled.Code,
-                        "Hash Generator",
-                        onclick = { selectedScreen.value = "hash_generator" }
+                        "HashGenerator",
+                        onclick = { selectedScreen.value = "hashGenerator" }
                     ),
                     NavBarItem(
                         Icons.Filled.Search,
-                        "Hash Detector",
-                        onclick = { selectedScreen.value = "hash_detector" }
+                        "HashDetector",
+                        onclick = { selectedScreen.value = "hashDetector" }
                     ),
                     NavBarItem(
                         Icons.Filled.VisibilityOff,
@@ -127,15 +128,16 @@ class FeaturedActivity : ComponentActivity() {
                     ){
                         Column(
                             modifier = Modifier
-                                .fillMaxSize()
+                                .fillMaxWidth()
+                                .padding(bottom = 70.dp)
                         )  {
                             Header(subtitle.value)
                             Spacer(modifier = Modifier.height(30.dp))
                             when (selectedScreen.value) {
                                 "encrypt" -> EncryptScreen()
                                 "decrypt" -> DecryptionScreen()
-                                "hash_generator" -> HashGeneratorScreen()
-                                "hash_detector" -> HashDetector()
+                                "hashGenerator" -> HashGeneratorScreen()
+                                "hashDetector" -> HashDetector()
                                 "steganography" -> SteganographyScreen()
                                 else -> Text("Invalid screen")
                             }
