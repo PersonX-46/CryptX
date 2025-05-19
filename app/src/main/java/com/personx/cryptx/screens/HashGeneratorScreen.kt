@@ -18,9 +18,7 @@ import androidx.compose.material.icons.outlined.Code
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -32,7 +30,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.cryptography.utils.HashUtils
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.personx.cryptx.R
 import com.personx.cryptx.components.CyberpunkButton
 import com.personx.cryptx.components.CyberpunkDropdown
@@ -40,21 +38,23 @@ import com.personx.cryptx.components.CyberpunkInputBox
 import com.personx.cryptx.components.PlaceholderInfo
 import com.personx.cryptx.components.Toast
 import com.personx.cryptx.ui.theme.CryptXTheme
-import kotlinx.coroutines.delay
+import com.personx.cryptx.viewmodel.HashGeneratorViewModel
 import kotlinx.coroutines.launch
 
 @Composable
-fun HashGeneratorScreen() {
+fun HashGeneratorScreen(
+    viewModel: HashGeneratorViewModel = viewModel()
+) {
     val context = LocalContext.current
-    val algorithms = context.resources.getStringArray(R.array.supported_hash_algorithms).toList()
-    val selectedAlgorithm = remember { mutableStateOf(algorithms.first()) }
-    val inputText = remember { mutableStateOf("") }
-    val generatedHash = remember { derivedStateOf {
-        HashUtils.computeHash(inputText.value, selectedAlgorithm.value)
-    } }
     val clipboardManager = LocalClipboard.current
     val scope = rememberCoroutineScope()
-    val showCopiedToast = remember { mutableStateOf(false) }
+    val state = viewModel.state.value
+
+    // Initialize algorithms once
+    LaunchedEffect(Unit) {
+        val algorithms = context.resources.getStringArray(R.array.supported_hash_algorithms).toList()
+        viewModel.setAlgorithms(algorithms)
+    }
 
     Column(
         modifier = Modifier
@@ -66,32 +66,29 @@ fun HashGeneratorScreen() {
     ) {
         // Algorithm Selector
         CyberpunkDropdown(
-            items = algorithms,
-            selectedItem = selectedAlgorithm.value,
-            onItemSelected = { selectedAlgorithm.value = it },
-            label = stringResource(R.string.select_algorithm) ,
+            items = state.algorithms,
+            selectedItem = state.selectedAlgorithm,
+            onItemSelected = { viewModel.updateSelectedAlgorithm(it) },
+            label = stringResource(R.string.select_algorithm),
             modifier = Modifier.padding(horizontal = 16.dp)
         )
 
         // Input Box
         CyberpunkInputBox(
-            value = inputText.value,
-            onValueChange = { inputText.value = it },
+            value = state.inputText,
+            onValueChange = { viewModel.updateInputText(it) },
             placeholder = stringResource(R.string.enter_text_to_hash),
             modifier = Modifier.padding(horizontal = 16.dp)
         )
 
         // Hash Output Section
-        if (inputText.value.isNotEmpty()) {
+        if (state.inputText.isNotEmpty()) {
             HashOutputSection(
-                hash = generatedHash.value,
-                algorithm = selectedAlgorithm.value,
+                hash = state.generatedHash,
+                algorithm = state.selectedAlgorithm,
                 onCopy = {
                     scope.launch {
-                        clipboardManager.setClipEntry(ClipEntry(ClipData.newPlainText("Copied", generatedHash.value)))
-                        showCopiedToast.value = true
-                        delay(2000)
-                        showCopiedToast.value = false
+                        clipboardManager.setClipEntry(ClipEntry(ClipData.newPlainText("Copied", state.generatedHash)))
                     }
                 },
                 modifier = Modifier.padding(horizontal = 16.dp)
@@ -106,11 +103,10 @@ fun HashGeneratorScreen() {
     }
 
     // Toast notification
-    if (showCopiedToast.value) {
-        Toast(message = "Hash copied to clipboard!")
+    if (state.showCopiedToast) {
+        Toast("Hash copied to clipboard!")
     }
 }
-
 @Composable
 private fun HashOutputSection(
     hash: String,
