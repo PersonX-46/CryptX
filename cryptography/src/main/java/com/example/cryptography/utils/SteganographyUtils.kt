@@ -110,7 +110,7 @@ object SteganographyUtils {
 
             } else {
                 // For Android 9 and below
-                val downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)
+                val downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
                 val cryptxDir = File(downloadsDir, "cryptx/extracted")
                 if (!cryptxDir.exists()) cryptxDir.mkdirs()
 
@@ -135,7 +135,7 @@ object SteganographyUtils {
                 val contentValues = ContentValues().apply {
                     put(MediaStore.Images.Media.DISPLAY_NAME, fileName)
                     put(MediaStore.Images.Media.MIME_TYPE, "image/png")
-                    put(MediaStore.Images.Media.RELATIVE_PATH, "Download/cryptx/embedded")
+                    put(MediaStore.Images.Media.RELATIVE_PATH, "DCIM/cryptx/embedded")
                     put(MediaStore.Images.Media.IS_PENDING, 1)
                 }
 
@@ -154,7 +154,7 @@ object SteganographyUtils {
 
             } else {
                 // Legacy storage for Android 9 and below
-                val picturesDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)
+                val picturesDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
                 val cryptxDir = File(picturesDir, "cryptx/embedded")
                 if (!cryptxDir.exists()) cryptxDir.mkdirs()
 
