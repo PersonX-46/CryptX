@@ -19,9 +19,6 @@ import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -34,12 +31,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.cryptography.algorithms.SymmetricBasedAlgorithm
-import com.example.cryptography.data.CryptoParams
-import com.example.cryptography.utils.CryptoUtils.decodeBase64ToSecretKey
-import com.example.cryptography.utils.CryptoUtils.decodeStringToByteArray
-import com.example.cryptography.utils.CryptoUtils.encodeByteArrayToString
-import com.example.cryptography.utils.CryptoUtils.padTextToBlockSize
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.personx.cryptx.R
 import com.personx.cryptx.components.CyberpunkButton
 import com.personx.cryptx.components.CyberpunkDropdown
@@ -47,59 +39,24 @@ import com.personx.cryptx.components.CyberpunkInputBox
 import com.personx.cryptx.components.CyberpunkKeySection
 import com.personx.cryptx.components.CyberpunkOutputSection
 import com.personx.cryptx.ui.theme.CryptXTheme
-import kotlinx.coroutines.delay
+import com.personx.cryptx.viewmodel.EncryptionViewModel
 import kotlinx.coroutines.launch
-import java.security.SecureRandom
 
 @Composable
-fun EncryptScreen() {
+fun EncryptScreen(
+    viewModel: EncryptionViewModel = viewModel()
+) {
     val context = LocalContext.current
     val clipboard = LocalClipboard.current
     val algorithms = stringArrayResource(R.array.supported_algorithms_list).toList()
-    val selectedAlgorithm = remember { mutableStateOf(algorithms.first()) }
 
-    val transformationList = remember { mutableStateOf(emptyList<String>()) }
-    val keySizeList = remember { mutableStateOf(emptyList<String>()) }
-
-    val selectedMode = remember { mutableStateOf("") }
-    val selectedKeySize = remember { mutableIntStateOf(128) }
-
-    val inputText = remember { mutableStateOf("") }
-    val outputText = remember { mutableStateOf("") }
-
-    val ivText = remember { mutableStateOf("") }
-    val keyText = remember { mutableStateOf("") }
-
-    val enableIV = remember { mutableStateOf(false) }
-    val isBase64Enabled = remember { mutableStateOf(false) }
-    val showCopiedToast = remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
 
-    // Re-generate key and mode list when algorithm changes
-    LaunchedEffect(selectedAlgorithm.value) {
-        transformationList.value = getTransformations(context, selectedAlgorithm.value)
-        keySizeList.value = getKeySizes(context, selectedAlgorithm.value)
-        selectedKeySize.intValue = keySizeList.value.firstOrNull()?.toIntOrNull() ?: 128
-        selectedMode.value = transformationList.value.firstOrNull() ?: ""
-        keyText.value = encodeByteArrayToString(
-            SymmetricBasedAlgorithm().generateKey(selectedAlgorithm.value, selectedKeySize.intValue).encoded
-        ).trim()
-        ivText.value = encodeByteArrayToString(SymmetricBasedAlgorithm().generateIV(selectedAlgorithm.value, 16))
-    }
+    val state = viewModel.state.value
 
-    LaunchedEffect(selectedMode.value) {
-        if (!selectedMode.value.contains("ECB")) {
-            keyText.value = encodeByteArrayToString(
-                SymmetricBasedAlgorithm().generateKey(selectedAlgorithm.value, selectedKeySize.intValue).encoded
-            ).trim()
-            ivText.value = encodeByteArrayToString(SymmetricBasedAlgorithm().generateIV(selectedAlgorithm.value,16))
-        } else {
-            keyText.value = encodeByteArrayToString(
-                SymmetricBasedAlgorithm().generateKey(selectedAlgorithm.value, selectedKeySize.intValue).encoded
-            ).trim()
-            enableIV.value = false
-            ivText.value = ""
-        }
+    // Re-generate key and mode list when algorithm changes
+    LaunchedEffect(state.selectedAlgorithm) {
+        viewModel.updateAlgorithmAndModeLists(context)
     }
 
     Column(
@@ -114,21 +71,19 @@ fun EncryptScreen() {
         // Algorithm Selection
         CyberpunkDropdown(
             items = algorithms,
-            selectedItem = selectedAlgorithm.value,
-            onItemSelected = { selectedAlgorithm.value = it },
+            selectedItem = state.selectedAlgorithm,
+            onItemSelected = { viewModel.updateSelectedAlgorithm(it) },
             label = stringResource(R.string.select_algorithm) ,
             modifier = Modifier.padding(horizontal = 16.dp)
         )
 
-        if (selectedAlgorithm.value != "RSA") {
+        if (state.selectedAlgorithm != "RSA") {
             // Mode Selection
             CyberpunkDropdown(
-                items = transformationList.value,
-                selectedItem = selectedMode.value,
+                items = state.transformationList,
+                selectedItem = state.selectedMode,
                 onItemSelected = {
-                    selectedMode.value = it
-                    enableIV.value = !it.contains("ECB")
-                    if (!enableIV.value) ivText.value = ""
+                    viewModel.updateSelectedMode(it)
                 },
                 label = stringResource(R.string.select_mode),
                 modifier = Modifier.padding(horizontal = 16.dp)
@@ -136,42 +91,34 @@ fun EncryptScreen() {
 
             // Key Size Selection
             CyberpunkDropdown(
-                items = keySizeList.value,
-                selectedItem = selectedKeySize.intValue.toString(),
-                onItemSelected = { selectedKeySize.intValue = it.toInt() },
+                items = state.keySizeList,
+                selectedItem = state.selectedKeySize.toString(),
+                onItemSelected = { viewModel.updateSelectedKeySize(it.toInt()) },
                 label = stringResource(R.string.select_key_size),
                 modifier = Modifier.padding(horizontal = 16.dp)
             )
 
             // Input Section
             CyberpunkInputBox(
-                value = inputText.value,
-                onValueChange = { inputText.value = it },
+                value = state.inputText,
+                onValueChange = { viewModel.updateInputText(it) },
                 placeholder = stringResource(R.string.enter_text_to_encrypt),
                 modifier = Modifier.padding(horizontal = 16.dp)
             )
 
             // Key Section
             CyberpunkKeySection(
-                keyText = keyText.value,
-                onKeyTextChange = { keyText.value = it },
+                keyText = state.keyText,
+                onKeyTextChange = { viewModel.updateKeyText(it) },
                 onGenerateKey = {
-                    try {
-                        val newKey = SymmetricBasedAlgorithm().generateKey(
-                            selectedAlgorithm.value,
-                            selectedKeySize.intValue
-                        )
-                        keyText.value = encodeByteArrayToString(newKey.encoded).trim()
-                    } catch (e: Exception) {
-                        outputText.value = "Key generation failed: ${e.message}"
-                    }
+                    viewModel.generateKey()
                 },
                 modifier = Modifier.padding(horizontal = 16.dp),
                 title = stringResource(R.string.key_section)
             )
 
             // IV Section (conditionally shown)
-            if (enableIV.value) {
+            if (state.enableIV) {
 //                CyberpunkInputBox(
 //                    value = ivText.value,
 //                    onValueChange = { ivText.value = it },
@@ -179,18 +126,10 @@ fun EncryptScreen() {
 //                    modifier = Modifier.padding(horizontal = 16.dp)
 //                )
                 CyberpunkKeySection(
-                    keyText = ivText.value,
-                    onKeyTextChange = { ivText.value = it },
+                    keyText = state.ivText,
+                    onKeyTextChange = { viewModel.updateIVText(it) },
                     onGenerateKey = {
-                        try {
-                            val newKey = SymmetricBasedAlgorithm().generateIV(
-                                selectedAlgorithm.value,
-                                ivsize = 8
-                            )
-                            ivText.value = encodeByteArrayToString(newKey).trim()
-                        } catch (e: Exception) {
-                            outputText.value = "Key generation failed: ${e.message}"
-                        }
+                        viewModel.generateIV()
                     },
                     modifier = Modifier.padding(horizontal = 16.dp),
                     title = stringResource(R.string.iv_section)
@@ -213,8 +152,8 @@ fun EncryptScreen() {
                     )
                 )
                 Switch(
-                    checked = isBase64Enabled.value,
-                    onCheckedChange = { isBase64Enabled.value = it },
+                    checked = state.isBase64Enabled,
+                    onCheckedChange = { viewModel.updateBase64Enabled(it) },
                     colors = SwitchDefaults.colors(
                         checkedThumbColor = Color(0xFF00FFAA),
                         checkedTrackColor = Color(0xFF00FFAA).copy(alpha = 0.5f)
@@ -225,57 +164,7 @@ fun EncryptScreen() {
             // Encrypt Button
             CyberpunkButton(
                 onClick = {
-                    try {
-                        if (inputText.value.isBlank()) {
-                            outputText.value = context.getString(R.string.input_text_cannot_be_empty)
-                            return@CyberpunkButton
-                        }
-
-                        val iv = try {
-                            if (!enableIV.value || ivText.value.isBlank()) {
-                                SecureRandom().generateSeed(16)
-                            } else {
-                                decodeStringToByteArray(ivText.value)
-                            }
-                        } catch (e: Exception) {
-                            outputText.value = "Invalid IV: ${e.message}"
-                            return@CyberpunkButton
-                        }
-
-                        val key = try {
-                            decodeBase64ToSecretKey(keyText.value, selectedAlgorithm.value)
-                        } catch (e: Exception) {
-                            outputText.value = "Invalid key: ${e.message}"
-                            return@CyberpunkButton
-                        }
-
-                        val blockSize = when (selectedAlgorithm.value) {
-                            "AES", "Blowfish" -> 16
-                            "DES", "3DES" -> 8
-                            else -> 1
-                        }
-
-                        val paddedInput = if (selectedMode.value.contains("NoPadding"))
-                            padTextToBlockSize(inputText.value, blockSize)
-                        else
-                            inputText.value.toByteArray()
-
-                        val transformation = if (selectedAlgorithm.value == "ChaCha20")
-                            "ChaCha20"
-                        else
-                            "${selectedAlgorithm.value}/${selectedMode.value}"
-
-                        val params = CryptoParams(
-                            data = String(paddedInput),
-                            key = key,
-                            transformation = transformation,
-                            iv = if (enableIV.value) iv else null,
-                            useBase64 = isBase64Enabled.value
-                        )
-                        outputText.value = SymmetricBasedAlgorithm().encrypt(params)
-                    } catch (e: Exception) {
-                        outputText.value = "Encryption failed: ${e.message}"
-                    }
+                    viewModel.encrypt(context)
                 },
                 icon = Icons.Default.Lock,
                 text = "ENCRYPT",
@@ -283,15 +172,12 @@ fun EncryptScreen() {
             )
 
             // Output Section
-            if (outputText.value.isNotEmpty()) {
+            if (state.outputText.isNotEmpty()) {
                 CyberpunkOutputSection(
-                    output = outputText.value,
+                    output = state.outputText,
                     onCopy = {
                         scope.launch {
-                            clipboard.setClipEntry(ClipEntry(ClipData.newPlainText("Copied", outputText.value)))
-                            showCopiedToast.value = true
-                            delay(2000)
-                            showCopiedToast.value = false
+                            clipboard.setClipEntry(ClipEntry(ClipData.newPlainText("Copied", state.outputText)))
                         }
                     },
                     modifier = Modifier.padding(horizontal = 16.dp)
@@ -301,7 +187,7 @@ fun EncryptScreen() {
     }
 
     // Toast notification
-    if (showCopiedToast.value) {
+    if (state.showCopiedToast) {
         android.widget.Toast.makeText(context, "Output copied to clipboard!", android.widget.Toast.LENGTH_SHORT).show()
     }
 }

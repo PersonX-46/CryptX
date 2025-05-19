@@ -10,16 +10,17 @@ import com.example.cryptography.data.CryptoParams
 import com.example.cryptography.utils.CryptoUtils.decodeBase64ToSecretKey
 import com.example.cryptography.utils.CryptoUtils.decodeStringToByteArray
 import com.example.cryptography.utils.CryptoUtils.encodeByteArrayToString
+import com.example.cryptography.utils.CryptoUtils.padTextToBlockSize
 import com.personx.cryptx.R
-import com.personx.cryptx.data.DecryptionState
+import com.personx.cryptx.data.EncryptionState
 import com.personx.cryptx.screens.getKeySizes
 import com.personx.cryptx.screens.getTransformations
 import kotlinx.coroutines.launch
+import java.security.SecureRandom
 
-
-class DecryptionViewModel : ViewModel() {
-    private val _state = mutableStateOf(DecryptionState())
-    val state: State<DecryptionState> = _state
+class EncryptionViewModel : ViewModel() {
+    private val _state = mutableStateOf(EncryptionState())
+    val state: State<EncryptionState> = _state
 
     fun updateSelectedAlgorithm(algorithm: String) {
         _state.value = _state.value.copy(selectedAlgorithm = algorithm)
@@ -61,22 +62,24 @@ class DecryptionViewModel : ViewModel() {
         _state.value = _state.value.copy(isBase64Enabled = enabled)
     }
 
-    fun updateShowCopiedToast(show: Boolean) {
-        _state.value = _state.value.copy(showCopiedToast = show)
-    }
-
-    fun updateAlgorithmList(context: Context) {
+    fun updateAlgorithmAndModeLists(context: Context) {
         viewModelScope.launch {
-            val transformations = getTransformations(context, _state.value.selectedAlgorithm)
-            val keySize = getKeySizes(context, _state.value.selectedAlgorithm)
+            try {
+                val transformations = getTransformations(context, _state.value.selectedAlgorithm)
+                val keySizes = getKeySizes(context, _state.value.selectedAlgorithm)
 
-            _state.value = _state.value.copy(
-                transformationList = transformations,
-                keySizeList = keySize,
-                selectedKeySize = keySize.firstOrNull()?.toIntOrNull() ?: 128,
-                selectedMode = transformations.firstOrNull() ?: "",
-                enableIV = !transformations.firstOrNull().toString().contains("ECB"),
-            )
+                _state.value = _state.value.copy(
+                    transformationList = transformations,
+                    keySizeList = keySizes,
+                    selectedKeySize = keySizes.firstOrNull()?.toIntOrNull() ?: 128,
+                    selectedMode = transformations.firstOrNull() ?: "",
+                    enableIV = transformations.firstOrNull()?.contains("ECB") != true
+                )
+            } catch (e: Exception) {
+                _state.value = _state.value.copy(
+                    outputText = "Error updating algorithm: ${e.message}"
+                )
+            }
         }
     }
 
@@ -99,7 +102,22 @@ class DecryptionViewModel : ViewModel() {
         }
     }
 
-    fun decrypt(context: Context) {
+    fun generateIV() {
+        viewModelScope.launch {
+            try {
+                val newIV = SymmetricBasedAlgorithm().generateIV(_state.value.selectedAlgorithm, 16)
+                _state.value = _state.value.copy(
+                    ivText = encodeByteArrayToString(newIV).trim(),
+                )
+            } catch (e: Exception) {
+                _state.value = _state.value.copy(
+                    outputText = "IV generation failed: ${e.message}"
+                )
+            }
+        }
+    }
+
+    fun encrypt(context: Context){
         viewModelScope.launch {
             try {
                 if (_state.value.inputText.isBlank()) {
@@ -110,8 +128,8 @@ class DecryptionViewModel : ViewModel() {
                 }
 
                 val iv = try {
-                    if (_state.value.enableIV || _state.value.ivText.isBlank()) {
-                        null // Don't generate random IV for decryption
+                    if (!_state.value.enableIV || _state.value.ivText.isBlank()) {
+                        SecureRandom().generateSeed(16)
                     } else {
                         decodeStringToByteArray(_state.value.ivText)
                     }
@@ -131,24 +149,35 @@ class DecryptionViewModel : ViewModel() {
                     return@launch
                 }
 
+                val blockSize = when (_state.value.selectedAlgorithm) {
+                    "AES", "Blowfish" -> 16
+                    "DES", "3DES" -> 8
+                    else -> 1
+                }
+
+                val paddedInput = if (_state.value.selectedMode.contains("NoPadding"))
+                    padTextToBlockSize(_state.value.inputText, blockSize)
+                else
+                    _state.value.inputText.toByteArray()
+
                 val transformation = if (_state.value.selectedAlgorithm == "ChaCha20")
                     "ChaCha20"
                 else
                     "${_state.value.selectedAlgorithm}/${_state.value.selectedMode}"
 
                 val params = CryptoParams(
-                    data = _state.value.inputText,
+                    data = String(paddedInput),
                     key = key,
                     transformation = transformation,
-                    iv = iv,
+                    iv = if (_state.value.enableIV) iv else null,
                     useBase64 = _state.value.isBase64Enabled
                 )
                 _state.value = _state.value.copy(
-                    outputText = SymmetricBasedAlgorithm().decrypt(params)
+                    outputText = SymmetricBasedAlgorithm().encrypt(params)
                 )
             } catch (e: Exception) {
                 _state.value = _state.value.copy(
-                    outputText = "Decryption failed: ${e.message}"
+                    outputText = "Encryption failed: ${e.message}"
                 )
             }
         }
