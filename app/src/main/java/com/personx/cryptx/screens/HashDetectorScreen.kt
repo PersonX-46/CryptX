@@ -28,31 +28,23 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.cryptography.utils.HashUtils
 import com.personx.cryptx.R
 import com.personx.cryptx.components.CyberpunkButton
 import com.personx.cryptx.components.CyberpunkInputBox
 import com.personx.cryptx.components.PlaceholderInfo
 import com.personx.cryptx.ui.theme.CryptXTheme
+import com.personx.cryptx.viewmodel.HashDetectorViewModel
 import kotlinx.coroutines.launch
 
 @Composable
-fun HashDetector() {
-    val inputHash = remember { mutableStateOf("") }
-    val detectedHashes = remember { mutableStateOf<List<String>>(emptyList()) }
-    val hashInfo = remember { mutableStateOf("") }
+fun HashDetector(
+    viewModel: HashDetectorViewModel = viewModel()
+) {
     val clipboardManager = LocalClipboard.current
     val scope = rememberCoroutineScope()
-
-    // Update detection when input changes
-    LaunchedEffect(inputHash.value) {
-        detectedHashes.value = HashUtils.identifyHash(inputHash.value)
-        hashInfo.value = if (detectedHashes.value.isNotEmpty()) {
-            HashUtils.getHashInfo(detectedHashes.value.first())
-        } else {
-            "No hash detected"
-        }
-    }
+    val state = viewModel.state.value
 
     Column(
         modifier = Modifier
@@ -62,20 +54,19 @@ fun HashDetector() {
         verticalArrangement = Arrangement.spacedBy(12.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-
         // Input Box
         CyberpunkInputBox(
-            value = inputHash.value,
-            onValueChange = { inputHash.value = it },
+            value = state.inputHash,
+            onValueChange = { viewModel.updateInputHash(it) },
             placeholder = stringResource(R.string.paste_hash_here_to_identify),
             modifier = Modifier.padding(horizontal = 16.dp)
         )
 
         // Detection Results
-        if (inputHash.value.isNotEmpty()) {
+        if (state.inputHash.isNotEmpty()) {
             DetectionResultsSection(
-                detectedHashes = detectedHashes.value,
-                hashInfo = hashInfo.value,
+                detectedHashes = state.detectedHashes,
+                hashInfo = state.hashInfo,
                 modifier = Modifier.padding(horizontal = 16.dp)
             )
         } else {
@@ -87,11 +78,13 @@ fun HashDetector() {
         }
 
         // Copy Button (only shown when there's input)
-        if (inputHash.value.isNotEmpty()) {
+        if (state.inputHash.isNotEmpty()) {
             CyberpunkButton(
                 onClick = {
                     scope.launch {
-                        clipboardManager.setClipEntry(ClipEntry(ClipData.newPlainText("Copied", inputHash.value)))
+                        clipboardManager.setClipEntry(
+                            ClipEntry(ClipData.newPlainText("Copied", state.inputHash))
+                        )
                     }
                 },
                 icon = Icons.Default.ContentCopy,
