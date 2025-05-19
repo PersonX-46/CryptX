@@ -40,10 +40,10 @@ Output files are saved in: /Download/cryptx/
 
 <div style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; align-items: center;">
 
-  <img src="https://github.com/user-attachments/assets/68a85f9d-0c4c-464e-ad18-80dde35a5423" alt="FileSteg" width="200"/>
-  <img src="https://github.com/user-attachments/assets/18c56301-dd00-4b7b-bb81-170f51a762e6" alt="EncryptScreen" width="200"/>
-  <img src="https://github.com/user-attachments/assets/b003fbba-281b-41bd-963d-5e5ac68b938b" alt="HashGenerator" width="200"/>
-  <img src="https://github.com/user-attachments/assets/3b68d148-9434-43d9-9863-6ebe3ab4aafc" alt="HashDetector" width="200"/>
+  <img src="https://github.com/user-attachments/assets/42ced605-5f77-4a27-8bc8-d8905b514fc5" alt="HashDetector" width="200"/>
+  <img src="https://github.com/user-attachments/assets/c9e8ec21-d581-42a8-90d0-c7387064301c" alt="HashGenerator" width="200"/>
+  <img src="https://github.com/user-attachments/assets/dee5c35e-a0cf-4534-b004-3033a50eb66b" alt="EncryptScreen" width="200"/>
+  <img src="https://github.com/user-attachments/assets/5352b7a5-ee67-4f88-ae50-2e0336687581" alt="FileSteg" width="200"/>
 
 </div>
 ---
