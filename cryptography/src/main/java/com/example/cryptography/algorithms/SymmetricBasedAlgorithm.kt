@@ -63,7 +63,8 @@ class SymmetricBasedAlgorithm: SymmetricAlgorithm {
             "AES", "AES/CBC/PKCS5PADDING", "AES/CBC/PKCS7PADDING", "AES/GCM/NO PADDING", "AES/GCM/NOPADDING" -> 16
             "CHACHA20", "CHACHA20-POLY1305" -> 12
             "DES" -> 8
-            "DESede"-> 8
+            "DESEDE"-> 8
+            "BLOWFISH" -> 8
             else -> ivsize
         }
 
