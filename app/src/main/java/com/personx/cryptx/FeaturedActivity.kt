@@ -1,6 +1,5 @@
 package com.personx.cryptx
 
-import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -30,7 +29,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.personx.cryptx.components.CyberpunkNavBar
@@ -40,6 +38,7 @@ import com.personx.cryptx.screens.DecryptionScreen
 import com.personx.cryptx.screens.EncryptScreen
 import com.personx.cryptx.screens.HashDetector
 import com.personx.cryptx.screens.HashGeneratorScreen
+import com.personx.cryptx.screens.HomeScreen
 import com.personx.cryptx.screens.SteganographyScreen
 import com.personx.cryptx.ui.theme.CryptXTheme
 
@@ -56,10 +55,10 @@ class FeaturedActivity : ComponentActivity() {
             CryptXTheme(darkTheme = true) {
                 val screen = intent.getStringExtra(EXTRA_SCREEN)
                 val selectedScreen = remember { mutableStateOf(screen) }
-                val context = LocalContext.current
                 val subtitle = remember { mutableStateOf("") }
                 val selectedLabel = remember { mutableStateOf("") }
                 selectedLabel.value = when (screen) {
+                    "home" -> "home"
                     "encrypt" -> "encrypt"
                     "decrypt" -> "decrypt"
                     "hashGenerator" -> "hashGenerator"
@@ -68,6 +67,7 @@ class FeaturedActivity : ComponentActivity() {
                     else -> "H"
                 }
                 when (selectedScreen.value) {
+                    "home" -> subtitle.value = "Security Tool"
                     "encrypt" -> subtitle.value = "ENCRYPTION"
                     "decrypt" -> subtitle.value = "DECRYPTION"
                     "hashGenerator" -> subtitle.value = "HASH GENERATOR"
@@ -79,10 +79,7 @@ class FeaturedActivity : ComponentActivity() {
                     NavBarItem(
                         Icons.Filled.Home,
                         "Home",
-                        onclick = {
-                            val intent = Intent(context, MainActivity::class.java)
-                            context.startActivity(intent)
-                        }
+                        onclick = { selectedScreen.value = "home" }
                     ),
                     NavBarItem(
                         Icons.Filled.Lock,
@@ -132,8 +129,8 @@ class FeaturedActivity : ComponentActivity() {
                                 .padding(bottom = 70.dp)
                         )  {
                             Header(subtitle.value)
-                            Spacer(modifier = Modifier.height(30.dp))
                             when (selectedScreen.value) {
+                                "home" -> HomeScreen()
                                 "encrypt" -> EncryptScreen()
                                 "decrypt" -> DecryptionScreen()
                                 "hashGenerator" -> HashGeneratorScreen()
@@ -169,8 +166,7 @@ fun PreviewFeaturedActivity() {
                         .padding(padding)
                 ) {
                     Header("HASH GENERATOR")
-                    Spacer(modifier = Modifier.height(30.dp))
-                    HashGeneratorScreen()
+                    HomeScreen()
                 }
             }
         )

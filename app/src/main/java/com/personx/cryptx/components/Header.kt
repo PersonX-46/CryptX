@@ -28,8 +28,8 @@ fun Header(subtitle: String) {
             .background(
                 Brush.verticalGradient(
                     colors = listOf(
-                        Color(0xFF00FFAA).copy(alpha = 0.07f),
-                        Color.Transparent
+                        Color(0xFF00FFAA).copy(alpha = 0.2f),
+                        MaterialTheme.colorScheme.onSurface.copy(0.05f)
                     )
                 )
             ),
@@ -43,8 +43,8 @@ fun Header(subtitle: String) {
                 fontWeight = FontWeight.ExtraBold,
                 color = Color(0xFF00FFAA),
                 shadow = Shadow(
-                    color = Color(0xFF00FFAA).copy(alpha = 0.8f),
-                    blurRadius = 15f,
+                    color = Color(0xFF00FFAA).copy(alpha = 1f),
+                    blurRadius = 20f,
                 )
             ),
             modifier = Modifier.padding(top = 42.dp)
@@ -54,7 +54,7 @@ fun Header(subtitle: String) {
             text = subtitle,
             style = MaterialTheme.typography.titleLarge.copy(
                 fontFamily = FontFamily.Monospace,
-                color = Color(0xFF00FFAA).copy(alpha = 0.7f)
+                color = Color(0xFF00FFAA).copy(alpha = 1f)
             ),
             modifier = Modifier.padding(bottom = 16.dp)
         )
