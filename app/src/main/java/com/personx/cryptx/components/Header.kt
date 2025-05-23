@@ -28,7 +28,7 @@ fun Header(subtitle: String) {
             .background(
                 Brush.verticalGradient(
                     colors = listOf(
-                        Color(0xFF00FFAA).copy(alpha = 0.2f),
+                        Color(0xFF00FFAA).copy(alpha = 0.1f),
                         MaterialTheme.colorScheme.onSurface.copy(0.05f)
                     )
                 )
