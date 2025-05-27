@@ -15,7 +15,6 @@ import androidx.navigation.compose.rememberNavController
 import com.personx.cryptx.screens.HomeScreen
 import com.personx.cryptx.ui.theme.CryptXTheme
 
-
 class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -37,8 +36,6 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-
-
 
 @Preview(showBackground = true)
 @Composable
