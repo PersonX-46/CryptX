@@ -41,10 +41,10 @@ class PinSetupViewModel(
                             pinCryptoManager.setupPin(current.pin) // ✅ Store encrypted PIN data
                             _state.value = current.copy(error = null, isCompleted = true)
                         } catch (e: Exception) {
-                            _state.value = current.copy(error = "Failed to store PIN", isCompleted = false)
+                            _state.value = current.copy(error = "Failed to store PIN", pin = "", confirmPin = "", isCompleted = false)
                         }
                     } else {
-                        _state.value = current.copy(error = "Pins do not match", isCompleted = false)
+                        _state.value = current.copy(error = "Pins do not match", pin = "", confirmPin = "", isCompleted = false)
                     }
                 }
             }
