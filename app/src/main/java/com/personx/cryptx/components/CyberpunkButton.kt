@@ -38,12 +38,12 @@ fun CyberpunkButton(
             containerColor = Color.Transparent,
             contentColor = MaterialTheme.colorScheme.onSurface,
         ),
-        border = BorderStroke(1.dp, Color(0xFF00FFAA)),
+        border = BorderStroke(if (isActive) 1.dp else 0.dp, Color(0xFF00FFAA)),
         shape = RoundedCornerShape(24.dp)
     ) {
         Icon(
             imageVector = icon,
-            tint = MaterialTheme.colorScheme.onSurface,
+            tint = if (isActive) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
             contentDescription = null,
             modifier = Modifier.size(20.dp)
         )
