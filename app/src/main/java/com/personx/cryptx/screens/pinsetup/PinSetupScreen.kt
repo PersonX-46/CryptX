@@ -1,13 +1,11 @@
 package com.personx.cryptx.screens.pinsetup
 
+import android.annotation.SuppressLint
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,10 +20,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.automirrored.filled.Backspace
-import androidx.compose.material.icons.filled.Backspace
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -37,6 +33,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -50,20 +47,26 @@ import com.personx.cryptx.components.CyberpunkButton
 import com.personx.cryptx.ui.theme.CryptXTheme
 import com.personx.cryptx.viewmodel.PinSetupViewModel
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun PinSetupScreen(
     viewModel: PinSetupViewModel = viewModel(),
     onSetupComplete: () -> Unit
 ) {
     val state by viewModel.state.collectAsState()
-    val cyberpunkGreen = Color(0xFF00FFAA)
-    val cyberpunkDark = Color(0xFF121212)
+    val cyberpunkGreen = MaterialTheme.colorScheme.onSurface
     val cyberpunkLight = Color(0xFF1E1E1E)
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(cyberpunkDark)
+            .background(
+                Brush.verticalGradient(
+                colors = listOf(
+                    MaterialTheme.colorScheme.onSurface.copy(0.1f),
+                    MaterialTheme.colorScheme.onPrimary.copy(0.01F)
+                )
+            ))
             .padding(24.dp),
         verticalArrangement = Arrangement.SpaceBetween,
         horizontalAlignment = Alignment.CenterHorizontally
@@ -71,7 +74,7 @@ fun PinSetupScreen(
         // Header
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth().padding(top = 30.dp)
         ) {
             Icon(
                 imageVector = Icons.Default.Lock,
@@ -109,7 +112,7 @@ fun PinSetupScreen(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(80.dp)
+                .height(30.dp)
         ) {
             Row(
                 horizontalArrangement = Arrangement.Center,
@@ -119,7 +122,7 @@ fun PinSetupScreen(
                     Box(
                         modifier = Modifier
                             .size(24.dp)
-                            .padding(8.dp)
+                            .padding(5.dp)
                             .background(
                                 color = when {
                                     state.step == 1 && index < state.pin.length -> cyberpunkGreen
@@ -219,11 +222,11 @@ fun PinSetupScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 32.dp),
-//            isEnabled = when {
-//                state.step == 1 -> state.pin.length == 4
-//                state.step == 2 -> state.confirmPin.length == 4
-//                else -> false
-//            }
+            isActive = when (state.step) {
+                1 -> state.pin.length == 4
+                2 -> state.confirmPin.length == 4
+                else -> false
+            }
         )
     }
 }
@@ -290,8 +293,6 @@ fun CyberpunkKeypadButton(
         }
     }
 }
-
-
 
 @Preview
 @Composable
