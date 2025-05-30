@@ -1,5 +1,6 @@
 package com.personx.cryptx
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -10,9 +11,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.rememberNavController
+import com.personx.cryptx.crypto.PinCryptoManager
 import com.personx.cryptx.screens.HomeScreen
+import com.personx.cryptx.screens.pinlogin.PinLoginScreen
+import com.personx.cryptx.screens.pinsetup.PinSetupScreen
 import com.personx.cryptx.ui.theme.CryptXTheme
 
 class MainActivity : ComponentActivity() {
@@ -30,7 +35,10 @@ class MainActivity : ComponentActivity() {
                         .background(MaterialTheme.colorScheme.onPrimary),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    HomeScreen()
+                    PinLoginScreen(pinCryptoManager = PinCryptoManager(LocalContext.current)) {
+                        val intent = Intent(this, FeaturedActivity::class.java)
+                        startActivity(intent)
+                    }
                 }
             }
         }
@@ -41,6 +49,8 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun HomeScreenPreview() {
     CryptXTheme(darkTheme = true) {
-        HomeScreen()
+        PinSetupScreen(pinCryptoManager = PinCryptoManager(LocalContext.current)) {
+
+        }
     }
 }
