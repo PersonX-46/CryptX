@@ -45,6 +45,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.personx.cryptx.components.CyberpunkButton
+import com.personx.cryptx.components.CyberpunkKeypadButton
 import com.personx.cryptx.ui.theme.CryptXTheme
 import com.personx.cryptx.viewmodel.PinSetupViewModel
 
@@ -236,68 +237,7 @@ fun PinSetupScreen(
     }
 }
 
-@Composable
-fun CyberpunkKeypadButton(
-    text: String? = null,
-    icon: ImageVector? = null,
-    onClick: () -> Unit,
-    color: Color
-) {
-    var isPressed by remember { mutableStateOf(false) }
 
-    val scale by animateFloatAsState(
-        targetValue = if (isPressed) 0.6f else 1f,
-        animationSpec = tween(durationMillis = 100),
-        label = "buttonScale"
-    )
-
-    Box(
-        modifier = Modifier
-            .size(64.dp)
-            .graphicsLayer {
-                scaleX = scale
-                scaleY = scale
-            }
-            .pointerInput(Unit) {
-                detectTapGestures(
-                    onPress = {
-                        isPressed = true
-                        tryAwaitRelease()
-                        isPressed = false
-                        onClick()
-                    }
-                )
-            }
-            .background(
-                color = Color.Black.copy(alpha = 0.3f),
-                shape = CircleShape
-            )
-            .border(
-                width = 1.dp,
-                color = color.copy(alpha = 0.5f),
-                shape = CircleShape
-            ),
-        contentAlignment = Alignment.Center
-    ) {
-        if (text != null) {
-            Text(
-                text = text,
-                style = MaterialTheme.typography.headlineMedium.copy(
-                    color = color,
-                    fontFamily = FontFamily.Monospace
-                )
-            )
-        }
-        if (icon != null) {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                tint = color,
-                modifier = Modifier.size(24.dp)
-            )
-        }
-    }
-}
 
 @Preview
 @Composable
