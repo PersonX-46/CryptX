@@ -26,6 +26,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -56,6 +57,13 @@ fun PinSetupScreen(
     val state by viewModel.state.collectAsState()
     val cyberpunkGreen = MaterialTheme.colorScheme.onSurface
     val cyberpunkLight = Color(0xFF1E1E1E)
+
+    LaunchedEffect(state.isCompleted) {
+        if (state.isCompleted) {
+            onSetupComplete()
+        }
+    }
+
 
     Column(
         modifier = Modifier
@@ -213,9 +221,6 @@ fun PinSetupScreen(
         CyberpunkButton(
             onClick = {
                 viewModel.event(PinSetupEvent.Continue)
-                if (state.step == 2 && state.pin == state.confirmPin) {
-                    onSetupComplete()
-                }
             },
             text = if (state.step == 1) "CONTINUE" else "CONFIRM",
             icon = if (state.step == 1) Icons.AutoMirrored.Filled.ArrowForward else Icons.Default.Check,
