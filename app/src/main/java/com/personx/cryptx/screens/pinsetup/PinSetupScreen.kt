@@ -30,22 +30,29 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.personx.cryptx.components.CyberpunkButton
 import com.personx.cryptx.components.CyberpunkKeypadButton
+import com.personx.cryptx.crypto.PinCryptoManager
 import com.personx.cryptx.ui.theme.CryptXTheme
 import com.personx.cryptx.viewmodel.PinSetupViewModel
+import com.personx.cryptx.viewmodel.PinSetupViewModelFactory
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun PinSetupScreen(
-    viewModel: PinSetupViewModel = viewModel(),
+    pinCryptoManager: PinCryptoManager,
     onSetupComplete: () -> Unit
 ) {
+    val viewModel: PinSetupViewModel = viewModel(
+        factory = PinSetupViewModelFactory(pinCryptoManager)
+    )
     val state by viewModel.state.collectAsState()
     val cyberpunkGreen = MaterialTheme.colorScheme.onSurface
     val cyberpunkLight = Color(0xFF1E1E1E)
@@ -234,6 +241,6 @@ fun PinSetupScreen(
 @Composable
 fun PinSetupScreenPreview() {
     CryptXTheme(darkTheme = true) {
-        PinSetupScreen(onSetupComplete = {})
+        PinSetupScreen(pinCryptoManager = PinCryptoManager(LocalContext.current)) { }
     }
 }
