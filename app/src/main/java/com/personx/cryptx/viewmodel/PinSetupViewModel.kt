@@ -1,12 +1,15 @@
 package com.personx.cryptx.viewmodel
 
 import androidx.lifecycle.ViewModel
+import com.personx.cryptx.crypto.PinCryptoManager
 import com.personx.cryptx.data.PinSetupState
 import com.personx.cryptx.screens.pinsetup.PinSetupEvent
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
-class PinSetupViewModel : ViewModel() {
+class PinSetupViewModel(
+    private val pinCryptoManager: PinCryptoManager
+) : ViewModel() {
 
     private val _state = MutableStateFlow(PinSetupState())
     val state: StateFlow<PinSetupState> = _state
@@ -34,9 +37,14 @@ class PinSetupViewModel : ViewModel() {
                 } else {
                     if ( current.pin == current.confirmPin) {
                         // Pin confirmed, can now securely store it
-                        _state.value = current.copy(error = null)
+                        try {
+                            pinCryptoManager.setupPin(current.pin) // ✅ Store encrypted PIN data
+                            _state.value = current.copy(error = null, isCompleted = true)
+                        } catch (e: Exception) {
+                            _state.value = current.copy(error = "Failed to store PIN", isCompleted = false)
+                        }
                     } else {
-                        _state.value = current.copy(error = "Pins do not match")
+                        _state.value = current.copy(error = "Pins do not match", isCompleted = false)
                     }
                 }
             }
