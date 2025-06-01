@@ -2,6 +2,7 @@ package com.personx.cryptx.crypto
 
 import android.content.Context
 import android.util.Base64
+import android.util.Log
 import androidx.core.content.edit
 import java.security.SecureRandom
 import javax.crypto.Cipher
@@ -16,7 +17,7 @@ class PinCryptoManager(private val context: Context) {
     fun setupPin(pin: String) {
         val salt = generateSalt()
         val key = deriveKeyFromPin(pin, salt)
-        val secret = generateRandomSecret()
+        val secret = "auth_secret_salt".toByteArray()
         val (encryptedSecret, iv) = encryptSecret(secret, key)
 
         val prefs = context.getSharedPreferences("secure_prefs", Context.MODE_PRIVATE)
@@ -41,17 +42,11 @@ class PinCryptoManager(private val context: Context) {
 
         return try {
             val decryptedSecret = decryptSecret(encryptedSecret, iv, key)
+            Log.d("decryptedSecret", decryptedSecret.toString())
             return decryptedSecret == "auth_secret_salt" // Check against a known value
         } catch (e: Exception) {
             false
         }
-    }
-
-    private fun generateSalt(): ByteArray {
-//        val salt = ByteArray(16)
-//        SecureRandom().nextBytes(salt)
-//        return salt
-        return "auth_secret_salt".toByteArray() // For testing purposes, use a fixed salt
     }
 
     private fun deriveKeyFromPin(pin: String, salt: ByteArray): SecretKey {
@@ -61,8 +56,8 @@ class PinCryptoManager(private val context: Context) {
         return SecretKeySpec(tmp.encoded, "AES")
     }
 
-    private fun generateRandomSecret(): ByteArray {
-        val secret = ByteArray(32)
+    private fun generateSalt(): ByteArray {
+        val secret = ByteArray(16)
         SecureRandom().nextBytes(secret)
         return secret
     }
@@ -88,5 +83,4 @@ class PinCryptoManager(private val context: Context) {
             null
         }
     }
-
 }
