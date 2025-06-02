@@ -45,7 +45,7 @@ import com.personx.cryptx.viewmodel.PinLoginViewModelFactory
 @Composable
 fun PinLoginScreen(
     pinCryptoManager: PinCryptoManager,
-    onLoginSuccess: () -> Unit
+    onLoginSuccess: (pin: String) -> Unit
 ) {
     val viewModel: PinLoginViewModel = viewModel(
         factory = PinLoginViewModelFactory(pinCryptoManager)
@@ -56,7 +56,7 @@ fun PinLoginScreen(
 
     LaunchedEffect(state.isSuccess) {
         if (state.isSuccess) {
-            onLoginSuccess()
+            onLoginSuccess(state.enteredPin)
         }
     }
 
