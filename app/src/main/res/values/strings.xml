@@ -119,7 +119,7 @@
     <string name="save_file">SAVE FILE</string>
     <string name="enter_encryption_key">Enter encryption key…</string>
     <string name="encrypted_output">ENCRYPTED OUTPUT</string>
-    <string name="copy_output">COPY OUTPUT</string>
+    <string name="copy_output">COPY</string>
     <string name="save_output">SAVE</string>
 
 
