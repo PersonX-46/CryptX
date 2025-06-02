@@ -12,6 +12,7 @@ data class DecryptionHistory(
     val key: String,
     val iv: String?,
     val encryptedText: String,
+    val isBase64: Boolean,
     val decryptedOutput: String,
     val timestamp: Long = System.currentTimeMillis()
 )

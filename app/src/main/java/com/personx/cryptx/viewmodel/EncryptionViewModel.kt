@@ -1,6 +1,8 @@
 package com.personx.cryptx.viewmodel
 
 import android.content.Context
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -13,6 +15,8 @@ import com.example.cryptography.utils.CryptoUtils.encodeByteArrayToString
 import com.example.cryptography.utils.CryptoUtils.padTextToBlockSize
 import com.personx.cryptx.R
 import com.personx.cryptx.data.EncryptionState
+import com.personx.cryptx.database.encryption.DatabaseProvider
+import com.personx.cryptx.database.encryption.EncryptionHistory
 import com.personx.cryptx.screens.getKeySizes
 import com.personx.cryptx.screens.getTransformations
 import kotlinx.coroutines.launch
@@ -46,6 +50,10 @@ class EncryptionViewModel : ViewModel() {
         _state.value = _state.value.copy(outputText = output)
     }
 
+    fun updateCurrentScreen(screen: String) {
+        _state.value = _state.value.copy(currentScreen = screen)
+    }
+
     fun updateIVText(iv: String) {
         _state.value = _state.value.copy(ivText = iv)
     }
@@ -67,7 +75,6 @@ class EncryptionViewModel : ViewModel() {
             try {
                 val transformations = getTransformations(context, _state.value.selectedAlgorithm)
                 val keySizes = getKeySizes(context, _state.value.selectedAlgorithm)
-
                 _state.value = _state.value.copy(
                     transformationList = transformations,
                     keySizeList = keySizes,
@@ -114,6 +121,71 @@ class EncryptionViewModel : ViewModel() {
                     outputText = "IV generation failed: ${e.message}"
                 )
             }
+        }
+    }
+
+    private fun createEncryptedHistory(
+        algorithm: String,
+        transformation: String,
+        keySize: Int,
+        key: String,
+        iv: String?,
+        secretText: String,
+        isBase64: Boolean,
+        encryptedOutput: String,
+    ) : EncryptionHistory {
+
+        return EncryptionHistory(
+            algorithm = algorithm,
+            transformation = transformation,
+            keySize = keySize,
+            key = key,
+            iv = iv,
+            secretText = secretText,
+            encryptedOutput = encryptedOutput,
+            isBase64 = isBase64,
+        )
+
+    }
+
+    fun insertEncryptionHistory(
+        context: Context,
+        pin: String,
+        algorithm: String,
+        transformation: String,
+        keySize: Int,
+        key: String,
+        iv: String?,
+        secretText: String,
+        isBase64: Boolean,
+        encryptedOutput: String
+    ) {
+        viewModelScope.launch {
+            val encryptionHistory = createEncryptedHistory(
+                algorithm = algorithm,
+                transformation = transformation,
+                keySize = keySize,
+                key = key,
+                iv = iv,
+                secretText = secretText,
+                encryptedOutput = encryptedOutput,
+                isBase64 = isBase64
+            )
+            val instance = DatabaseProvider.getDatabase(context, pin)
+            if (instance == null) {
+                Toast.makeText(
+                    context,
+                    "Database not initialized",
+                    Toast.LENGTH_SHORT
+                ).show()
+                return@launch
+            }
+            instance.historyDao()
+                .insertEncryptionHistory(encryptionHistory)
+            Log.d("ENCRYPTED HISTORY", "SUCCESS")
+            updateCurrentScreen("main")
+            // Insert the history into the database (not implemented here)
+            // database.encryptionHistoryDao().insert(history)
         }
     }
 

@@ -48,6 +48,8 @@ import com.personx.cryptx.components.CyberpunkDropdown
 import com.personx.cryptx.components.CyberpunkInputBox
 import com.personx.cryptx.components.CyberpunkKeySection
 import com.personx.cryptx.components.CyberpunkOutputSection
+import com.personx.cryptx.crypto.PinCryptoManager
+import com.personx.cryptx.screens.pinlogin.PinLoginScreen
 import com.personx.cryptx.ui.theme.CryptXTheme
 import com.personx.cryptx.viewmodel.EncryptionViewModel
 import kotlinx.coroutines.launch
@@ -66,73 +68,30 @@ fun EncryptScreen(
         viewModel.updateAlgorithmAndModeLists(context)
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(
-                Brush.verticalGradient(
-                    colors = listOf(
-                        MaterialTheme.colorScheme.onSurface.copy(0.05f),
-                        MaterialTheme.colorScheme.onPrimary.copy(0.01F)
+    if (state.currentScreen == "main") {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    Brush.verticalGradient(
+                        colors = listOf(
+                            MaterialTheme.colorScheme.onSurface.copy(0.05f),
+                            MaterialTheme.colorScheme.onPrimary.copy(0.01F)
+                        )
                     )
                 )
-            )
-            .padding(16.dp)
-            .verticalScroll(rememberScrollState()),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        // Algorithm Card
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onSurface.copy(0.03f))
+                .padding(16.dp)
+                .verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Column(modifier = Modifier.padding(12.dp)) {
-                Text(
-                    text = "Encryption Settings",
-                    style = MaterialTheme.typography.labelMedium.copy(
-                        color = cyberpunkGreen.copy(alpha = 0.8f)
-                    )
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                CyberpunkDropdown(
-                    items = stringArrayResource(R.array.supported_algorithms_list).toList(),
-                    selectedItem = state.selectedAlgorithm,
-                    onItemSelected = { viewModel.updateSelectedAlgorithm(it) },
-                    label = "Algorithm"
-                )
-
-                if (state.selectedAlgorithm != "RSA") {
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    CyberpunkDropdown(
-                        items = state.transformationList,
-                        selectedItem = state.selectedMode,
-                        onItemSelected = { viewModel.updateSelectedMode(it) },
-                        label = "Mode"
-                    )
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    CyberpunkDropdown(
-                        items = state.keySizeList,
-                        selectedItem = state.selectedKeySize.toString(),
-                        onItemSelected = { viewModel.updateSelectedKeySize(it.toInt()) },
-                        label = "Key Size"
-                    )
-                }
-            }
-        }
-
-        if (state.selectedAlgorithm != "RSA") {
-            // Input Card
+            // Algorithm Card
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onSurface.copy(0.05f))            ) {
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onSurface.copy(0.03f))
+            ) {
                 Column(modifier = Modifier.padding(12.dp)) {
                     Text(
-                        text = "Input Data",
+                        text = "Encryption Settings",
                         style = MaterialTheme.typography.labelMedium.copy(
                             color = cyberpunkGreen.copy(alpha = 0.8f)
                         )
@@ -140,117 +99,191 @@ fun EncryptScreen(
 
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    CyberpunkInputBox(
-                        value = state.inputText,
-                        onValueChange = { viewModel.updateInputText(it) },
-                        placeholder = "Enter text to encrypt...",
-                        modifier = Modifier.height(100.dp)
+                    CyberpunkDropdown(
+                        items = stringArrayResource(R.array.supported_algorithms_list).toList(),
+                        selectedItem = state.selectedAlgorithm,
+                        onItemSelected = { viewModel.updateSelectedAlgorithm(it) },
+                        label = "Algorithm"
                     )
+
+                    if (state.selectedAlgorithm != "RSA") {
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        CyberpunkDropdown(
+                            items = state.transformationList,
+                            selectedItem = state.selectedMode,
+                            onItemSelected = { viewModel.updateSelectedMode(it) },
+                            label = "Mode"
+                        )
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        CyberpunkDropdown(
+                            items = state.keySizeList,
+                            selectedItem = state.selectedKeySize.toString(),
+                            onItemSelected = { viewModel.updateSelectedKeySize(it.toInt()) },
+                            label = "Key Size"
+                        )
+                    }
                 }
             }
 
-            // Security Parameters Card
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onSurface.copy(0.05f))            ) {
-                Column(modifier = Modifier.padding(12.dp)) {
-                    Text(
-                        text = "Security Parameters",
-                        style = MaterialTheme.typography.labelMedium.copy(
-                            color = cyberpunkGreen.copy(alpha = 0.8f)
+            if (state.selectedAlgorithm != "RSA") {
+                // Input Card
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onSurface.copy(0.05f))            ) {
+                    Column(modifier = Modifier.padding(12.dp)) {
+                        Text(
+                            text = "Input Data",
+                            style = MaterialTheme.typography.labelMedium.copy(
+                                color = cyberpunkGreen.copy(alpha = 0.8f)
+                            )
                         )
-                    )
 
-                    Spacer(modifier = Modifier.height(8.dp))
+                        Spacer(modifier = Modifier.height(8.dp))
 
-                    CyberpunkKeySection(
-                        keyText = state.keyText,
-                        onKeyTextChange = { viewModel.updateKeyText(it) },
-                        onGenerateKey = { viewModel.generateKey() },
-                        title = "Encryption Key"
-                    )
+                        CyberpunkInputBox(
+                            value = state.inputText,
+                            onValueChange = { viewModel.updateInputText(it) },
+                            placeholder = "Enter text to encrypt...",
+                            modifier = Modifier.height(100.dp)
+                        )
+                    }
+                }
 
-                    if (state.enableIV) {
+                // Security Parameters Card
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onSurface.copy(0.05f))            ) {
+                    Column(modifier = Modifier.padding(12.dp)) {
+                        Text(
+                            text = "Security Parameters",
+                            style = MaterialTheme.typography.labelMedium.copy(
+                                color = cyberpunkGreen.copy(alpha = 0.8f)
+                            )
+                        )
+
                         Spacer(modifier = Modifier.height(8.dp))
 
                         CyberpunkKeySection(
-                            keyText = state.ivText,
-                            onKeyTextChange = { viewModel.updateIVText(it) },
-                            onGenerateKey = { viewModel.generateIV() },
-                            title = "Initialization Vector (IV)"
+                            keyText = state.keyText,
+                            onKeyTextChange = { viewModel.updateKeyText(it) },
+                            onGenerateKey = { viewModel.generateKey() },
+                            title = "Encryption Key"
                         )
-                    }
 
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text(
-                            text = "Base64 Encoding",
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-                        Switch(
-                            checked = state.isBase64Enabled,
-                            onCheckedChange = { viewModel.updateBase64Enabled(it) },
-                            colors = SwitchDefaults.colors(
-                                checkedBorderColor = cyberpunkGreen,
-                                checkedThumbColor = cyberpunkGreen,
-                                checkedTrackColor = Color.Transparent,
-                                uncheckedTrackColor = Color.Transparent,
-                                uncheckedThumbColor = cyberpunkGreen,
-                                uncheckedBorderColor = cyberpunkGreen
-                            )
-                        )
-                    }
-                }
-            }
-
-            // Action Button
-            CyberpunkButton(
-                onClick = { viewModel.encrypt(context) },
-                icon = Icons.Default.Lock,
-                text = "ENCRYPT",
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            // Output Section
-            if (state.outputText.isNotEmpty()) {
-                AnimatedVisibility(
-                    visible = state.outputText.isNotEmpty(),
-                    enter = fadeIn() + expandVertically(),
-                    exit = fadeOut() + shrinkVertically()
-                ) {
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onSurface.copy(0.05f))
-                    ) {
-                        Column(modifier = Modifier.padding(12.dp)) {
-                            Text(
-                                text = "Encrypted Output",
-                                style = MaterialTheme.typography.labelMedium.copy(
-                                    color = cyberpunkGreen.copy(alpha = 0.8f)
-                                )
-                            )
-
+                        if (state.enableIV) {
                             Spacer(modifier = Modifier.height(8.dp))
 
-                            CyberpunkOutputSection(
-                                output = state.outputText,
-                                onCopy = {
-                                    scope.launch {
-                                        clipboard.setClipEntry(ClipEntry(ClipData.newPlainText("Copied", state.outputText)))
-                                    }
-                                    Toast.makeText(context, "Copied!", Toast.LENGTH_SHORT).show()
-                                }
+                            CyberpunkKeySection(
+                                keyText = state.ivText,
+                                onKeyTextChange = { viewModel.updateIVText(it) },
+                                onGenerateKey = { viewModel.generateIV() },
+                                title = "Initialization Vector (IV)"
                             )
+                        }
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(
+                                text = "Base64 Encoding",
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                            Switch(
+                                checked = state.isBase64Enabled,
+                                onCheckedChange = { viewModel.updateBase64Enabled(it) },
+                                colors = SwitchDefaults.colors(
+                                    checkedBorderColor = cyberpunkGreen,
+                                    checkedThumbColor = cyberpunkGreen,
+                                    checkedTrackColor = Color.Transparent,
+                                    uncheckedTrackColor = Color.Transparent,
+                                    uncheckedThumbColor = cyberpunkGreen,
+                                    uncheckedBorderColor = cyberpunkGreen
+                                )
+                            )
+                        }
+                    }
+                }
+
+                // Action Button
+                CyberpunkButton(
+                    onClick = { viewModel.encrypt(context) },
+                    icon = Icons.Default.Lock,
+                    text = "ENCRYPT",
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                // Output Section
+                if (state.outputText.isNotEmpty()) {
+                    AnimatedVisibility(
+                        visible = state.outputText.isNotEmpty(),
+                        enter = fadeIn() + expandVertically(),
+                        exit = fadeOut() + shrinkVertically()
+                    ) {
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onSurface.copy(0.05f))
+                        ) {
+                            Column(modifier = Modifier.padding(12.dp)) {
+                                Text(
+                                    text = "Encrypted Output",
+                                    style = MaterialTheme.typography.labelMedium.copy(
+                                        color = cyberpunkGreen.copy(alpha = 0.8f)
+                                    )
+                                )
+
+                                Spacer(modifier = Modifier.height(8.dp))
+
+                                CyberpunkOutputSection(
+                                    output = state.outputText,
+                                    onCopy = {
+                                        scope.launch {
+                                            clipboard.setClipEntry(
+                                                ClipEntry(
+                                                    ClipData.newPlainText(
+                                                        "Copied",
+                                                        state.outputText
+                                                    )
+                                                )
+                                            )
+                                        }
+                                        Toast.makeText(context, "Copied!", Toast.LENGTH_SHORT).show()
+                                    },
+                                    onSave = {
+                                        viewModel.updateCurrentScreen("pin_login")
+                                    },
+                                )
+                            }
                         }
                     }
                 }
             }
         }
+    } else if (state.currentScreen == "pin_login") {
+        PinLoginScreen(
+            pinCryptoManager = PinCryptoManager(context),
+            onLoginSuccess = { pin: String ->
+                viewModel.insertEncryptionHistory(
+                    context = context,
+                    pin = pin,
+                    algorithm = state.selectedAlgorithm,
+                    transformation = state.selectedMode,
+                    keySize = state.selectedKeySize,
+                    key = state.keyText,
+                    iv = if (state.enableIV) state.ivText else null,
+                    secretText = state.inputText,
+                    isBase64 = state.isBase64Enabled,
+                    encryptedOutput = state.outputText
+                )
+                Toast.makeText(context, "Encryption history saved!", Toast.LENGTH_SHORT).show()
+            }
+        )
     }
 }
 
