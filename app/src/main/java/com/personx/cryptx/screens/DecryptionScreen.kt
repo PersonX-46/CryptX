@@ -63,7 +63,6 @@ fun DecryptionScreen(
     val clipboard = LocalClipboard.current
     val scope = rememberCoroutineScope()
     val cyberpunkGreen = Color(0xFF00FFAA)
-    val surfaceColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.8f)
 
     LaunchedEffect(state.selectedAlgorithm) {
         viewModel.updateAlgorithmList(context)
