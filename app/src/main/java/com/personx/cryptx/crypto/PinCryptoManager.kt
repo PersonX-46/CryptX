@@ -49,6 +49,31 @@ class PinCryptoManager(private val context: Context) {
         }
     }
 
+    fun getRawKeyIfPinValid(pin: String): ByteArray? {
+        val prefs = context.getSharedPreferences("secure_prefs", Context.MODE_PRIVATE)
+        val saltString = prefs.getString("salt", null) ?: return null
+        val ivString = prefs.getString("iv", null) ?: return null
+        val secretString = prefs.getString("secret", null) ?: return null
+
+        val salt = Base64.decode(saltString, Base64.NO_WRAP)
+        val iv = Base64.decode(ivString, Base64.NO_WRAP)
+        val encryptedSecret = Base64.decode(secretString, Base64.NO_WRAP)
+
+        val key = deriveKeyFromPin(pin, salt)
+
+        return try {
+            val decryptedSecret = decryptSecret(encryptedSecret, iv, key)
+            if (decryptedSecret == "auth_secret_salt") {
+                key.encoded // return raw key bytes
+            } else {
+                null
+            }
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+
     private fun deriveKeyFromPin(pin: String, salt: ByteArray): SecretKey {
         val factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256")
         val spec = PBEKeySpec(pin.toCharArray(), salt, 10000, 256)
