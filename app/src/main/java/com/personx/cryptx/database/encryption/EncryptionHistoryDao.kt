@@ -1,6 +1,5 @@
 package com.personx.cryptx.database.encryption
 
-import android.service.autofill.OnClickAction
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
