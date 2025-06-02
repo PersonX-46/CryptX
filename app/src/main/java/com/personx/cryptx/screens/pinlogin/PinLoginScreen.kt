@@ -198,8 +198,9 @@ fun PinLoginScreen(
         // Login Button
         CyberpunkButton(
             onClick = {
-                if (state.enteredPin.length == 4) {
+                if (state.enteredPin.length == 4 && pinCryptoManager.getRawKeyIfPinValid(state.enteredPin) != null) {
                     viewModel.event(PinLoginEvent.Submit)
+
                 }
             },
             text = "AUTHENTICATE",
