@@ -87,7 +87,9 @@ fun EncryptScreen(
             // Algorithm Card
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onSurface.copy(0.03f))
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.onSurface.copy(0.03f)
+                )
             ) {
                 Column(modifier = Modifier.padding(12.dp)) {
                     Text(
@@ -132,7 +134,9 @@ fun EncryptScreen(
                 // Input Card
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onSurface.copy(0.05f))            ) {
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.onSurface.copy(0.05f))
+                ) {
                     Column(modifier = Modifier.padding(12.dp)) {
                         Text(
                             text = "Input Data",
@@ -155,7 +159,9 @@ fun EncryptScreen(
                 // Security Parameters Card
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onSurface.copy(0.05f))            ) {
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.onSurface.copy(0.05f))
+                ) {
                     Column(modifier = Modifier.padding(12.dp)) {
                         Text(
                             text = "Security Parameters",
@@ -228,7 +234,10 @@ fun EncryptScreen(
                     ) {
                         Card(
                             modifier = Modifier.fillMaxWidth(),
-                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onSurface.copy(0.05f))
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.onSurface
+                                    .copy(0.05f)
+                            )
                         ) {
                             Column(modifier = Modifier.padding(12.dp)) {
                                 Text(
@@ -253,7 +262,11 @@ fun EncryptScreen(
                                                 )
                                             )
                                         }
-                                        Toast.makeText(context, "Copied!", Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(
+                                            context,
+                                            "Copied!",
+                                            Toast.LENGTH_SHORT)
+                                            .show()
                                     },
                                     onSave = {
                                         viewModel.updateCurrentScreen("pin_login")

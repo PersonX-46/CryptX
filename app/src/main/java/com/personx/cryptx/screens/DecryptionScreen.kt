@@ -17,15 +17,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.LockOpen
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
@@ -41,7 +37,6 @@ import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringArrayResource
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -91,7 +86,8 @@ fun DecryptionScreen(
             // Algorithm Card
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onSurface.copy(0.03f)),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.onSurface.copy(0.03f)),
                 elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
             ) {
                 Column(modifier = Modifier.padding(12.dp)) {
@@ -128,7 +124,8 @@ fun DecryptionScreen(
                 // Input Card
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onSurface.copy(0.03f))
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.onSurface.copy(0.03f))
                 ) {
                     Column(modifier = Modifier.padding(12.dp)) {
                         Text(
@@ -152,7 +149,8 @@ fun DecryptionScreen(
                 // Security Parameters Card
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onSurface.copy(0.03f))
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.onSurface.copy(0.03f))
                 ) {
                     Column(modifier = Modifier.padding(12.dp)) {
                         Text(
@@ -225,7 +223,8 @@ fun DecryptionScreen(
                 ) {
                     Card(
                         modifier = Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onSurface.copy(0.03f))
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.onSurface.copy(0.03f))
                     ) {
                         Column(modifier = Modifier.padding(12.dp)) {
                             Row(
@@ -255,7 +254,10 @@ fun DecryptionScreen(
                                                 )
                                             )
                                         }
-                                        Toast.makeText(context, "Copied!", Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(
+                                            context,
+                                            "Copied!",
+                                            Toast.LENGTH_SHORT).show()
                                     },
                                     onSave = {
                                         viewModel.updateCurrentScreen("pin_login")
@@ -283,7 +285,10 @@ fun DecryptionScreen(
                     state.isBase64Enabled,
                     state.outputText
                 )
-                Toast.makeText(context, "Encryption history saved!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    context,
+                    "Encryption history saved!",
+                    Toast.LENGTH_SHORT).show()
             }
         )
     }

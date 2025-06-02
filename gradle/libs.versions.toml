@@ -15,6 +15,7 @@ appcompat = "1.7.0"
 material = "1.12.0"
 navigationCompose = "2.9.0"
 navigationComposeJvmstubs = "2.9.0"
+navigationComposeVersion = "2.7.7"
 roomRuntime = "2.7.1"
 securityCryptoKtx = "1.0.0"
 
@@ -23,6 +24,7 @@ android-database-sqlcipher = { module = "net.zetetic:android-database-sqlcipher"
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-material-icons-extended = { module = "androidx.compose.material:material-icons-extended", version.ref = "materialIconsExtended" }
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
+androidx-navigation-compose-v277 = { module = "androidx.navigation:navigation-compose", version.ref = "navigationComposeVersion" }
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomRuntime" }
 androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "roomRuntime" }
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomRuntime" }

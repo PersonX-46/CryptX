@@ -27,8 +27,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.personx.cryptx.components.CyberpunkNavBar
 import com.personx.cryptx.components.Header
 import com.personx.cryptx.data.NavBarItem
@@ -51,64 +55,40 @@ class FeaturedActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             CryptXTheme(darkTheme = true) {
-                val screen = intent.getStringExtra(EXTRA_SCREEN)
-                val selectedScreen = remember { mutableStateOf(screen) }
+                val screen = intent.getStringExtra(EXTRA_SCREEN) ?: "home"
                 val subtitle = remember { mutableStateOf("") }
-                val selectedLabel = remember { mutableStateOf("") }
-                selectedLabel.value = when (screen) {
-                    "home" -> "home"
-                    "encrypt" -> "encrypt"
-                    "decrypt" -> "decrypt"
-                    "hashGenerator" -> "hashGenerator"
-                    "hashDetector" -> "hashDetector"
-                    "steganography" -> "steganography"
-                    else -> "H"
-                }
-                when (selectedScreen.value) {
-                    "home" -> subtitle.value = "Security Tool"
-                    "encrypt" -> subtitle.value = "ENCRYPTION"
-                    "decrypt" -> subtitle.value = "DECRYPTION"
-                    "hashGenerator" -> subtitle.value = "HASH GENERATOR"
-                    "hashDetector" -> subtitle.value = "HASH DETECTOR"
-                    "steganography" -> subtitle.value = "STEGANOGRAPHY"
-                    else -> subtitle.value = "Invalid screen"
-                }
+                val navController = rememberNavController()
+
+                val selectedLabel = remember { mutableStateOf(screen) }
+
                 val navItems = listOf(
-                    NavBarItem(
-                        Icons.Filled.Home,
-                        "Home",
-                        onclick = { selectedScreen.value = "home" }
-                    ),
-                    NavBarItem(
-                        Icons.Filled.Lock,
-                        "Encrypt",
-                        onclick = { selectedScreen.value = "encrypt" }
-                    ),
-                    NavBarItem(
-                        Icons.Filled.LockOpen,
-                        "Decrypt",
-                        onclick = { selectedScreen.value = "decrypt" }
-                    ),
-                    NavBarItem(
-                        Icons.Filled.Code,
-                        "HashGenerator",
-                        onclick = { selectedScreen.value = "hashGenerator" }
-                    ),
-                    NavBarItem(
-                        Icons.Filled.Search,
-                        "HashDetector",
-                        onclick = { selectedScreen.value = "hashDetector" }
-                    ),
-                    NavBarItem(
-                        Icons.Filled.VisibilityOff,
-                        "Steganography",
-                        onclick = { selectedScreen.value = "steganography" }
-                    ),
+                    NavBarItem(Icons.Filled.Home, "Home") {
+                        navController.navigate("home")
+                        selectedLabel.value = "home"
+                    },
+                    NavBarItem(Icons.Filled.Lock, "Encrypt") {
+                        navController.navigate("encrypt")
+                        selectedLabel.value = "encrypt"
+                    },
+                    NavBarItem(Icons.Filled.LockOpen, "Decrypt") {
+                        navController.navigate("decrypt")
+                        selectedLabel.value = "decrypt"
+                    },
+                    NavBarItem(Icons.Filled.Code, "HashGenerator") {
+                        navController.navigate("hashGenerator")
+                        selectedLabel.value = "hashGenerator"
+                    },
+                    NavBarItem(Icons.Filled.Search, "HashDetector") {
+                        navController.navigate("hashDetector")
+                        selectedLabel.value = "hashDetector"
+                    },
+                    NavBarItem(Icons.Filled.VisibilityOff, "Steganography") {
+                        navController.navigate("steganography")
+                        selectedLabel.value = "steganography"
+                    },
                 )
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
+
+                Surface(modifier = Modifier.fillMaxSize().background(Color.Black)) {
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
@@ -120,34 +100,32 @@ class FeaturedActivity : ComponentActivity() {
                                     )
                                 )
                             )
-                    ){
+                    ) {
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(bottom = 70.dp)
-                        )  {
+                        ) {
                             Header(subtitle.value)
-                            when (selectedScreen.value) {
-                                "home" -> HomeScreen()
-                                "encrypt" -> EncryptScreen()
-                                "decrypt" -> DecryptionScreen()
-                                "hashGenerator" -> HashGeneratorScreen()
-                                "hashDetector" -> HashDetector()
-                                "steganography" -> SteganographyScreen()
-                                else -> Text("Invalid screen")
-                            }
+
+                            AppNavGraph(
+                                navController = navController,
+                                subtitle = subtitle
+                            )
                         }
+
                         CyberpunkNavBar(
                             items = navItems,
                             modifier = Modifier
                                 .align(Alignment.BottomCenter)
                                 .padding(bottom = 20.dp),
-                            selectedLabel = selectedLabel.value,
+                            selectedLabel = selectedLabel.value
                         )
                     }
                 }
             }
         }
+
     }
 }
 
@@ -163,8 +141,8 @@ fun PreviewFeaturedActivity() {
                         .fillMaxSize()
                         .padding(padding)
                 ) {
-                    Header("HASH GENERATOR")
-                    HomeScreen()
+                    HomeScreen(
+                   )
                 }
             }
         )
