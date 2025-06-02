@@ -1,6 +1,8 @@
 package com.personx.cryptx.viewmodel
 
 import android.content.Context
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -12,6 +14,8 @@ import com.example.cryptography.utils.CryptoUtils.decodeStringToByteArray
 import com.example.cryptography.utils.CryptoUtils.encodeByteArrayToString
 import com.personx.cryptx.R
 import com.personx.cryptx.data.DecryptionState
+import com.personx.cryptx.database.encryption.DatabaseProvider
+import com.personx.cryptx.database.encryption.DecryptionHistory
 import com.personx.cryptx.screens.getKeySizes
 import com.personx.cryptx.screens.getTransformations
 import kotlinx.coroutines.launch
@@ -41,6 +45,10 @@ class DecryptionViewModel : ViewModel() {
         _state.value = _state.value.copy(inputText = input)
     }
 
+    fun updateCurrentScreen(screen: String) {
+        _state.value = _state.value.copy(currentScreen = screen)
+    }
+
     fun updateOutputText(output: String) {
         _state.value = _state.value.copy(outputText = output)
     }
@@ -63,6 +71,63 @@ class DecryptionViewModel : ViewModel() {
 
     fun updateShowCopiedToast(show: Boolean) {
         _state.value = _state.value.copy(showCopiedToast = show)
+    }
+
+    private fun createDecryptionHistory(
+        algorithm: String,
+        transformation: String,
+        key: String,
+        iv: String?,
+        encryptedText: String,
+        isBase64 : Boolean,
+        decryptedOutput: String
+    ): DecryptionHistory {
+        return DecryptionHistory(
+            algorithm = algorithm,
+            transformation = transformation,
+            key = key,
+            iv = iv,
+            encryptedText = encryptedText,
+            isBase64 = isBase64,
+            decryptedOutput = decryptedOutput,
+        )
+    }
+
+    fun insertDecryptionHistory(
+        context: Context,
+        pin: String,
+        algorithm: String,
+        transformation: String,
+        key: String,
+        iv: String?,
+        encryptedText: String,
+        isBase64: Boolean,
+        decryptedOutput: String
+    ) {
+        viewModelScope.launch {
+            val decryptionHistory = createDecryptionHistory(
+                algorithm,
+                transformation,
+                key,
+                iv,
+                encryptedText,
+                isBase64,
+                decryptedOutput
+            )
+            val instance = DatabaseProvider.getDatabase(context, pin)
+            if (instance == null) {
+                Toast.makeText(
+                    context,
+                    "Database not initialized",
+                    Toast.LENGTH_SHORT
+                ).show()
+                return@launch
+            }
+            instance.historyDao()
+                .insertDecryptionHistory(decryptionHistory)
+            Log.d("DECRYPTION HISTORY", "SUCCESS")
+            updateCurrentScreen("main")
+        }
     }
 
     fun updateAlgorithmList(context: Context) {
