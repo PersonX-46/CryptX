@@ -193,8 +193,12 @@ fun DecryptionScreen(
                             checked = state.isBase64Enabled,
                             onCheckedChange = { viewModel.updateBase64Enabled(it) },
                             colors = SwitchDefaults.colors(
+                                checkedBorderColor = cyberpunkGreen,
                                 checkedThumbColor = cyberpunkGreen,
-                                checkedTrackColor = cyberpunkGreen.copy(alpha = 0.5f)
+                                checkedTrackColor = Color.Transparent,
+                                uncheckedTrackColor = Color.Transparent,
+                                uncheckedThumbColor = cyberpunkGreen,
+                                uncheckedBorderColor = cyberpunkGreen
                             )
                         )
                     }
