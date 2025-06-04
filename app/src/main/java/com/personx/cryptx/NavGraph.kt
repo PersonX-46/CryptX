@@ -12,6 +12,7 @@ import com.personx.cryptx.screens.HashDetector
 import com.personx.cryptx.screens.HashGeneratorScreen
 import com.personx.cryptx.screens.HomeScreen
 import com.personx.cryptx.screens.SteganographyScreen
+import com.personx.cryptx.viewmodel.decryption.DecryptionHistoryRepository
 import com.personx.cryptx.viewmodel.encryption.EncryptionHistoryRepository
 
 @Composable
@@ -28,7 +29,7 @@ fun AppNavGraph(navController: NavHostController, subtitle: MutableState<String>
         }
         composable("decrypt") {
             subtitle.value = "DECRYPTION"
-            DecryptionScreen()
+            DecryptionScreen(DecryptionHistoryRepository(LocalContext.current))
         }
         composable("hashGenerator") {
             subtitle.value = "HASH GENERATOR"

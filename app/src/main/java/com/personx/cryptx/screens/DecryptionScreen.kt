@@ -28,6 +28,7 @@ import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -49,14 +50,20 @@ import com.personx.cryptx.components.CyberpunkOutputSection
 import com.personx.cryptx.crypto.PinCryptoManager
 import com.personx.cryptx.screens.pinlogin.PinLoginScreen
 import com.personx.cryptx.ui.theme.CryptXTheme
+import com.personx.cryptx.viewmodel.decryption.DecryptionHistoryRepository
 import com.personx.cryptx.viewmodel.decryption.DecryptionViewModel
+import com.personx.cryptx.viewmodel.decryption.DecryptionViewModelFactory
+import com.personx.cryptx.viewmodel.encryption.EncryptionViewModel
+import com.personx.cryptx.viewmodel.encryption.EncryptionViewModelFactory
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
 fun DecryptionScreen(
-    viewModel: DecryptionViewModel = viewModel()
+    repository: DecryptionHistoryRepository
 ) {
+    val factory = remember { DecryptionViewModelFactory(repository) }
+    val viewModel: DecryptionViewModel = viewModel(factory = factory)
     val context = LocalContext.current
     val state = viewModel.state.value
     val clipboard = LocalClipboard.current
@@ -305,6 +312,6 @@ fun DecryptionScreen(
 @Composable
 fun PreviewDecryptionScreen() {
     CryptXTheme(darkTheme = true) {
-        DecryptionScreen()
+        DecryptionScreen(DecryptionHistoryRepository(LocalContext.current))
     }
 }
