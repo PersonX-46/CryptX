@@ -276,7 +276,6 @@ fun EncryptScreen(
                                             .show()
                                     },
                                     onSave = {
-
                                         viewModel.updateCurrentScreen("pin_login")
                                     },
                                 )
@@ -314,7 +313,6 @@ fun EncryptScreen(
                     }
                 }
             }
-
         )
     }
 }

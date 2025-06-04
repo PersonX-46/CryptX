@@ -181,7 +181,6 @@ class EncryptionViewModel(private val repository: EncryptionHistoryRepository) :
             val result = repository.insertHistory(pin, encryptionHistory)
             if (result) {
                 updateCurrentScreen("main")
-
             }
             result
         } catch (e: Exception) {
@@ -190,13 +189,12 @@ class EncryptionViewModel(private val repository: EncryptionHistoryRepository) :
         }
     }
 
-    fun getAllEncryptionHistory(pin: String) {
+    private fun getAllEncryptionHistory(pin: String) {
         viewModelScope.launch {
             repository.getAllHistory(pin)
                 .catch { e ->
                     Log.e("ENCRYPTION_DB", "Error: ${e.message}")
                     _state.value = _state.value.copy(
-                        outputText = "Error loading history: ${e.message}"
                     )
                 }
                 .collect { historyList ->
