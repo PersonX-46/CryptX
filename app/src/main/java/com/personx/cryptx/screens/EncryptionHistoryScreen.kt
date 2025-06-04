@@ -31,8 +31,6 @@ fun HistoryScreen(
     onClick: (EncryptionHistory) -> Unit
 ) {
     val cyberpunkGreen = Color(0xFF00FFAA)
-    val darkBackground = Color(0xFF121212)
-    val cardColor = Color(0xFF1E1E1E).copy(alpha = 0.8f)
 
     // Collect history from database
 
@@ -85,8 +83,6 @@ fun HistoryScreen(
     onClick: (DecryptionHistory) -> Unit = { _ -> }
 ) {
     val cyberpunkGreen = Color(0xFF00FFAA)
-    val darkBackground = Color(0xFF121212)
-    val cardColor = Color(0xFF1E1E1E).copy(alpha = 0.8f)
 
     // Collect history from database
 
