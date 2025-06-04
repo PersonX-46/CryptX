@@ -53,8 +53,6 @@ import com.personx.cryptx.ui.theme.CryptXTheme
 import com.personx.cryptx.viewmodel.decryption.DecryptionHistoryRepository
 import com.personx.cryptx.viewmodel.decryption.DecryptionViewModel
 import com.personx.cryptx.viewmodel.decryption.DecryptionViewModelFactory
-import com.personx.cryptx.viewmodel.encryption.EncryptionViewModel
-import com.personx.cryptx.viewmodel.encryption.EncryptionViewModelFactory
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 

@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.flow
 class DecryptionHistoryRepository(private val context: Context) {
     private var currentPin: String? = null
 
-    suspend fun ensureDatabase(pin: String): EncryptedDatabase? {
+    fun ensureDatabase(pin: String): EncryptedDatabase? {
         return if (currentPin == pin) {
             DatabaseProvider.getDatabase(context, pin)
         } else {
