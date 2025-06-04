@@ -15,24 +15,31 @@ class PinLoginViewModel(
     private val _state = MutableStateFlow(PinLoginState())
     val state: StateFlow<PinLoginState> = _state
 
-    fun event(event: PinLoginEvent) {
+    fun resetState() {
+        _state.value = PinLoginState()
+    }
 
+    fun event(event: PinLoginEvent) {
         when (event) {
             is PinLoginEvent.EnterPin -> {
-                if (event.pin.length <= 4 && event.pin.all { it.isDigit() }) {
-                    _state.value = _state.value.copy(enteredPin = event.pin)
+                val newPin = event.pin
+                if (newPin.length <= 4 && newPin.all { it.isDigit() }) {
+                    _state.value = _state.value.copy(enteredPin = newPin, error = null)
                 }
             }
             is PinLoginEvent.Submit -> {
                 val current = _state.value
-                if (pinCryptoManager.verifyPin(current.enteredPin)) {
-                    Log.d("IS CORRECT PIN", "CORRECT")
-                    _state.value = current.copy(error = null, isSuccess = true)
+                if (current.enteredPin.length == 4 && pinCryptoManager.getRawKeyIfPinValid(current.enteredPin) != null) {
+                    if (pinCryptoManager.verifyPin(current.enteredPin)) {
+                        _state.value = current.copy(error = null, isSuccess = true)
+                    } else {
+                        _state.value = current.copy(error = "Incorrect PIN", enteredPin = "", isSuccess = false)
+                    }
                 } else {
-                    _state.value = current.copy(error = "Incorrect PIN", enteredPin = "", isSuccess = false)
-                    Log.d("IS CORRECT PIN", "WRONG")
+                    _state.value = current.copy(error = "Invalid PIN", enteredPin = "", isSuccess = false)
                 }
             }
         }
     }
+
 }

@@ -54,11 +54,13 @@ fun PinLoginScreen(
     val cyberpunkGreen = MaterialTheme.colorScheme.onSurface
     val cyberpunkLight = Color(0xFF1E1E1E)
 
-    LaunchedEffect(state.isSuccess) {
-        if (state.isSuccess) {
+    LaunchedEffect(state.isSuccess, state.enteredPin) {
+        if (state.isSuccess && state.enteredPin.length == 4) {
             onLoginSuccess(state.enteredPin)
+            viewModel.resetState()
         }
     }
+
 
     Column(
         modifier = Modifier
@@ -198,10 +200,7 @@ fun PinLoginScreen(
         // Login Button
         CyberpunkButton(
             onClick = {
-                if (state.enteredPin.length == 4 && pinCryptoManager.getRawKeyIfPinValid(state.enteredPin) != null) {
-                    viewModel.event(PinLoginEvent.Submit)
-
-                }
+                viewModel.event(PinLoginEvent.Submit)
             },
             text = "AUTHENTICATE",
             icon = Icons.Default.Lock,
