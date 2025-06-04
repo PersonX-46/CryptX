@@ -3,46 +3,22 @@ package com.personx.cryptx
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Code
-import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.LockOpen
-import androidx.compose.material.icons.filled.MoreHoriz
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.navigation.compose.rememberNavController
-import com.personx.cryptx.components.FeatureCardButton
-import com.personx.cryptx.components.Header
-import com.personx.cryptx.data.FeatureItem
+import com.personx.cryptx.crypto.PinCryptoManager
+import com.personx.cryptx.screens.pinlogin.PinLoginScreen
+import com.personx.cryptx.screens.pinsetup.PinSetupScreen
 import com.personx.cryptx.ui.theme.CryptXTheme
-
-
 
 class MainActivity : ComponentActivity() {
 
@@ -51,143 +27,39 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             CryptXTheme(darkTheme = true) {
-                // Changed to background color for better edge-to-edge experience
-                rememberNavController()
-                Surface(
+
+                Surface (
                     modifier = Modifier.
-                        fillMaxSize()
-                        .background(MaterialTheme.colorScheme.background),
+                    fillMaxSize()
+                        .background(MaterialTheme.colorScheme.onPrimary),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    HomeScreen()
-                }
-            }
-        }
-    }
-}
+                    // Changed to background color for better edge-to-edge experience
+                    val prefs = getSharedPreferences("secure_prefs", MODE_PRIVATE)
+                    val saltString = prefs.getString("salt", null)
+                    val ivString = prefs.getString("iv", null)
+                    val secretString = prefs.getString("secret", null)
 
-@Composable
-fun HomeScreen() {
-    val context = LocalContext.current
-    BackHandler(enabled = true) {
-        // Do nothing — this disables the back action
-    }
+                    // Track which screen to show
+                    val currentScreen = remember { mutableStateOf(
+                        if (saltString == null || ivString == null || secretString == null) "pinSetup" else "login"
+                    )}
 
-    remember { mutableStateOf("Home") }
-    val glowAnimation = remember { Animatable(0f) }
+                    when (currentScreen.value) {
+                        "pinSetup" -> {
+                            PinSetupScreen(pinCryptoManager = PinCryptoManager(LocalContext.current)) {
+                                currentScreen.value = "login" // Update screen after setup
+                            }
+                        }
+                        "login" -> {
+                            PinLoginScreen(pinCryptoManager = PinCryptoManager(LocalContext.current)) {
+                                val intent = Intent(this, FeaturedActivity::class.java)
+                                startActivity(intent)
+                            }
+                        }
+                    }
+                }
 
-    // Start the glowing animation loop
-    LaunchedEffect(Unit) {
-        glowAnimation.animateTo(1f, animationSpec = tween(1000))
-        glowAnimation.animateTo(1f, animationSpec = tween(1000))
-
-    }
-
-    val featuredItem = listOf(
-        FeatureItem(
-            icon = Icons.Default.Lock,
-            label = "Encrypt",
-            onClick = {
-                val intent = Intent(context, FeaturedActivity::class.java).apply {
-                    putExtra(FeaturedActivity.EXTRA_SCREEN, "encrypt")
-                }
-                context.startActivity(intent)
-            }
-        ),
-        FeatureItem(
-            icon = Icons.Filled.LockOpen,
-            label = "Decrypt",
-            onClick = {
-                val intent = Intent(context, FeaturedActivity::class.java).apply {
-                    putExtra(FeaturedActivity.EXTRA_SCREEN, "decrypt")
-                }
-                context.startActivity(intent)
-            }
-        ),
-        FeatureItem(
-            icon = Icons.Default.Code,
-            label = "Hash Generator",
-            onClick = {
-                val intent = Intent(context, FeaturedActivity::class.java).apply {
-                    putExtra(FeaturedActivity.EXTRA_SCREEN, "hashGenerator")
-                }
-                context.startActivity(intent)
-            }
-        ),
-        FeatureItem(
-            icon = Icons.Default.Search,
-            label = "Hash Detector",
-            onClick = {
-                val intent = Intent(context, FeaturedActivity::class.java).apply {
-                    putExtra(FeaturedActivity.EXTRA_SCREEN, "hashDetector")
-                }
-                context.startActivity(intent)
-            }
-        ),
-        FeatureItem(
-            icon = Icons.Default.VisibilityOff,
-            label = "Steganography",
-            onClick = {
-                val intent = Intent(context, FeaturedActivity::class.java).apply {
-                    putExtra(FeaturedActivity.EXTRA_SCREEN, "steganography")
-                }
-                context.startActivity(intent)
-            }
-        ),
-        FeatureItem(
-            icon = Icons.Default.MoreHoriz,
-            label = "Coming Soon",
-            onClick = { /* maybe show a toast */ }
-        )
-    )
-
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(
-                Brush.verticalGradient(
-                    colors = listOf(
-                        MaterialTheme.colorScheme.onSurface.copy(0.05f),
-                        MaterialTheme.colorScheme.onPrimary.copy(0.01F)
-                    )
-                )
-            )
-    ) {
-        Column(
-            modifier = Modifier
-                .padding(bottom = 80.dp),
-            verticalArrangement = Arrangement.SpaceBetween,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            // Glowing header
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                contentAlignment = Alignment.Center
-            ) {
-                Header("SECURITY TOOLKIT")
-            }
-
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(2),
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(24.dp),
-                verticalArrangement = Arrangement.spacedBy(24.dp),
-                horizontalArrangement = Arrangement.spacedBy(24.dp, Alignment.CenterHorizontally),
-            ) {
-                items(featuredItem.size) { index ->
-                    val item = featuredItem[index]
-                    FeatureCardButton(
-                        icon = item.icon,
-                        label = item.label,
-                        onClick = item.onClick,
-                        cardSize = 140.dp,
-                        iconSize = 40.dp,
-                        cornerSize = 28.dp,
-                        borderWidth = 1.dp
-                    )
-                }
             }
         }
     }
@@ -197,6 +69,8 @@ fun HomeScreen() {
 @Composable
 fun HomeScreenPreview() {
     CryptXTheme(darkTheme = true) {
-        HomeScreen()
+        PinSetupScreen(pinCryptoManager = PinCryptoManager(LocalContext.current)) {
+
+        }
     }
 }

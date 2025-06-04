@@ -1,6 +1,7 @@
-package com.personx.cryptx.viewmodel
+package com.personx.cryptx.viewmodel.encryption
 
 import android.content.Context
+import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -13,14 +14,21 @@ import com.example.cryptography.utils.CryptoUtils.encodeByteArrayToString
 import com.example.cryptography.utils.CryptoUtils.padTextToBlockSize
 import com.personx.cryptx.R
 import com.personx.cryptx.data.EncryptionState
+import com.personx.cryptx.database.encryption.EncryptionHistory
 import com.personx.cryptx.screens.getKeySizes
 import com.personx.cryptx.screens.getTransformations
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 import java.security.SecureRandom
 
-class EncryptionViewModel : ViewModel() {
+class EncryptionViewModel(private val repository: EncryptionViewModelRepository) : ViewModel() {
     private val _state = mutableStateOf(EncryptionState())
     val state: State<EncryptionState> = _state
+
+    private val cryptoEngine = SymmetricBasedAlgorithm()
+
+    private val _history = mutableStateOf<List<EncryptionHistory>>(emptyList())
+    val history: State<List<EncryptionHistory>> = _history
 
     fun updateSelectedAlgorithm(algorithm: String) {
         _state.value = _state.value.copy(selectedAlgorithm = algorithm)
@@ -46,6 +54,10 @@ class EncryptionViewModel : ViewModel() {
         _state.value = _state.value.copy(outputText = output)
     }
 
+    fun updateCurrentScreen(screen: String) {
+        _state.value = _state.value.copy(currentScreen = screen)
+    }
+
     fun updateIVText(iv: String) {
         _state.value = _state.value.copy(ivText = iv)
     }
@@ -62,12 +74,20 @@ class EncryptionViewModel : ViewModel() {
         _state.value = _state.value.copy(isBase64Enabled = enabled)
     }
 
+    fun updatePinPurpose(purpose: String) {
+        _state.value = _state.value.copy(pinPurpose = purpose)
+    }
+
+    fun clearOutput() {
+        _state.value = _state.value.copy(outputText = "")
+    }
+
+
     fun updateAlgorithmAndModeLists(context: Context) {
         viewModelScope.launch {
             try {
                 val transformations = getTransformations(context, _state.value.selectedAlgorithm)
                 val keySizes = getKeySizes(context, _state.value.selectedAlgorithm)
-
                 _state.value = _state.value.copy(
                     transformationList = transformations,
                     keySizeList = keySizes,
@@ -86,7 +106,7 @@ class EncryptionViewModel : ViewModel() {
     fun generateKey() {
         viewModelScope.launch {
             try {
-                val newKey = SymmetricBasedAlgorithm().generateKey(
+                val newKey = cryptoEngine.generateKey(
                     _state.value.selectedAlgorithm,
                     _state.value.selectedKeySize
                 )
@@ -105,7 +125,7 @@ class EncryptionViewModel : ViewModel() {
     fun generateIV() {
         viewModelScope.launch {
             try {
-                val newIV = SymmetricBasedAlgorithm().generateIV(_state.value.selectedAlgorithm, 16)
+                val newIV = cryptoEngine.generateIV(_state.value.selectedAlgorithm, 16)
                 _state.value = _state.value.copy(
                     ivText = encodeByteArrayToString(newIV).trim(),
                 )
@@ -116,6 +136,84 @@ class EncryptionViewModel : ViewModel() {
             }
         }
     }
+
+    private fun createEncryptedHistory(
+        algorithm: String,
+        transformation: String,
+        keySize: Int,
+        key: String,
+        iv: String?,
+        secretText: String,
+        isBase64: Boolean,
+        encryptedOutput: String,
+    ) : EncryptionHistory {
+
+        return EncryptionHistory(
+            algorithm = algorithm,
+            transformation = transformation,
+            keySize = keySize,
+            key = key,
+            iv = iv,
+            secretText = secretText,
+            encryptedOutput = encryptedOutput,
+            isBase64 = isBase64,
+        )
+
+    }
+
+    suspend fun insertEncryptionHistory(
+        pin: String,
+        algorithm: String,
+        transformation: String,
+        keySize: Int,
+        key: String,
+        iv: String?,
+        secretText: String,
+        isBase64: Boolean,
+        encryptedOutput: String
+    ): Boolean {
+        return try {
+            val encryptionHistory = createEncryptedHistory(
+                algorithm = algorithm,
+                transformation = transformation,
+                keySize = keySize,
+                key = key,
+                iv = iv,
+                secretText = secretText,
+                encryptedOutput = encryptedOutput,
+                isBase64 = isBase64
+            )
+            val result = repository.insertHistory(pin, encryptionHistory)
+            if (result) {
+                updateCurrentScreen("main")
+            }
+            result
+        } catch (e: Exception) {
+            Log.d("ENCRYPTION DATABASE HISTORY UPDATE ERROR", "Insertion failed: ${e.message}")
+            false
+        }
+    }
+
+    private fun getAllEncryptionHistory(pin: String) {
+        viewModelScope.launch {
+            repository.getAllHistory(pin)
+                .catch { e ->
+                    Log.e("ENCRYPTION_DB", "Error: ${e.message}")
+                    _state.value = _state.value.copy(
+                    )
+                }
+                .collect { historyList ->
+                    Log.d("ENCRYPTION_DB", "History loaded: ${historyList.size} items")
+                    _history.value = historyList
+                }
+        }
+    }
+
+    // Call this whenever you need to refresh history
+    fun refreshHistory(pin: String) {
+        getAllEncryptionHistory(pin)
+    }
+
 
     fun encrypt(context: Context){
         viewModelScope.launch {
@@ -173,7 +271,7 @@ class EncryptionViewModel : ViewModel() {
                     useBase64 = _state.value.isBase64Enabled
                 )
                 _state.value = _state.value.copy(
-                    outputText = SymmetricBasedAlgorithm().encrypt(params)
+                    outputText = cryptoEngine.encrypt(params)
                 )
             } catch (e: Exception) {
                 _state.value = _state.value.copy(
