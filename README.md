@@ -39,8 +39,9 @@ Output files are saved in: /Download/cryptx/
 <h2>📸 Screenshots</h2>
 
 <div style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; align-items: center;">
-
-  <img src="https://github.com/user-attachments/assets/42ced605-5f77-4a27-8bc8-d8905b514fc5" alt="HashDetector" width="200"/>
+  <img src="https://github.com/user-attachments/assets/0327240f-1051-42c9-83e4-6e93a6797bb8" alt="PinLogin" width="200"/>
+  <img src="https://github.com/user-attachments/assets/aedc5efb-82ff-447d-8d70-841b0676b977" alt="Encryption" width="200"/>
+  <img src="https://github.com/user-attachments/assets/71f59ff4-09ba-4274-bacd-7acfe4e49e48" alt="History" width="200"/>
   <img src="https://github.com/user-attachments/assets/c9e8ec21-d581-42a8-90d0-c7387064301c" alt="HashGenerator" width="200"/>
   <img src="https://github.com/user-attachments/assets/dee5c35e-a0cf-4534-b004-3033a50eb66b" alt="EncryptScreen" width="200"/>
   <img src="https://github.com/user-attachments/assets/5352b7a5-ee67-4f88-ae50-2e0336687581" alt="FileSteg" width="200"/>
