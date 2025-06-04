@@ -80,7 +80,7 @@ class FeaturedActivity : ComponentActivity() {
                     },
                 )
 
-                Surface(modifier = Modifier.fillMaxSize().background(Color.Black)) {
+                Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
                     Box(
                         modifier = Modifier
                             .fillMaxSize()

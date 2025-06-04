@@ -33,7 +33,7 @@ fun EncryptionHistoryItem(
 ) {
     Card(
         modifier = modifier.clickable { onClick(entry) },
-        colors = CardDefaults.cardColors(containerColor = Color.Black),
+        colors = CardDefaults.cardColors(containerColor = Color.Transparent),
         border = BorderStroke(1.dp, cyberpunkGreen.copy(alpha = 0.3f))
     ) {
         Column(
@@ -54,7 +54,7 @@ fun EncryptionHistoryItem(
                 Text(
                     text = SimpleDateFormat("MMM dd, HH:mm", Locale.getDefault())
                         .format(Date(entry.timestamp)),
-                    color = Color.White.copy(alpha = 0.6f),
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                     fontFamily = FontFamily.Monospace
                 )
             }
@@ -64,9 +64,8 @@ fun EncryptionHistoryItem(
             // Original Text
             Text(
                 text = "Original:",
-                color = MaterialTheme.colorScheme.onSurface,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                 fontFamily = FontFamily.Monospace,
-                style = MaterialTheme.typography.labelMedium,
                 fontWeight = FontWeight.Bold
             )
             Text(
@@ -79,13 +78,13 @@ fun EncryptionHistoryItem(
             // Encrypted Output
             Text(
                 text = "Encrypted:",
-                color = Color.White.copy(alpha = 0.7f),
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                 fontFamily = FontFamily.Monospace,
                 style = MaterialTheme.typography.labelSmall
             )
             Text(
                 text = entry.encryptedOutput.take(20) + "...",
-                color = cyberpunkGreen.copy(alpha = 0.8f),
+                color = MaterialTheme.colorScheme.onSurface,
                 fontFamily = FontFamily.Monospace,
                 modifier = Modifier.padding(top = 4.dp)
             )
@@ -94,7 +93,7 @@ fun EncryptionHistoryItem(
             Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = "Key: ${entry.key.take(10)}... (${entry.keySize} bits)",
-                color = Color.White.copy(alpha = 0.6f),
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                 fontFamily = FontFamily.Monospace,
                 style = MaterialTheme.typography.labelSmall
             )

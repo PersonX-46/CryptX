@@ -33,7 +33,7 @@ fun DecryptionHistoryItem(
 ) {
     Card(
         modifier = modifier.clickable { onClick(entry) },
-        colors = CardDefaults.cardColors(containerColor = Color.Black),
+        colors = CardDefaults.cardColors(containerColor = Color.Transparent),
         border = BorderStroke(1.dp, cyberpunkGreen.copy(alpha = 0.3f))
     ) {
         Column(
@@ -54,7 +54,7 @@ fun DecryptionHistoryItem(
                 Text(
                     text = SimpleDateFormat("MMM dd, HH:mm", Locale.getDefault())
                         .format(Date(entry.timestamp)),
-                    color = Color.White.copy(alpha = 0.6f),
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                     fontFamily = FontFamily.Monospace
                 )
             }
@@ -64,7 +64,7 @@ fun DecryptionHistoryItem(
             // Original Text
             Text(
                 text = "Original:",
-                color = MaterialTheme.colorScheme.onSurface,
+                color = MaterialTheme.colorScheme.onSurface.copy(0.6f),
                 fontFamily = FontFamily.Monospace,
                 style = MaterialTheme.typography.labelMedium,
                 fontWeight = FontWeight.Bold
@@ -79,7 +79,7 @@ fun DecryptionHistoryItem(
             // Encrypted Output
             Text(
                 text = "Encrypted:",
-                color = Color.White.copy(alpha = 0.7f),
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                 fontFamily = FontFamily.Monospace,
                 style = MaterialTheme.typography.labelSmall
             )
@@ -94,7 +94,7 @@ fun DecryptionHistoryItem(
             Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = "Key: ${entry.key.take(10)}... ",
-                color = Color.White.copy(alpha = 0.6f),
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                 fontFamily = FontFamily.Monospace,
                 style = MaterialTheme.typography.labelSmall
             )
