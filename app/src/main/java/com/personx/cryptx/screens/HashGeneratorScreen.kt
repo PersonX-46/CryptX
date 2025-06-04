@@ -36,6 +36,7 @@ import com.personx.cryptx.R
 import com.personx.cryptx.components.CyberpunkButton
 import com.personx.cryptx.components.CyberpunkDropdown
 import com.personx.cryptx.components.CyberpunkInputBox
+import com.personx.cryptx.components.Header
 import com.personx.cryptx.components.PlaceholderInfo
 import com.personx.cryptx.components.Toast
 import com.personx.cryptx.ui.theme.CryptXTheme
@@ -57,57 +58,61 @@ fun HashGeneratorScreen(
         viewModel.setAlgorithms(algorithms)
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(bottom = 16.dp)
-            .background(
-                Brush.verticalGradient(
-                    colors = listOf(
-                        MaterialTheme.colorScheme.onSurface.copy(0.05f),
-                        MaterialTheme.colorScheme.onPrimary.copy(0.01F)
+    Column {
+        Header("HASH GENERATOR")
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(bottom = 16.dp)
+                .background(
+                    Brush.verticalGradient(
+                        colors = listOf(
+                            MaterialTheme.colorScheme.onSurface.copy(0.05f),
+                            MaterialTheme.colorScheme.onPrimary.copy(0.01F)
+                        )
                     )
                 )
+                .verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            // Algorithm Selector
+            CyberpunkDropdown(
+                items = state.algorithms,
+                selectedItem = state.selectedAlgorithm,
+                onItemSelected = { viewModel.updateSelectedAlgorithm(it) },
+                label = stringResource(R.string.select_algorithm),
+                modifier = Modifier.padding(horizontal = 16.dp)
+                    .padding(top = 20.dp)
             )
-            .verticalScroll(rememberScrollState()),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        // Algorithm Selector
-        CyberpunkDropdown(
-            items = state.algorithms,
-            selectedItem = state.selectedAlgorithm,
-            onItemSelected = { viewModel.updateSelectedAlgorithm(it) },
-            label = stringResource(R.string.select_algorithm),
-            modifier = Modifier.padding(horizontal = 16.dp)
-        )
 
-        // Input Box
-        CyberpunkInputBox(
-            value = state.inputText,
-            onValueChange = { viewModel.updateInputText(it) },
-            placeholder = stringResource(R.string.enter_text_to_hash),
-            modifier = Modifier.padding(horizontal = 16.dp)
-        )
-
-        // Hash Output Section
-        if (state.inputText.isNotEmpty()) {
-            HashOutputSection(
-                hash = state.generatedHash,
-                algorithm = state.selectedAlgorithm,
-                onCopy = {
-                    scope.launch {
-                        clipboardManager.setClipEntry(ClipEntry(ClipData.newPlainText("Copied", state.generatedHash)))
-                    }
-                },
+            // Input Box
+            CyberpunkInputBox(
+                value = state.inputText,
+                onValueChange = { viewModel.updateInputText(it) },
+                placeholder = stringResource(R.string.enter_text_to_hash),
                 modifier = Modifier.padding(horizontal = 16.dp)
             )
-        } else {
-            PlaceholderInfo(
-                icon = Icons.Outlined.Code,
-                title = stringResource(R.string.hash_generator_ready),
-                description = stringResource(R.string.enter_text_and_select_algorithm_to_generate_hash)
-            )
+
+            // Hash Output Section
+            if (state.inputText.isNotEmpty()) {
+                HashOutputSection(
+                    hash = state.generatedHash,
+                    algorithm = state.selectedAlgorithm,
+                    onCopy = {
+                        scope.launch {
+                            clipboardManager.setClipEntry(ClipEntry(ClipData.newPlainText("Copied", state.generatedHash)))
+                        }
+                    },
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
+            } else {
+                PlaceholderInfo(
+                    icon = Icons.Outlined.Code,
+                    title = stringResource(R.string.hash_generator_ready),
+                    description = stringResource(R.string.enter_text_and_select_algorithm_to_generate_hash)
+                )
+            }
         }
     }
 

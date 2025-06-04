@@ -44,6 +44,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.personx.cryptx.R
 import com.personx.cryptx.components.CyberpunkButton
+import com.personx.cryptx.components.Header
 import com.personx.cryptx.components.Toast
 import com.personx.cryptx.ui.theme.CryptXTheme
 import com.personx.cryptx.viewmodel.SteganographyViewModel
@@ -97,87 +98,50 @@ fun SteganographyScreen(
         }
     }
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(
-                Brush.verticalGradient(
-                    colors = listOf(
-                        MaterialTheme.colorScheme.onSurface.copy(0.05f),
-                        MaterialTheme.colorScheme.onPrimary.copy(0.01F)
-                    )
-                )
-            )
-    ) {
-        Column(
+    Column {
+        Header("STEGANOGRAPHY")
+        Box(
             modifier = Modifier
-                .padding(16.dp)
-                .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+                .fillMaxSize()
+                .background(
+                    Brush.verticalGradient(
+                        colors = listOf(
+                            MaterialTheme.colorScheme.onSurface.copy(0.05f),
+                            MaterialTheme.colorScheme.onPrimary.copy(0.01F)
+                        )
+                    )
+                )
         ) {
-            // Mode Toggle
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceEvenly
-            ) {
-                CyberpunkButton(
-                    onClick = { viewModel.updateIsEncoding(true) },
-                    text = stringResource(R.string.hide),
-                    icon = Icons.Default.Lock,
-                    isActive = !state.isEncoding
-                )
-
-                CyberpunkButton(
-                    onClick = { viewModel.toggleMode() },
-                    text = stringResource(R.string.extract),
-                    icon = Icons.Default.LockOpen,
-                    isActive = state.isEncoding
-                )
-            }
-
-            // Cover Image Section
-            Text(
-                text = stringResource(R.string.cover_image),
-                style = MaterialTheme.typography.bodyLarge.copy(
-                    fontFamily = FontFamily.Monospace,
-                    color = cyberpunkGreen.copy(alpha = 0.8f)
-                )
-            )
-
-            Box(
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .height(200.dp)
-                    .border(
-                        width = 1.dp,
-                        color = cyberpunkGreen.copy(alpha = 0.5f),
-                        shape = RoundedCornerShape(8.dp)
-                    )
-                    .clickable { imagePicker.launch("image/*") },
-                contentAlignment = Alignment.Center
+                    .padding(16.dp)
+                    .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                if (state.coverImage != null) {
-                    Image(
-                        bitmap = state.coverImage.asImageBitmap(),
-                        contentDescription = stringResource(R.string.cover_image),
-                        modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.Fit
+                // Mode Toggle
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    CyberpunkButton(
+                        onClick = { viewModel.updateIsEncoding(true) },
+                        text = stringResource(R.string.hide),
+                        icon = Icons.Default.Lock,
+                        isActive = !state.isEncoding
                     )
-                } else {
-                    Icon(
-                        imageVector = Icons.Default.Image,
-                        contentDescription = stringResource(R.string.select_cover_image),
-                        tint = cyberpunkGreen.copy(alpha = 0.5f),
-                        modifier = Modifier.size(64.dp)
+
+                    CyberpunkButton(
+                        onClick = { viewModel.toggleMode() },
+                        text = stringResource(R.string.extract),
+                        icon = Icons.Default.LockOpen,
+                        isActive = state.isEncoding
                     )
                 }
-            }
 
-            // File Selection (only in encode mode)
-            if (state.isEncoding) {
+                // Cover Image Section
                 Text(
-                    text = stringResource(R.string.file_to_hide),
+                    text = stringResource(R.string.cover_image),
                     style = MaterialTheme.typography.bodyLarge.copy(
                         fontFamily = FontFamily.Monospace,
                         color = cyberpunkGreen.copy(alpha = 0.8f)
@@ -187,90 +151,130 @@ fun SteganographyScreen(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(60.dp)
+                        .height(200.dp)
                         .border(
                             width = 1.dp,
                             color = cyberpunkGreen.copy(alpha = 0.5f),
                             shape = RoundedCornerShape(8.dp)
                         )
-                        .clickable { filePicker.launch("*/*") },
+                        .clickable { imagePicker.launch("image/*") },
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(
-                        text = state.secretFile?.let {
-                            "Selected file (${it.size} bytes)"
-                        } ?: "Select any file",
-                        color = cyberpunkGreen
-                    )
+                    if (state.coverImage != null) {
+                        Image(
+                            bitmap = state.coverImage.asImageBitmap(),
+                            contentDescription = stringResource(R.string.cover_image),
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Fit
+                        )
+                    } else {
+                        Icon(
+                            imageVector = Icons.Default.Image,
+                            contentDescription = stringResource(R.string.select_cover_image),
+                            tint = cyberpunkGreen.copy(alpha = 0.5f),
+                            modifier = Modifier.size(64.dp)
+                        )
+                    }
                 }
-            }
 
-            // Process Button
-            CyberpunkButton(
-                onClick = { viewModel.processSteganography() },
-                text = if (state.isEncoding) stringResource(R.string.hide_file) else stringResource(
-                    R.string.extract_file
-                ),
-                icon = if (state.isEncoding) Icons.Default.Lock else Icons.Default.LockOpen,
-                modifier = Modifier.align(Alignment.CenterHorizontally),
-            )
-
-            // Results Section
-            if (state.isEncoding) {
-                state.outputImage?.let { bitmap ->
+                // File Selection (only in encode mode)
+                if (state.isEncoding) {
                     Text(
-                        text = stringResource(R.string.image_with_hidden_file),
+                        text = stringResource(R.string.file_to_hide),
                         style = MaterialTheme.typography.bodyLarge.copy(
                             fontFamily = FontFamily.Monospace,
-                            color = cyberpunkGreen
+                            color = cyberpunkGreen.copy(alpha = 0.8f)
                         )
                     )
 
-                    Image(
-                        bitmap = bitmap.asImageBitmap(),
-                        contentDescription = stringResource(R.string.result_image),
+                    Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(200.dp)
+                            .height(60.dp)
                             .border(
                                 width = 1.dp,
                                 color = cyberpunkGreen.copy(alpha = 0.5f),
                                 shape = RoundedCornerShape(8.dp)
                             )
-                    )
-
-                    CyberpunkButton(
-                        onClick = { viewModel.saveImage(context) },
-                        text = stringResource(R.string.save_image),
-                        icon = Icons.Default.Save,
-                        modifier = Modifier.align(Alignment.CenterHorizontally),
-                    )
-                }
-            } else {
-                state.extractedFile?.let { (fileName, _) ->
-                    Text(
-                        text = "Extracted file: $fileName",
-                        style = MaterialTheme.typography.bodyLarge.copy(
-                            fontFamily = FontFamily.Monospace,
+                            .clickable { filePicker.launch("*/*") },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = state.secretFile?.let {
+                                "Selected file (${it.size} bytes)"
+                            } ?: "Select any file",
                             color = cyberpunkGreen
                         )
-                    )
+                    }
+                }
 
-                    CyberpunkButton(
-                        onClick = { viewModel.saveExtractedFile(context) },
-                        text = stringResource(R.string.save_file),
-                        icon = Icons.Default.Save,
-                        modifier = Modifier.align(Alignment.CenterHorizontally),
-                    )
+                // Process Button
+                CyberpunkButton(
+                    onClick = { viewModel.processSteganography() },
+                    text = if (state.isEncoding) stringResource(R.string.hide_file) else stringResource(
+                        R.string.extract_file
+                    ),
+                    icon = if (state.isEncoding) Icons.Default.Lock else Icons.Default.LockOpen,
+                    modifier = Modifier.align(Alignment.CenterHorizontally),
+                )
+
+                // Results Section
+                if (state.isEncoding) {
+                    state.outputImage?.let { bitmap ->
+                        Text(
+                            text = stringResource(R.string.image_with_hidden_file),
+                            style = MaterialTheme.typography.bodyLarge.copy(
+                                fontFamily = FontFamily.Monospace,
+                                color = cyberpunkGreen
+                            )
+                        )
+
+                        Image(
+                            bitmap = bitmap.asImageBitmap(),
+                            contentDescription = stringResource(R.string.result_image),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(200.dp)
+                                .border(
+                                    width = 1.dp,
+                                    color = cyberpunkGreen.copy(alpha = 0.5f),
+                                    shape = RoundedCornerShape(8.dp)
+                                )
+                        )
+
+                        CyberpunkButton(
+                            onClick = { viewModel.saveImage(context) },
+                            text = stringResource(R.string.save_image),
+                            icon = Icons.Default.Save,
+                            modifier = Modifier.align(Alignment.CenterHorizontally),
+                        )
+                    }
+                } else {
+                    state.extractedFile?.let { (fileName, _) ->
+                        Text(
+                            text = "Extracted file: $fileName",
+                            style = MaterialTheme.typography.bodyLarge.copy(
+                                fontFamily = FontFamily.Monospace,
+                                color = cyberpunkGreen
+                            )
+                        )
+
+                        CyberpunkButton(
+                            onClick = { viewModel.saveExtractedFile(context) },
+                            text = stringResource(R.string.save_file),
+                            icon = Icons.Default.Save,
+                            modifier = Modifier.align(Alignment.CenterHorizontally),
+                        )
+                    }
                 }
             }
-        }
 
-        // Toast message
-        if (state.showToast) {
-            Toast(
-                message = state.toastMessage,
-            )
+            // Toast message
+            if (state.showToast) {
+                Toast(
+                    message = state.toastMessage,
+                )
+            }
         }
     }
 }

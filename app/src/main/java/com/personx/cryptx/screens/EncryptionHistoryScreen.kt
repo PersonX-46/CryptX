@@ -21,6 +21,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.personx.cryptx.components.DecryptionHistoryItem
 import com.personx.cryptx.components.EncryptionHistoryItem
+import com.personx.cryptx.components.Header
 import com.personx.cryptx.database.encryption.DecryptionHistory
 import com.personx.cryptx.database.encryption.EncryptionHistory
 import com.personx.cryptx.ui.theme.CryptXTheme
@@ -34,47 +35,51 @@ fun HistoryScreen(
 
     // Collect history from database
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(
-                Brush.verticalGradient(
-                    colors = listOf(
-                        MaterialTheme.colorScheme.onSurface.copy(0.05f),
-                        MaterialTheme.colorScheme.onPrimary.copy(0.01F)
+    Column {
+        Header("ENCRYPTION HISTORY")
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    Brush.verticalGradient(
+                        colors = listOf(
+                            MaterialTheme.colorScheme.onSurface.copy(0.05f),
+                            MaterialTheme.colorScheme.onPrimary.copy(0.01F)
+                        )
                     )
                 )
-            )
-            .padding(16.dp)
-    ) {
-
-        if (history.isEmpty()) {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = "No encryption history found",
-                    color = Color.White.copy(alpha = 0.6f),
-                    fontFamily = FontFamily.Monospace
-                )
-            }
-        } else {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                items(history) { entry ->
-                    EncryptionHistoryItem(
-                        entry = entry,
-                        cyberpunkGreen = cyberpunkGreen,
-                        modifier = Modifier.fillMaxWidth(),
-                        onClick = onClick
+                .padding(16.dp),
+        ) {
+            if (history.isEmpty()) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "No encryption history found",
+                        color = Color.White.copy(alpha = 0.6f),
+                        fontFamily = FontFamily.Monospace
                     )
+                }
+            } else {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    items(history) { entry ->
+                        EncryptionHistoryItem(
+                            entry = entry,
+                            cyberpunkGreen = cyberpunkGreen,
+                            modifier = Modifier.fillMaxWidth(),
+                            onClick = onClick
+                        )
+                    }
                 }
             }
         }
     }
+
+
 }
 
 @Composable
@@ -85,48 +90,50 @@ fun HistoryScreen(
     val cyberpunkGreen = Color(0xFF00FFAA)
 
     // Collect history from database
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(
-                Brush.verticalGradient(
-                    colors = listOf(
-                        MaterialTheme.colorScheme.onSurface.copy(0.05f),
-                        MaterialTheme.colorScheme.onPrimary.copy(0.01F)
+    Column {
+        Header("DECRYPTION HISTORY")
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    Brush.verticalGradient(
+                        colors = listOf(
+                            MaterialTheme.colorScheme.onSurface.copy(0.05f),
+                            MaterialTheme.colorScheme.onPrimary.copy(0.01F)
+                        )
                     )
                 )
-        )
-            .padding(16.dp)
-    ) {
-
-        if (history.isEmpty()) {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = "No encryption history found",
-                    color = Color.White.copy(alpha = 0.6f),
-                    fontFamily = FontFamily.Monospace
-                )
-            }
-        } else {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                items(history) { entry ->
-                    DecryptionHistoryItem(
-                        entry = entry,
-                        cyberpunkGreen = cyberpunkGreen,
-                        modifier = Modifier.fillMaxWidth(),
-                        onClick = onClick
+                .padding(16.dp)
+        ) {
+            if (history.isEmpty()) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "No encryption history found",
+                        color = Color.White.copy(alpha = 0.6f),
+                        fontFamily = FontFamily.Monospace
                     )
+                }
+            } else {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    items(history) { entry ->
+                        DecryptionHistoryItem(
+                            entry = entry,
+                            cyberpunkGreen = cyberpunkGreen,
+                            modifier = Modifier.fillMaxWidth(),
+                            onClick = onClick
+                        )
+                    }
                 }
             }
         }
     }
+
 }
 
 @Preview

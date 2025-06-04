@@ -31,6 +31,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.personx.cryptx.R
 import com.personx.cryptx.components.CyberpunkButton
 import com.personx.cryptx.components.CyberpunkInputBox
+import com.personx.cryptx.components.Header
 import com.personx.cryptx.components.PlaceholderInfo
 import com.personx.cryptx.ui.theme.CryptXTheme
 import com.personx.cryptx.viewmodel.HashDetectorViewModel
@@ -45,57 +46,61 @@ fun HashDetector(
     val state = viewModel.state.value
 
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(bottom = 16.dp)
-            .background(
-                Brush.verticalGradient(
-                    colors = listOf(
-                        MaterialTheme.colorScheme.onSurface.copy(0.05f),
-                        MaterialTheme.colorScheme.onPrimary.copy(0.01F)
+    ) {
+        Header("HASH DETECTOR")
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(bottom = 16.dp)
+                .background(
+                    Brush.verticalGradient(
+                        colors = listOf(
+                            MaterialTheme.colorScheme.onSurface.copy(0.05f),
+                            MaterialTheme.colorScheme.onPrimary.copy(0.01F)
+                        )
                     )
                 )
+                .verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            // Input Box
+            CyberpunkInputBox(
+                value = state.inputHash,
+                onValueChange = { viewModel.updateInputHash(it) },
+                placeholder = stringResource(R.string.paste_hash_here_to_identify),
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp),
             )
-            .verticalScroll(rememberScrollState()),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        // Input Box
-        CyberpunkInputBox(
-            value = state.inputHash,
-            onValueChange = { viewModel.updateInputHash(it) },
-            placeholder = stringResource(R.string.paste_hash_here_to_identify),
-            modifier = Modifier.padding(horizontal = 16.dp)
-        )
 
-        // Detection Results
-        if (state.inputHash.isNotEmpty()) {
-            DetectionResultsSection(
-                detectedHashes = state.detectedHashes,
-                hashInfo = state.hashInfo,
-                modifier = Modifier.padding(horizontal = 16.dp)
-            )
-        } else {
-            PlaceholderInfo(
-                icon = Icons.Default.Fingerprint,
-                title = stringResource(R.string.enter_a_hash_to_identify_its_algorithm),
-                description = stringResource(R.string.supports_md5_sha_1_sha_256_bcrypt_argon2_and_more)
-            )
-        }
+            // Detection Results
+            if (state.inputHash.isNotEmpty()) {
+                DetectionResultsSection(
+                    detectedHashes = state.detectedHashes,
+                    hashInfo = state.hashInfo,
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
+            } else {
+                PlaceholderInfo(
+                    icon = Icons.Default.Fingerprint,
+                    title = stringResource(R.string.enter_a_hash_to_identify_its_algorithm),
+                    description = stringResource(R.string.supports_md5_sha_1_sha_256_bcrypt_argon2_and_more)
+                )
+            }
 
-        // Copy Button (only shown when there's input)
-        if (state.inputHash.isNotEmpty()) {
-            CyberpunkButton(
-                onClick = {
-                    scope.launch {
-                        clipboardManager.setClipEntry(
-                            ClipEntry(ClipData.newPlainText("Copied", state.inputHash))
-                        )
-                    }
-                },
-                icon = Icons.Default.ContentCopy,
-                text = stringResource(R.string.copy_hash)
-            )
+            // Copy Button (only shown when there's input)
+            if (state.inputHash.isNotEmpty()) {
+                CyberpunkButton(
+                    onClick = {
+                        scope.launch {
+                            clipboardManager.setClipEntry(
+                                ClipEntry(ClipData.newPlainText("Copied", state.inputHash))
+                            )
+                        }
+                    },
+                    icon = Icons.Default.ContentCopy,
+                    text = stringResource(R.string.copy_hash)
+                )
+            }
         }
     }
 }

@@ -31,6 +31,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.personx.cryptx.FeaturedActivity
 import com.personx.cryptx.components.FeatureCardButton
+import com.personx.cryptx.components.Header
 import com.personx.cryptx.data.FeatureItem
 
 @Composable
@@ -108,43 +109,46 @@ fun HomeScreen() {
         )
     )
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(
-                Brush.verticalGradient(
-                    colors = listOf(
-                        MaterialTheme.colorScheme.onSurface.copy(0.05f),
-                        MaterialTheme.colorScheme.onPrimary.copy(0.01F)
+    Column {
+        Header("SECURITY TOOL")
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    Brush.verticalGradient(
+                        colors = listOf(
+                            MaterialTheme.colorScheme.onSurface.copy(0.05f),
+                            MaterialTheme.colorScheme.onPrimary.copy(0.01F)
+                        )
                     )
                 )
-            )
-    ) {
-        Column(
-            modifier = Modifier
-                .padding(bottom = 80.dp),
-            verticalArrangement = Arrangement.SpaceBetween,
-            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(2),
+            Column(
                 modifier = Modifier
-                    .weight(1f)
-                    .padding(24.dp),
-                verticalArrangement = Arrangement.spacedBy(24.dp),
-                horizontalArrangement = Arrangement.spacedBy(24.dp, Alignment.CenterHorizontally),
+                    .padding(bottom = 80.dp),
+                verticalArrangement = Arrangement.SpaceBetween,
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                items(featuredItem.size) { index ->
-                    val item = featuredItem[index]
-                    FeatureCardButton(
-                        icon = item.icon,
-                        label = item.label,
-                        onClick = item.onClick,
-                        cardSize = 140.dp,
-                        iconSize = 40.dp,
-                        cornerSize = 28.dp,
-                        borderWidth = 1.dp
-                    )
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(2),
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(24.dp),
+                    verticalArrangement = Arrangement.spacedBy(24.dp),
+                    horizontalArrangement = Arrangement.spacedBy(24.dp, Alignment.CenterHorizontally),
+                ) {
+                    items(featuredItem.size) { index ->
+                        val item = featuredItem[index]
+                        FeatureCardButton(
+                            icon = item.icon,
+                            label = item.label,
+                            onClick = item.onClick,
+                            cardSize = 140.dp,
+                            iconSize = 40.dp,
+                            cornerSize = 28.dp,
+                            borderWidth = 1.dp
+                        )
+                    }
                 }
             }
         }

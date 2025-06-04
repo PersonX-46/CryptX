@@ -98,8 +98,6 @@ class FeaturedActivity : ComponentActivity() {
                                 .fillMaxWidth()
                                 .padding(bottom = 70.dp)
                         ) {
-                            Header(subtitle.value)
-
                             AppNavGraph(
                                 navController = navController,
                                 subtitle = subtitle
