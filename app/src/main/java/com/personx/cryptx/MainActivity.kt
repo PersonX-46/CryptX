@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
@@ -27,19 +29,39 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             CryptXTheme(darkTheme = true) {
-                // Changed to background color for better edge-to-edge experience
-                rememberNavController()
-                Surface(
+
+                Surface (
                     modifier = Modifier.
-                        fillMaxSize()
+                    fillMaxSize()
                         .background(MaterialTheme.colorScheme.onPrimary),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    PinLoginScreen(pinCryptoManager = PinCryptoManager(LocalContext.current)) {
-                        val intent = Intent(this, FeaturedActivity::class.java)
-                        startActivity(intent)
+                    // Changed to background color for better edge-to-edge experience
+                    val prefs = getSharedPreferences("secure_prefs", MODE_PRIVATE)
+                    val saltString = prefs.getString("salt", null)
+                    val ivString = prefs.getString("iv", null)
+                    val secretString = prefs.getString("secret", null)
+
+                    // Track which screen to show
+                    val currentScreen = remember { mutableStateOf(
+                        if (saltString == null || ivString == null || secretString == null) "pinSetup" else "login"
+                    )}
+
+                    when (currentScreen.value) {
+                        "pinSetup" -> {
+                            PinSetupScreen(pinCryptoManager = PinCryptoManager(LocalContext.current)) {
+                                currentScreen.value = "login" // Update screen after setup
+                            }
+                        }
+                        "login" -> {
+                            PinLoginScreen(pinCryptoManager = PinCryptoManager(LocalContext.current)) {
+                                val intent = Intent(this, FeaturedActivity::class.java)
+                                startActivity(intent)
+                            }
+                        }
                     }
                 }
+
             }
         }
     }
