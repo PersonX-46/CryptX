@@ -21,17 +21,16 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.rememberNavController
 import com.personx.cryptx.components.CyberpunkNavBar
-import com.personx.cryptx.components.Header
 import com.personx.cryptx.data.NavBarItem
 import com.personx.cryptx.screens.HomeScreen
 import com.personx.cryptx.ui.theme.CryptXTheme
@@ -48,10 +47,15 @@ class FeaturedActivity : ComponentActivity() {
         setContent {
             CryptXTheme(darkTheme = true) {
                 val screen = intent.getStringExtra(EXTRA_SCREEN) ?: "home"
-                val subtitle = remember { mutableStateOf("") }
                 val navController = rememberNavController()
 
                 val selectedLabel = remember { mutableStateOf(screen) }
+                LaunchedEffect(Unit) {
+                        navController.navigate(screen){
+                            popUpTo(0) { inclusive = true }
+                            launchSingleTop = true
+                        }
+                }
 
                 val navItems = listOf(
                     NavBarItem(Icons.Filled.Home, "Home") {
@@ -100,7 +104,6 @@ class FeaturedActivity : ComponentActivity() {
                         ) {
                             AppNavGraph(
                                 navController = navController,
-                                subtitle = subtitle
                             )
                         }
 
