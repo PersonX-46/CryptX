@@ -2,6 +2,7 @@ package com.personx.cryptx
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.NavHost
 import androidx.navigation.NavHostController
 import com.personx.cryptx.screens.DecryptionScreen
@@ -11,6 +12,7 @@ import com.personx.cryptx.screens.HashDetector
 import com.personx.cryptx.screens.HashGeneratorScreen
 import com.personx.cryptx.screens.HomeScreen
 import com.personx.cryptx.screens.SteganographyScreen
+import com.personx.cryptx.viewmodel.encryption.EncryptionHistoryRepository
 
 @Composable
 fun AppNavGraph(navController: NavHostController, subtitle: MutableState<String>) {
@@ -22,7 +24,7 @@ fun AppNavGraph(navController: NavHostController, subtitle: MutableState<String>
         }
         composable("encrypt") {
             subtitle.value = "ENCRYPTION"
-            EncryptScreen()
+            EncryptScreen(EncryptionHistoryRepository(LocalContext.current))
         }
         composable("decrypt") {
             subtitle.value = "DECRYPTION"
