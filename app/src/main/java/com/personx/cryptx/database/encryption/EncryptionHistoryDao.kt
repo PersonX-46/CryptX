@@ -27,6 +27,9 @@ interface EncryptionHistoryDao {
     @Query("SELECT * FROM encryption_history ORDER BY timestamp DESC")
     fun getAllEncryptionHistory(): Flow<List<EncryptionHistory>>
 
+    @Query("SELECT COUNT(*) FROM encryption_history")
+    suspend fun getCount(): Int
+
 
     /**
      * Inserts a new decryption history record into the database.

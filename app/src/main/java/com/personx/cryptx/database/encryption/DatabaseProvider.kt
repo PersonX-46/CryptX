@@ -1,6 +1,7 @@
 package com.personx.cryptx.database.encryption
 
 import android.content.Context
+import android.util.Log
 import androidx.room.Room
 import com.personx.cryptx.crypto.PinCryptoManager
 import net.sqlcipher.database.SQLiteDatabase
@@ -56,8 +57,26 @@ object DatabaseProvider {
                 .openHelperFactory(factory)
                 .fallbackToDestructiveMigration(false)
                 .build()
+                .also { INSTANCE = it }
 
             return INSTANCE
+        }
+    }
+
+    @Synchronized
+    fun clearDatabaseInstance() {
+        INSTANCE?.let { db ->
+            try {
+                if (db.isOpen) {
+                    db.close()
+                } else {
+                    Log.w("DB_CLOSE", "Database was already closed")
+                }
+            } catch (e: Exception) {
+                Log.e("DB_CLOSE", "Error closing database", e)
+            } finally {
+                INSTANCE = null
+            }
         }
     }
 }

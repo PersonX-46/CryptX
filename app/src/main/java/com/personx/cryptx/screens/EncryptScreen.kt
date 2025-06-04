@@ -30,6 +30,7 @@ import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -51,13 +52,19 @@ import com.personx.cryptx.components.CyberpunkOutputSection
 import com.personx.cryptx.crypto.PinCryptoManager
 import com.personx.cryptx.screens.pinlogin.PinLoginScreen
 import com.personx.cryptx.ui.theme.CryptXTheme
-import com.personx.cryptx.viewmodel.EncryptionViewModel
+import com.personx.cryptx.viewmodel.encryption.EncryptionHistoryRepository
+import com.personx.cryptx.viewmodel.encryption.EncryptionViewModel
+import com.personx.cryptx.viewmodel.encryption.EncryptionViewModelFactory
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
 fun EncryptScreen(
-    viewModel: EncryptionViewModel = viewModel()
+    repository: EncryptionHistoryRepository
 ) {
+    val factory = remember { EncryptionViewModelFactory(repository) }
+    val viewModel: EncryptionViewModel = viewModel(factory = factory)
+
     val context = LocalContext.current
     val state = viewModel.state.value
     val cyberpunkGreen = Color(0xFF00FFAA)
@@ -269,6 +276,7 @@ fun EncryptScreen(
                                             .show()
                                     },
                                     onSave = {
+
                                         viewModel.updateCurrentScreen("pin_login")
                                     },
                                 )
@@ -282,20 +290,31 @@ fun EncryptScreen(
         PinLoginScreen(
             pinCryptoManager = PinCryptoManager(context),
             onLoginSuccess = { pin: String ->
-                viewModel.insertEncryptionHistory(
-                    context = context,
-                    pin = pin,
-                    algorithm = state.selectedAlgorithm,
-                    transformation = state.selectedMode,
-                    keySize = state.selectedKeySize,
-                    key = state.keyText,
-                    iv = if (state.enableIV) state.ivText else null,
-                    secretText = state.inputText,
-                    isBase64 = state.isBase64Enabled,
-                    encryptedOutput = state.outputText
-                )
-                Toast.makeText(context, "Encryption history saved!", Toast.LENGTH_SHORT).show()
+                scope.launch {
+                    val success = viewModel.insertEncryptionHistory(
+                        pin = pin,
+                        algorithm = state.selectedAlgorithm,
+                        transformation = state.selectedMode,
+                        keySize = state.selectedKeySize,
+                        key = state.keyText,
+                        iv = if (state.enableIV) state.ivText else null,
+                        secretText = state.inputText,
+                        isBase64 = state.isBase64Enabled,
+                        encryptedOutput = state.outputText
+                    )
+                    if (success) {
+                        viewModel.updateCurrentScreen("main")
+                        viewModel.refreshHistory(pin)
+                        delay(200)
+                        viewModel.clearOutput()
+                        Toast.makeText(context, "Encryption history saved!", Toast.LENGTH_SHORT).show()
+                    }
+                    else {
+                        Toast.makeText(context, "Failed to save history.", Toast.LENGTH_SHORT).show()
+                    }
+                }
             }
+
         )
     }
 }
@@ -323,6 +342,6 @@ fun getKeySizes(context: Context, algorithm: String): List<String> = when (algor
 @Composable
 fun PreviewEncrypt() {
     CryptXTheme(darkTheme = true) {
-        EncryptScreen()
+        EncryptScreen(repository = EncryptionHistoryRepository(LocalContext.current))
     }
 }

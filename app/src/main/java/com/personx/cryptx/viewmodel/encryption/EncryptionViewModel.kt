@@ -1,8 +1,7 @@
-package com.personx.cryptx.viewmodel
+package com.personx.cryptx.viewmodel.encryption
 
 import android.content.Context
 import android.util.Log
-import android.widget.Toast
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -19,12 +18,19 @@ import com.personx.cryptx.database.encryption.DatabaseProvider
 import com.personx.cryptx.database.encryption.EncryptionHistory
 import com.personx.cryptx.screens.getKeySizes
 import com.personx.cryptx.screens.getTransformations
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 import java.security.SecureRandom
 
-class EncryptionViewModel : ViewModel() {
+class EncryptionViewModel(private val repository: EncryptionHistoryRepository) : ViewModel() {
     private val _state = mutableStateOf(EncryptionState())
     val state: State<EncryptionState> = _state
+
+    private val cryptoEngine = SymmetricBasedAlgorithm()
+
+    private val _history = mutableStateOf<List<EncryptionHistory>>(emptyList())
+    val history: State<List<EncryptionHistory>> = _history
 
     fun updateSelectedAlgorithm(algorithm: String) {
         _state.value = _state.value.copy(selectedAlgorithm = algorithm)
@@ -70,6 +76,11 @@ class EncryptionViewModel : ViewModel() {
         _state.value = _state.value.copy(isBase64Enabled = enabled)
     }
 
+    fun clearOutput() {
+        _state.value = _state.value.copy(outputText = "")
+    }
+
+
     fun updateAlgorithmAndModeLists(context: Context) {
         viewModelScope.launch {
             try {
@@ -93,7 +104,7 @@ class EncryptionViewModel : ViewModel() {
     fun generateKey() {
         viewModelScope.launch {
             try {
-                val newKey = SymmetricBasedAlgorithm().generateKey(
+                val newKey = cryptoEngine.generateKey(
                     _state.value.selectedAlgorithm,
                     _state.value.selectedKeySize
                 )
@@ -112,7 +123,7 @@ class EncryptionViewModel : ViewModel() {
     fun generateIV() {
         viewModelScope.launch {
             try {
-                val newIV = SymmetricBasedAlgorithm().generateIV(_state.value.selectedAlgorithm, 16)
+                val newIV = cryptoEngine.generateIV(_state.value.selectedAlgorithm, 16)
                 _state.value = _state.value.copy(
                     ivText = encodeByteArrayToString(newIV).trim(),
                 )
@@ -148,8 +159,7 @@ class EncryptionViewModel : ViewModel() {
 
     }
 
-    fun insertEncryptionHistory(
-        context: Context,
+    suspend fun insertEncryptionHistory(
         pin: String,
         algorithm: String,
         transformation: String,
@@ -159,8 +169,8 @@ class EncryptionViewModel : ViewModel() {
         secretText: String,
         isBase64: Boolean,
         encryptedOutput: String
-    ) {
-        viewModelScope.launch {
+    ): Boolean {
+        return try {
             val encryptionHistory = createEncryptedHistory(
                 algorithm = algorithm,
                 transformation = transformation,
@@ -171,23 +181,39 @@ class EncryptionViewModel : ViewModel() {
                 encryptedOutput = encryptedOutput,
                 isBase64 = isBase64
             )
-            val instance = DatabaseProvider.getDatabase(context, pin)
-            if (instance == null) {
-                Toast.makeText(
-                    context,
-                    "Database not initialized",
-                    Toast.LENGTH_SHORT
-                ).show()
-                return@launch
+            val result = repository.insertHistory(pin, encryptionHistory)
+            if (result) {
+                updateCurrentScreen("main")
+
             }
-            instance.historyDao()
-                .insertEncryptionHistory(encryptionHistory)
-            Log.d("ENCRYPTED HISTORY", "SUCCESS")
-            updateCurrentScreen("main")
-            // Insert the history into the database (not implemented here)
-            // database.encryptionHistoryDao().insert(history)
+            result
+        } catch (e: Exception) {
+            Log.d("ENCRYPTION DATABASE HISTORY UPDATE ERROR", "Insertion failed: ${e.message}")
+            false
         }
     }
+
+    fun getAllEncryptionHistory(pin: String) {
+        viewModelScope.launch {
+            repository.getAllHistory(pin)
+                .catch { e ->
+                    Log.e("ENCRYPTION_DB", "Error: ${e.message}")
+                    _state.value = _state.value.copy(
+                        outputText = "Error loading history: ${e.message}"
+                    )
+                }
+                .collect { historyList ->
+                    Log.d("ENCRYPTION_DB", "History loaded: ${historyList.size} items")
+                    _history.value = historyList
+                }
+        }
+    }
+
+    // Call this whenever you need to refresh history
+    fun refreshHistory(pin: String) {
+        getAllEncryptionHistory(pin)
+    }
+
 
     fun encrypt(context: Context){
         viewModelScope.launch {
@@ -245,7 +271,7 @@ class EncryptionViewModel : ViewModel() {
                     useBase64 = _state.value.isBase64Enabled
                 )
                 _state.value = _state.value.copy(
-                    outputText = SymmetricBasedAlgorithm().encrypt(params)
+                    outputText = cryptoEngine.encrypt(params)
                 )
             } catch (e: Exception) {
                 _state.value = _state.value.copy(
