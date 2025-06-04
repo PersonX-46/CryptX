@@ -21,7 +21,7 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 import java.security.SecureRandom
 
-class EncryptionViewModel(private val repository: EncryptionHistoryRepository) : ViewModel() {
+class EncryptionViewModel(private val repository: EncryptionViewModelRepository) : ViewModel() {
     private val _state = mutableStateOf(EncryptionState())
     val state: State<EncryptionState> = _state
 

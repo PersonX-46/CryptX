@@ -8,7 +8,7 @@ import com.personx.cryptx.database.encryption.EncryptionHistory
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
-class EncryptionHistoryRepository(private val context: Context) {
+class EncryptionViewModelRepository(private val context: Context) {
     private var currentPin: String? = null
 
     fun ensureDatabase(pin: String): EncryptedDatabase? {

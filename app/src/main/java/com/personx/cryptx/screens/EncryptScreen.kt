@@ -52,7 +52,7 @@ import com.personx.cryptx.components.CyberpunkOutputSection
 import com.personx.cryptx.crypto.PinCryptoManager
 import com.personx.cryptx.screens.pinlogin.PinLoginScreen
 import com.personx.cryptx.ui.theme.CryptXTheme
-import com.personx.cryptx.viewmodel.encryption.EncryptionHistoryRepository
+import com.personx.cryptx.viewmodel.encryption.EncryptionViewModelRepository
 import com.personx.cryptx.viewmodel.encryption.EncryptionViewModel
 import com.personx.cryptx.viewmodel.encryption.EncryptionViewModelFactory
 import kotlinx.coroutines.delay
@@ -60,7 +60,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun EncryptScreen(
-    repository: EncryptionHistoryRepository
+    repository: EncryptionViewModelRepository
 ) {
     val factory = remember { EncryptionViewModelFactory(repository) }
     val viewModel: EncryptionViewModel = viewModel(factory = factory)
@@ -340,6 +340,6 @@ fun getKeySizes(context: Context, algorithm: String): List<String> = when (algor
 @Composable
 fun PreviewEncrypt() {
     CryptXTheme(darkTheme = true) {
-        EncryptScreen(repository = EncryptionHistoryRepository(LocalContext.current))
+        EncryptScreen(repository = EncryptionViewModelRepository(LocalContext.current))
     }
 }

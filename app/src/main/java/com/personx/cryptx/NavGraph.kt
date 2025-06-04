@@ -8,12 +8,12 @@ import androidx.navigation.NavHostController
 import com.personx.cryptx.screens.DecryptionScreen
 import com.personx.cryptx.screens.EncryptScreen
 import androidx.navigation.compose.composable
+import com.personx.cryptx.screens.EncryptionHistoryScreen
 import com.personx.cryptx.screens.HashDetector
 import com.personx.cryptx.screens.HashGeneratorScreen
 import com.personx.cryptx.screens.HomeScreen
-import com.personx.cryptx.screens.SteganographyScreen
 import com.personx.cryptx.viewmodel.decryption.DecryptionHistoryRepository
-import com.personx.cryptx.viewmodel.encryption.EncryptionHistoryRepository
+import com.personx.cryptx.viewmodel.encryption.EncryptionViewModelRepository
 
 @Composable
 fun AppNavGraph(navController: NavHostController, subtitle: MutableState<String>) {
@@ -25,7 +25,7 @@ fun AppNavGraph(navController: NavHostController, subtitle: MutableState<String>
         }
         composable("encrypt") {
             subtitle.value = "ENCRYPTION"
-            EncryptScreen(EncryptionHistoryRepository(LocalContext.current))
+            EncryptScreen(EncryptionViewModelRepository(LocalContext.current))
         }
         composable("decrypt") {
             subtitle.value = "DECRYPTION"
@@ -41,7 +41,8 @@ fun AppNavGraph(navController: NavHostController, subtitle: MutableState<String>
         }
         composable("steganography") {
             subtitle.value = "STEGANOGRAPHY"
-            SteganographyScreen()
+            EncryptionHistoryScreen(EncryptionViewModelRepository(LocalContext.current), pin = "2580")
+
         }
     }
 }
