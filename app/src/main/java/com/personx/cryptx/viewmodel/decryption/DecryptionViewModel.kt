@@ -37,6 +37,7 @@ class DecryptionViewModel(private val repository: DecryptionHistoryRepository) :
     }
 
     private val _history = mutableStateOf<List<DecryptionHistory>>(emptyList())
+    val history: State<List<DecryptionHistory>> = _history
 
     fun updateSelectedKeySize(keySize: Int) {
         _state.value = _state.value.copy(selectedKeySize = keySize)
@@ -72,6 +73,10 @@ class DecryptionViewModel(private val repository: DecryptionHistoryRepository) :
 
     fun updateShowCopiedToast(show: Boolean) {
         _state.value = _state.value.copy(showCopiedToast = show)
+    }
+
+    fun updatePinPurpose(purpose: String) {
+        _state.value = _state.value.copy(pinPurpose = purpose)
     }
 
     fun clearOutput() {

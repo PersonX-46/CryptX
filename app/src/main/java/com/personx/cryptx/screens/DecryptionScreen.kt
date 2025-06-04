@@ -19,9 +19,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.LockOpen
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
@@ -97,12 +100,30 @@ fun DecryptionScreen(
                 elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
             ) {
                 Column(modifier = Modifier.padding(12.dp)) {
-                    Text(
-                        text = "Decryption Settings",
-                        style = MaterialTheme.typography.labelMedium.copy(
-                            color = cyberpunkGreen.copy(alpha = 0.8f)
+                    Row (
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(
+                            text = "Decryption Algorithm",
+                            style = MaterialTheme.typography.labelMedium.copy(
+                                color = cyberpunkGreen.copy(alpha = 0.8f)
+                            ),
+                            fontSize = MaterialTheme.typography.labelLarge.fontSize
                         )
-                    )
+                        IconButton(
+                            onClick = {
+                                viewModel.updatePinPurpose("history")
+                                viewModel.updateCurrentScreen("pin_login")
+                            }) {
+                            Icon(
+                                imageVector = Icons.Default.History,
+                                contentDescription = "History",
+                                tint = cyberpunkGreen
+                            )
+                        }
+                    }
 
                     Spacer(modifier = Modifier.height(8.dp))
 
@@ -221,23 +242,21 @@ fun DecryptionScreen(
                     modifier = Modifier.fillMaxWidth(),
                 )
 
-                // Output Section
-                AnimatedVisibility(
-                    visible = state.outputText.isNotEmpty(),
-                    enter = fadeIn() + expandVertically(),
-                    exit = fadeOut() + shrinkVertically()
-                ) {
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.onSurface.copy(0.03f))
+
+                if (state.outputText.isNotEmpty()) {
+                    AnimatedVisibility(
+                        visible = state.outputText.isNotEmpty(),
+                        enter = fadeIn() + expandVertically(),
+                        exit = fadeOut() + shrinkVertically()
                     ) {
-                        Column(modifier = Modifier.padding(12.dp)) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.onSurface
+                                    .copy(0.05f)
+                            )
+                        ) {
+                            Column(modifier = Modifier.padding(12.dp)) {
                                 Text(
                                     text = "Decrypted Output",
                                     style = MaterialTheme.typography.labelMedium.copy(
@@ -259,13 +278,16 @@ fun DecryptionScreen(
                                                     )
                                                 )
                                             )
+
                                         }
                                         Toast.makeText(
                                             context,
                                             "Copied!",
-                                            Toast.LENGTH_SHORT).show()
+                                            Toast.LENGTH_SHORT)
+                                            .show()
                                     },
                                     onSave = {
+                                        viewModel.updatePinPurpose("save")
                                         viewModel.updateCurrentScreen("pin_login")
                                     },
                                 )
@@ -280,29 +302,52 @@ fun DecryptionScreen(
         PinLoginScreen(
             pinCryptoManager = PinCryptoManager(context),
             onLoginSuccess = { pin: String ->
-                scope.launch {
-                    val success = viewModel.insertDecryptionHistory(
-                        pin,
-                        state.selectedAlgorithm,
-                        state.selectedMode,
-                        state.keyText,
-                        state.ivText,
-                        state.inputText,
-                        state.isBase64Enabled,
-                        state.outputText
-                    )
-                    if (success) {
-                        viewModel.updateCurrentScreen("main")
+                when (state.pinPurpose) {
+                    "save" -> {
+                        scope.launch {
+                            val success = viewModel.insertDecryptionHistory(
+                                pin,
+                                state.selectedAlgorithm,
+                                state.selectedMode,
+                                state.keyText,
+                                state.ivText,
+                                state.inputText,
+                                state.isBase64Enabled,
+                                state.outputText
+                            )
+                            if (success) {
+                                viewModel.updateCurrentScreen("main")
+                                viewModel.refreshHistory(pin)
+                                delay(200)
+                                viewModel.clearOutput()
+                                Toast.makeText(context, "Decryption history saved!", Toast.LENGTH_SHORT).show()
+                            } else {
+                                Toast.makeText(context, "Failed to save decryption history", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    }
+                    "history" -> {
                         viewModel.refreshHistory(pin)
-                        delay(200)
-                        viewModel.clearOutput()
-                        Toast.makeText(context, "Decryption history saved!", Toast.LENGTH_SHORT).show()
-                    } else {
-                        Toast.makeText(context, "Failed to save decryption history", Toast.LENGTH_SHORT).show()
+                        viewModel.updateCurrentScreen("history_screen")
                     }
                 }
+
             }
         )
+    } else if (state.currentScreen == "history_screen") {
+        // History Screen
+        HistoryScreen(
+            history = viewModel.history.value
+        ) {
+            viewModel.updateSelectedAlgorithm(it.algorithm)
+            viewModel.updateSelectedMode(it.transformation)
+            viewModel.updateKeyText(it.key)
+            viewModel.updateIVText(it.iv?:"")
+            viewModel.updateInputText(it.encryptedText)
+            viewModel.updateBase64Enabled(it.isBase64)
+            viewModel.updateOutputText(it.decryptedOutput)
+            viewModel.updateCurrentScreen("main")
+        }
     }
 }
 

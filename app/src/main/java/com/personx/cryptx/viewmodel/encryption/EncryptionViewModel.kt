@@ -28,6 +28,7 @@ class EncryptionViewModel(private val repository: EncryptionViewModelRepository)
     private val cryptoEngine = SymmetricBasedAlgorithm()
 
     private val _history = mutableStateOf<List<EncryptionHistory>>(emptyList())
+    val history: State<List<EncryptionHistory>> = _history
 
     fun updateSelectedAlgorithm(algorithm: String) {
         _state.value = _state.value.copy(selectedAlgorithm = algorithm)
@@ -71,6 +72,10 @@ class EncryptionViewModel(private val repository: EncryptionViewModelRepository)
 
     fun updateBase64Enabled(enabled: Boolean) {
         _state.value = _state.value.copy(isBase64Enabled = enabled)
+    }
+
+    fun updatePinPurpose(purpose: String) {
+        _state.value = _state.value.copy(pinPurpose = purpose)
     }
 
     fun clearOutput() {

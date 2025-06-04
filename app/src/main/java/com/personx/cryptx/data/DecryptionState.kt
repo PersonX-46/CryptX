@@ -14,4 +14,5 @@ data class DecryptionState(
     val transformationList: List<String> = emptyList(),
     val keySizeList: List<String> = emptyList(),
     val currentScreen: String = "main",
+    val pinPurpose: String = "",
 )
