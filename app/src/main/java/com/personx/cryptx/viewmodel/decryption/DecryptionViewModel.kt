@@ -1,8 +1,7 @@
-package com.personx.cryptx.viewmodel
+package com.personx.cryptx.viewmodel.decryption
 
 import android.content.Context
 import android.util.Log
-import android.widget.Toast
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -14,14 +13,14 @@ import com.example.cryptography.utils.CryptoUtils.decodeStringToByteArray
 import com.example.cryptography.utils.CryptoUtils.encodeByteArrayToString
 import com.personx.cryptx.R
 import com.personx.cryptx.data.DecryptionState
-import com.personx.cryptx.database.encryption.DatabaseProvider
 import com.personx.cryptx.database.encryption.DecryptionHistory
 import com.personx.cryptx.screens.getKeySizes
 import com.personx.cryptx.screens.getTransformations
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 
 
-class DecryptionViewModel : ViewModel() {
+class DecryptionViewModel(private val repository: DecryptionHistoryRepository) : ViewModel() {
     private val _state = mutableStateOf(DecryptionState())
     val state: State<DecryptionState> = _state
 
@@ -36,6 +35,8 @@ class DecryptionViewModel : ViewModel() {
             ivText = if (mode.contains("ECB")) "" else _state.value.ivText
         )
     }
+
+    private val _history = mutableStateOf<List<DecryptionHistory>>(emptyList())
 
     fun updateSelectedKeySize(keySize: Int) {
         _state.value = _state.value.copy(selectedKeySize = keySize)
@@ -73,6 +74,10 @@ class DecryptionViewModel : ViewModel() {
         _state.value = _state.value.copy(showCopiedToast = show)
     }
 
+    fun clearOutput() {
+        _state.value = _state.value.copy(outputText = "")
+    }
+
     private fun createDecryptionHistory(
         algorithm: String,
         transformation: String,
@@ -93,8 +98,7 @@ class DecryptionViewModel : ViewModel() {
         )
     }
 
-    fun insertDecryptionHistory(
-        context: Context,
+    suspend fun insertDecryptionHistory(
         pin: String,
         algorithm: String,
         transformation: String,
@@ -103,8 +107,8 @@ class DecryptionViewModel : ViewModel() {
         encryptedText: String,
         isBase64: Boolean,
         decryptedOutput: String
-    ) {
-        viewModelScope.launch {
+    ) : Boolean {
+        return try {
             val decryptionHistory = createDecryptionHistory(
                 algorithm,
                 transformation,
@@ -114,20 +118,34 @@ class DecryptionViewModel : ViewModel() {
                 isBase64,
                 decryptedOutput
             )
-            val instance = DatabaseProvider.getDatabase(context, pin)
-            if (instance == null) {
-                Toast.makeText(
-                    context,
-                    "Database not initialized",
-                    Toast.LENGTH_SHORT
-                ).show()
-                return@launch
+            val result = repository.insertHistory(pin, decryptionHistory)
+            if (result) {
+                updateCurrentScreen("main")
             }
-            instance.historyDao()
-                .insertDecryptionHistory(decryptionHistory)
-            Log.d("DECRYPTION HISTORY", "SUCCESS")
-            updateCurrentScreen("main")
+            result
+        } catch (e: Exception) {
+            Log.d("DECRYPTION DATABASE HISTORY UPDATE ERROR", "Insertion failed: ${e.message}")
+            false
         }
+    }
+
+    private fun getAllDecryptionHistory(pin: String){
+        viewModelScope.launch {
+            repository.getAllDecryptionHistory(pin)
+                .catch { d ->
+                    Log.e("DECRYPTION_DB", "Error: ${d.message}")
+                    _state.value = _state.value.copy(
+                    )
+                }
+                .collect { historyList ->
+                    Log.d("DECRYPTION_DB", "History fetched: ${historyList.size} records")
+                    _history.value = historyList
+                }
+        }
+    }
+
+    fun refreshHistory(pin: String) {
+        getAllDecryptionHistory(pin)
     }
 
     fun updateAlgorithmList(context: Context) {

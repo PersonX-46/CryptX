@@ -49,7 +49,8 @@ import com.personx.cryptx.components.CyberpunkOutputSection
 import com.personx.cryptx.crypto.PinCryptoManager
 import com.personx.cryptx.screens.pinlogin.PinLoginScreen
 import com.personx.cryptx.ui.theme.CryptXTheme
-import com.personx.cryptx.viewmodel.DecryptionViewModel
+import com.personx.cryptx.viewmodel.decryption.DecryptionViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
@@ -274,21 +275,27 @@ fun DecryptionScreen(
         PinLoginScreen(
             pinCryptoManager = PinCryptoManager(context),
             onLoginSuccess = { pin: String ->
-                viewModel.insertDecryptionHistory(
-                    context,
-                    pin,
-                    state.selectedAlgorithm,
-                    state.selectedMode,
-                    state.keyText,
-                    state.ivText,
-                    state.inputText,
-                    state.isBase64Enabled,
-                    state.outputText
-                )
-                Toast.makeText(
-                    context,
-                    "Encryption history saved!",
-                    Toast.LENGTH_SHORT).show()
+                scope.launch {
+                    val success = viewModel.insertDecryptionHistory(
+                        pin,
+                        state.selectedAlgorithm,
+                        state.selectedMode,
+                        state.keyText,
+                        state.ivText,
+                        state.inputText,
+                        state.isBase64Enabled,
+                        state.outputText
+                    )
+                    if (success) {
+                        viewModel.updateCurrentScreen("main")
+                        viewModel.refreshHistory(pin)
+                        delay(200)
+                        viewModel.clearOutput()
+                        Toast.makeText(context, "Decryption history saved!", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(context, "Failed to save decryption history", Toast.LENGTH_SHORT).show()
+                    }
+                }
             }
         )
     }
