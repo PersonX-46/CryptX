@@ -1,6 +1,5 @@
 package com.personx.cryptx.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.personx.cryptx.crypto.PinCryptoManager
 import com.personx.cryptx.data.PinLoginState

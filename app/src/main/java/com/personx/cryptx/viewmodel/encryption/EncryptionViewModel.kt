@@ -14,11 +14,9 @@ import com.example.cryptography.utils.CryptoUtils.encodeByteArrayToString
 import com.example.cryptography.utils.CryptoUtils.padTextToBlockSize
 import com.personx.cryptx.R
 import com.personx.cryptx.data.EncryptionState
-import com.personx.cryptx.database.encryption.DatabaseProvider
 import com.personx.cryptx.database.encryption.EncryptionHistory
 import com.personx.cryptx.screens.getKeySizes
 import com.personx.cryptx.screens.getTransformations
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 import java.security.SecureRandom
@@ -30,7 +28,6 @@ class EncryptionViewModel(private val repository: EncryptionHistoryRepository) :
     private val cryptoEngine = SymmetricBasedAlgorithm()
 
     private val _history = mutableStateOf<List<EncryptionHistory>>(emptyList())
-    val history: State<List<EncryptionHistory>> = _history
 
     fun updateSelectedAlgorithm(algorithm: String) {
         _state.value = _state.value.copy(selectedAlgorithm = algorithm)
