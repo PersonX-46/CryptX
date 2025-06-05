@@ -19,14 +19,39 @@ import java.io.FileOutputStream
 
 object SteganographyUtils {
 
+    /**
+     * SteganographyUtils provides utility functions for embedding files into images and extracting
+     * files from images using the least significant bit (LSB) method.
+     * It also includes methods for saving the embedded image and extracted file to the device storage.
+     */
+
     private const val HEADER_SIZE = 8  // 4 bytes for length, 4 bytes for name length
 
+    /**
+     * Checks if the image can accommodate the file to be embedded.
+     * The image must have enough capacity based on its dimensions and the size of the file.
+     *
+     * @param image The Bitmap image where the file will be embedded.
+     * @param fileBytes The byte array of the file to be embedded.
+     * @param fileName The name of the file to be embedded.
+     * @return True if the file can be embedded, false otherwise.
+     */
     private fun canEmbed(image: Bitmap, fileBytes: ByteArray, fileName: String): Boolean {
         val imageCapacity = image.width * image.height  // 1 byte per pixel (blue channel LSB)
         val metaSize = HEADER_SIZE + fileName.toByteArray().size
         return fileBytes.size + metaSize <= imageCapacity / 8
     }
 
+    /**
+     * Embeds a file into an image using the least significant bit (LSB) method.
+     * The file is embedded in the blue channel of each pixel, with the first few pixels storing metadata
+     * about the file size and name.
+     *
+     * @param image The Bitmap image where the file will be embedded.
+     * @param fileBytes The byte array of the file to be embedded.
+     * @param fileName The name of the file to be embedded.
+     * @return A new Bitmap with the file embedded, or null if embedding is not possible.
+     */
     fun embedFileInImage(image: Bitmap, fileBytes: ByteArray, fileName: String): Bitmap? {
         if (!canEmbed(image, fileBytes, fileName)) return null
 
@@ -55,6 +80,13 @@ object SteganographyUtils {
         return mutableImage
     }
 
+    /**
+     * Extracts a file from an image that has been embedded using the least significant bit (LSB) method.
+     * It retrieves the file size and name from the first few pixels and then extracts the file content.
+     *
+     * @param image The Bitmap image from which the file will be extracted.
+     * @return A Pair containing the file name and its byte array, or null if extraction fails.
+     */
     fun extractFileFromImage(image: Bitmap): Pair<String, ByteArray>? {
         val bits = mutableListOf<Int>()
 
@@ -83,7 +115,15 @@ object SteganographyUtils {
         return Pair(fileName, fileContentBytes)
     }
 
-    // Helper function to save files
+    /**
+     * Saves a byte array to a file in the Downloads directory, creating a subdirectory if necessary.
+     * It handles both scoped storage for Android 10 and above, and legacy storage for Android 9 and below.
+     *
+     * @param context The application context.
+     * @param bytes The byte array to save.
+     * @param fileName The name of the file to save.
+     * @return True if the file was saved successfully, false otherwise.
+     */
     fun saveByteArrayToFile(context: Context, bytes: ByteArray, fileName: String): Boolean {
         return try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -127,6 +167,16 @@ object SteganographyUtils {
             false
         }
     }
+
+    /**
+     * Saves a Bitmap image to the device's gallery, creating a subdirectory if necessary.
+     * It handles both scoped storage for Android 10 and above, and legacy storage for Android 9 and below.
+     *
+     * @param context The application context.
+     * @param bitmap The Bitmap image to save.
+     * @param fileName The name of the file to save.
+     * @return True if the image was saved successfully, false otherwise.
+     */
 
     fun saveBitmapToGallery(context: Context, bitmap: Bitmap, fileName: String): Boolean {
         return try {

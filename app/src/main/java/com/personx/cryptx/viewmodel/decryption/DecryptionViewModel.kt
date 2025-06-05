@@ -19,6 +19,11 @@ import com.personx.cryptx.screens.getTransformations
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 
+/* * DecryptionViewModel is responsible for managing the state and logic related to decryption operations.
+ * It interacts with the DecryptionHistoryRepository to store and retrieve decryption history.
+ * The ViewModel maintains the current state of the decryption process, including selected algorithm,
+ * mode, key size, input text, output text, IV, and whether base64 encoding is enabled.
+ */
 
 class DecryptionViewModel(private val repository: DecryptionHistoryRepository) : ViewModel() {
     private val _state = mutableStateOf(DecryptionState())
@@ -28,6 +33,9 @@ class DecryptionViewModel(private val repository: DecryptionHistoryRepository) :
         _state.value = _state.value.copy(selectedAlgorithm = algorithm)
     }
 
+    /* * The selectedMode state holds the currently selected mode for the decryption algorithm.
+     * It is updated based on the user's selection and determines whether IV is enabled or not.
+     */
     fun updateSelectedMode(mode: String) {
         _state.value = _state.value.copy(
             selectedMode = mode,
@@ -36,6 +44,9 @@ class DecryptionViewModel(private val repository: DecryptionHistoryRepository) :
         )
     }
 
+    /* * The history state holds the list of decryption history records.
+     * It is initialized as an empty list and can be updated with new records.
+     */
     private val _history = mutableStateOf<List<DecryptionHistory>>(emptyList())
     val history: State<List<DecryptionHistory>> = _history
 
@@ -83,6 +94,20 @@ class DecryptionViewModel(private val repository: DecryptionHistoryRepository) :
         _state.value = _state.value.copy(outputText = "")
     }
 
+    /**
+     * Creates a new DecryptionHistory object with the provided parameters.
+     * This function is used to encapsulate the creation logic for better readability and maintainability.
+     *
+     * @param algorithm The algorithm used for decryption.
+     * @param transformation The transformation applied during decryption.
+     * @param key The key used for decryption.
+     * @param iv The initialization vector, if applicable.
+     * @param encryptedText The encrypted text that was decrypted.
+     * @param isBase64 Indicates whether the input was base64 encoded.
+     * @param decryptedOutput The output after decryption.
+     * @return A new DecryptionHistory object containing the provided parameters.
+     */
+
     private fun createDecryptionHistory(
         algorithm: String,
         transformation: String,
@@ -103,6 +128,22 @@ class DecryptionViewModel(private val repository: DecryptionHistoryRepository) :
         )
     }
 
+    /**
+     * Inserts a new decryption history record into the database.
+     * This function handles the creation of the DecryptionHistory object and calls the repository to insert it.
+     * If the insertion is successful, it updates the current screen to "main".
+     *
+     * @param pin The PIN used for accessing the database.
+     * @param algorithm The algorithm used for decryption.
+     * @param transformation The transformation applied during decryption.
+     * @param key The key used for decryption.
+     * @param iv The initialization vector, if applicable.
+     * @param encryptedText The encrypted text that was decrypted.
+     * @param isBase64 Indicates whether the input was base64 encoded.
+     * @param decryptedOutput The output after decryption.
+     * @return True if the insertion was successful, false otherwise.
+     */
+
     suspend fun insertDecryptionHistory(
         pin: String,
         algorithm: String,
@@ -113,6 +154,7 @@ class DecryptionViewModel(private val repository: DecryptionHistoryRepository) :
         isBase64: Boolean,
         decryptedOutput: String
     ) : Boolean {
+
         return try {
             val decryptionHistory = createDecryptionHistory(
                 algorithm,
@@ -134,6 +176,12 @@ class DecryptionViewModel(private val repository: DecryptionHistoryRepository) :
         }
     }
 
+    /**
+     * Fetches all decryption history records from the repository.
+     * This function is called to initialize the history state when the ViewModel is created.
+     *
+     * @param pin The PIN used for accessing the database.
+     */
     private fun getAllDecryptionHistory(pin: String){
         viewModelScope.launch {
             repository.getAllDecryptionHistory(pin)
@@ -149,6 +197,12 @@ class DecryptionViewModel(private val repository: DecryptionHistoryRepository) :
         }
     }
 
+    /**
+     * Refreshes the decryption history by fetching all records from the repository.
+     * This function is typically called when the user navigates to the history screen or after a new record is inserted.
+     *
+     * @param pin The PIN used for accessing the database.
+     */
     fun refreshHistory(pin: String) {
         getAllDecryptionHistory(pin)
     }
@@ -167,6 +221,11 @@ class DecryptionViewModel(private val repository: DecryptionHistoryRepository) :
             )
         }
     }
+
+    /**
+     * Generates a new symmetric key based on the selected algorithm and key size.
+     * This function is called when the user requests to generate a new key.
+     */
 
     fun generateKey() {
         viewModelScope.launch {

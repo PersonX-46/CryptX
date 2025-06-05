@@ -4,6 +4,13 @@ import java.security.MessageDigest
 import java.util.regex.Pattern
 
 object HashUtils {
+    /**
+     * HashUtils provides utility functions for identifying hash types, computing hashes,
+     * and providing information about various hash algorithms.
+     * It supports common hash algorithms like MD5, SHA-1, SHA-256, etc.
+     */
+
+    // Regular expressions for identifying hash patterns
     private val hashPatterns = mapOf(
         "MD5" to "^[a-f0-9]{32}$",
         "SHA-1" to "^[a-f0-9]{40}$",
@@ -19,6 +26,7 @@ object HashUtils {
         "SHA-3-512" to "^[a-f0-9]{128}$" // Same length as SHA-512
     )
 
+    // Map of hash lengths to their possible algorithms
     private val hashLengths = mapOf(
         32 to listOf("MD5", "NTLM"),
         40 to listOf("SHA-1", "MySQL 4.1+"),
@@ -80,6 +88,13 @@ object HashUtils {
             else -> "No information available about this hash algorithm"
         }
     }
+
+    /**
+     * Computes the hash of a given input string using the specified algorithm
+     * @param input The input string to hash
+     * @param algorithm The hash algorithm to use (e.g., "MD5", "SHA-256")
+     * @return The computed hash as a hexadecimal string, or an error message if the algorithm is unsupported
+     */
 
     fun computeHash(input: String, algorithm: String): String {
         return try {

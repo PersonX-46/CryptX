@@ -5,5 +5,4 @@ data class HashState(
     val selectedAlgorithm: String = "",
     val inputText: String = "",
     val generatedHash: String = "",
-    val showCopiedToast: Boolean = false
 )

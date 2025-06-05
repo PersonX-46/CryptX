@@ -63,6 +63,11 @@ object DatabaseProvider {
         }
     }
 
+    /**
+     * Clears the database instance, closing it if it is open.
+     * This should be called when the application is shutting down or when the database is no longer needed.
+     */
+
     @Synchronized
     fun clearDatabaseInstance() {
         INSTANCE?.let { db ->

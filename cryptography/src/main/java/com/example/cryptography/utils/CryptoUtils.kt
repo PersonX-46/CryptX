@@ -6,6 +6,11 @@ import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
 import javax.crypto.spec.SecretKeySpec
 
+/**
+ * CryptoUtils provides utility functions for cryptographic operations such as encoding/decoding
+ * Base64 strings, padding text to block sizes, and converting between byte arrays and hex strings.
+ */
+
 object CryptoUtils {
 
     fun decodeBase64ToSecretKey(keyString: String, algorithm: String): SecretKey {
@@ -17,6 +22,7 @@ object CryptoUtils {
         }
         return SecretKeySpec(keyBytes, algorithm)
     }
+
 
     fun encodeByteArrayToString(byteArray: ByteArray): String {
         return Base64.encodeToString(byteArray, Base64.NO_WRAP)

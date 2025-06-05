@@ -14,6 +14,19 @@ import javax.crypto.spec.IvParameterSpec
 
 class SymmetricBasedAlgorithm: SymmetricAlgorithm {
 
+    /**
+     * SymmetricBasedAlgorithm implements the SymmetricAlgorithm interface to provide
+     * encryption and decryption functionalities using symmetric key algorithms.
+     * It supports various transformations and key generation methods.
+     */
+
+    /**
+     * Encrypts the given data using the specified transformation and key.
+     * If an IV is provided, it uses it; otherwise, it initializes the cipher without an IV.
+     *
+     * @param params The CryptoParams containing the data, key, transformation, and optional IV.
+     * @return The encrypted data as a Base64 or hex string based on useBase64 flag.
+     */
     override fun encrypt(params: CryptoParams): String {
         val cipher = Cipher.getInstance(params.transformation)
         if (params.iv == null || params.iv.isEmpty()) {
@@ -32,6 +45,13 @@ class SymmetricBasedAlgorithm: SymmetricAlgorithm {
         }
     }
 
+    /**
+     * Decrypts the given data using the specified transformation and key.
+     * If an IV is provided, it uses it; otherwise, it initializes the cipher without an IV.
+     *
+     * @param params The CryptoParams containing the encrypted data, key, transformation, and optional IV.
+     * @return The decrypted data as a string.
+     */
     override fun decrypt(params: CryptoParams): String {
         val cipher = Cipher.getInstance(params.transformation)
         val ivSpec = params.iv?.let { IvParameterSpec(it) }
@@ -48,6 +68,14 @@ class SymmetricBasedAlgorithm: SymmetricAlgorithm {
         return String(decryptedBytes)
     }
 
+    /**
+     * Generates a secret key based on the specified algorithm and key size.
+     * For DES and 3DES, it uses fixed key sizes as per their specifications.
+     *
+     * @param algorithm The algorithm to use for key generation (e.g., "AES", "DES", "DESede").
+     * @param keySize The size of the key to generate.
+     * @return The generated SecretKey.
+     */
     override fun generateKey(algorithm: String, keySize: Int): SecretKey {
         val keyGen = KeyGenerator.getInstance(algorithm)
         when (algorithm) {
@@ -58,6 +86,14 @@ class SymmetricBasedAlgorithm: SymmetricAlgorithm {
         return keyGen.generateKey()
     }
 
+    /**
+     * Generates an Initialization Vector (IV) based on the specified algorithm and IV size.
+     * It uses standard sizes for common algorithms like AES, DES, and ChaCha20.
+     *
+     * @param algorithm The algorithm for which to generate the IV (e.g., "AES", "DES", "ChaCha20").
+     * @param ivsize The size of the IV to generate, if not using a standard size.
+     * @return A byte array containing the generated IV.
+     */
     override fun generateIV(algorithm: String, ivsize: Int): ByteArray {
         val ivSize = when (algorithm.uppercase()) {
             "AES", "AES/CBC/PKCS5PADDING", "AES/CBC/PKCS7PADDING", "AES/GCM/NO PADDING", "AES/GCM/NOPADDING" -> 16

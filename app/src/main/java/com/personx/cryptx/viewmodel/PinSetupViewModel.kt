@@ -7,6 +7,11 @@ import com.personx.cryptx.screens.pinsetup.PinSetupEvent
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
+/**
+ * PinSetupViewModel is responsible for managing the state of the PIN setup process.
+ * It handles events related to entering and confirming a PIN, and interacts with the PinCryptoManager
+ * to securely store the PIN once it is confirmed.
+ */
 class PinSetupViewModel(
     private val pinCryptoManager: PinCryptoManager
 ) : ViewModel() {
