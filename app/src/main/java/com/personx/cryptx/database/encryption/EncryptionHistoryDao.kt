@@ -12,21 +12,14 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface EncryptionHistoryDao {
 
-    /**
-     * Inserts a new encryption history record into the database.
+
+    /** Inserts a new encryption history record into the database.
      * If a record with the same primary key already exists, it will be replaced.
      *
      * @param history The EncryptionHistory object to be inserted.
      */
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-
-    /* Inserts a new encryption history record into the database.
-     * If a record with the same primary key already exists, it will be replaced.
-     *
-     * @param history The EncryptionHistory object to be inserted.
-     */
-
+    @Insert
     suspend fun insertEncryptionHistory(history: EncryptionHistory)
 
     /**
@@ -73,7 +66,7 @@ interface EncryptionHistoryDao {
      * @param history The DecryptionHistory object to be inserted.
      */
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert
     suspend fun insertDecryptionHistory(history: DecryptionHistory)
 
     /**

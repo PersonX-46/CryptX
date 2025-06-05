@@ -38,7 +38,6 @@ import com.personx.cryptx.components.CyberpunkDropdown
 import com.personx.cryptx.components.CyberpunkInputBox
 import com.personx.cryptx.components.Header
 import com.personx.cryptx.components.PlaceholderInfo
-import com.personx.cryptx.components.Toast
 import com.personx.cryptx.ui.theme.CryptXTheme
 import com.personx.cryptx.viewmodel.HashGeneratorViewModel
 import kotlinx.coroutines.launch

@@ -335,6 +335,7 @@ fun EncryptScreen(
                         "save" -> {
                             scope.launch {
                                 val success = viewModel.insertEncryptionHistory(
+                                    id = state.id,
                                     pin = pin,
                                     algorithm = state.selectedAlgorithm,
                                     transformation = state.selectedMode,

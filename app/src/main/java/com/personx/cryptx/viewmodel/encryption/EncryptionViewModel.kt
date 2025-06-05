@@ -182,7 +182,7 @@ class EncryptionViewModel(private val repository: EncryptionViewModelRepository)
     }
 
     suspend fun insertEncryptionHistory(
-        id: Int? = null,
+        id: Int? = 0,
         pin: String,
         algorithm: String,
         transformation: String,
@@ -195,6 +195,7 @@ class EncryptionViewModel(private val repository: EncryptionViewModelRepository)
     ): Boolean {
         return try {
             val encryptionHistory = createEncryptedHistory(
+                id = id,
                 algorithm = algorithm,
                 transformation = transformation,
                 keySize = keySize,
