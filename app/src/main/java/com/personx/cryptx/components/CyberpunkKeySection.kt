@@ -20,11 +20,12 @@ import com.personx.cryptx.R
 
 @Composable
 fun CyberpunkKeySection(
+    modifier: Modifier = Modifier,
     title: String,
     keyText: String,
     onKeyTextChange: (String) -> Unit,
     onGenerateKey: () -> Unit,
-    modifier: Modifier = Modifier
+    isGenActive: Boolean = true,
 ) {
     Column(modifier = modifier.fillMaxWidth()) {
         Text(
@@ -50,6 +51,7 @@ fun CyberpunkKeySection(
             Spacer(modifier = Modifier.width(8.dp))
 
             CyberpunkButton(
+                isActive = isGenActive,
                 onClick = onGenerateKey,
                 icon = Icons.Default.Refresh,
                 text = "GEN",
