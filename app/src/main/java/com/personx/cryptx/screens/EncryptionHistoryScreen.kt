@@ -90,7 +90,7 @@ fun HistoryScreen(
     val cyberpunkGreen = Color(0xFF00FFAA)
 
     // Collect history from database
-    Column {
+    Column{
         Header("DECRYPTION HISTORY")
         Column(
             modifier = Modifier
@@ -98,7 +98,7 @@ fun HistoryScreen(
                 .background(
                     Brush.verticalGradient(
                         colors = listOf(
-                            MaterialTheme.colorScheme.onSurface.copy(0.05f),
+                            MaterialTheme.colorScheme.onSurface.copy(0.06f),
                             MaterialTheme.colorScheme.onPrimary.copy(0.01F)
                         )
                     )
@@ -133,7 +133,6 @@ fun HistoryScreen(
             }
         }
     }
-
 }
 
 @Preview

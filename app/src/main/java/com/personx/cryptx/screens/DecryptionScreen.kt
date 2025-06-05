@@ -78,7 +78,10 @@ fun DecryptionScreen(
 
     when (state.currentScreen) {
         "main" -> {
-            Column {
+            Column (
+                modifier = Modifier
+                    .background(MaterialTheme.colorScheme.background)
+            ) {
                 Header("DECRYPTION")
                 Column(
                     modifier = Modifier
@@ -100,11 +103,12 @@ fun DecryptionScreen(
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.onSurface.copy(0.03f)),
+                            containerColor = MaterialTheme.colorScheme.onSurface.copy(0.07f)
+                        ),
                         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                     ) {
                         Column(modifier = Modifier.padding(12.dp)) {
-                            Row (
+                            Row(
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 modifier = Modifier.fillMaxWidth()
@@ -156,7 +160,7 @@ fun DecryptionScreen(
                         Card(
                             modifier = Modifier.fillMaxWidth(),
                             colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.onSurface.copy(0.03f))
+                                containerColor = MaterialTheme.colorScheme.onSurface.copy(0.07f))
                         ) {
                             Column(modifier = Modifier.padding(12.dp)) {
                                 Text(
@@ -181,7 +185,7 @@ fun DecryptionScreen(
                         Card(
                             modifier = Modifier.fillMaxWidth(),
                             colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.onSurface.copy(0.03f))
+                                containerColor = MaterialTheme.colorScheme.onSurface.copy(0.07f))
                         ) {
                             Column(modifier = Modifier.padding(12.dp)) {
                                 Text(
@@ -257,7 +261,7 @@ fun DecryptionScreen(
                                     modifier = Modifier.fillMaxWidth(),
                                     colors = CardDefaults.cardColors(
                                         containerColor = MaterialTheme.colorScheme.onSurface
-                                            .copy(0.05f)
+                                            .copy(0.07f)
                                     )
                                 ) {
                                     Column(modifier = Modifier.padding(12.dp)) {
@@ -302,8 +306,7 @@ fun DecryptionScreen(
                     }
                 }
             }
-            }
-
+        }
 
         "pin_login" -> {
             // Pin Login Screen

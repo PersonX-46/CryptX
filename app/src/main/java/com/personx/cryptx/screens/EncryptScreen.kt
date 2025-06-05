@@ -81,7 +81,10 @@ fun EncryptScreen(
 
     when (state.currentScreen) {
         "main" -> {
-            Column {
+            Column(
+                modifier = Modifier
+                    .background(color = MaterialTheme.colorScheme.background)
+            ) {
                 Header("ENCRRYPTION")
                 Column(
                     modifier = Modifier
@@ -103,7 +106,7 @@ fun EncryptScreen(
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.onSurface.copy(0.03f)
+                            containerColor = MaterialTheme.colorScheme.onSurface.copy(0.05f)
                         )
                     ) {
                         Column(modifier = Modifier.padding(12.dp)) {
