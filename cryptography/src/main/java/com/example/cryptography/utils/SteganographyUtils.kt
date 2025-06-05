@@ -36,6 +36,7 @@ object SteganographyUtils {
      * @param fileName The name of the file to be embedded.
      * @return True if the file can be embedded, false otherwise.
      */
+
     private fun canEmbed(image: Bitmap, fileBytes: ByteArray, fileName: String): Boolean {
         val imageCapacity = image.width * image.height  // 1 byte per pixel (blue channel LSB)
         val metaSize = HEADER_SIZE + fileName.toByteArray().size
@@ -52,6 +53,7 @@ object SteganographyUtils {
      * @param fileName The name of the file to be embedded.
      * @return A new Bitmap with the file embedded, or null if embedding is not possible.
      */
+
     fun embedFileInImage(image: Bitmap, fileBytes: ByteArray, fileName: String): Bitmap? {
         if (!canEmbed(image, fileBytes, fileName)) return null
 
@@ -87,6 +89,7 @@ object SteganographyUtils {
      * @param image The Bitmap image from which the file will be extracted.
      * @return A Pair containing the file name and its byte array, or null if extraction fails.
      */
+
     fun extractFileFromImage(image: Bitmap): Pair<String, ByteArray>? {
         val bits = mutableListOf<Int>()
 
@@ -124,6 +127,7 @@ object SteganographyUtils {
      * @param fileName The name of the file to save.
      * @return True if the file was saved successfully, false otherwise.
      */
+
     fun saveByteArrayToFile(context: Context, bytes: ByteArray, fileName: String): Boolean {
         return try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
