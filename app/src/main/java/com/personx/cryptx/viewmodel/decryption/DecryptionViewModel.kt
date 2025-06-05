@@ -3,7 +3,9 @@ package com.personx.cryptx.viewmodel.decryption
 import android.content.Context
 import android.util.Log
 import androidx.compose.runtime.State
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.cryptography.algorithms.SymmetricBasedAlgorithm
@@ -29,6 +31,22 @@ class DecryptionViewModel(private val repository: DecryptionHistoryRepository) :
     private val _state = mutableStateOf(DecryptionState())
     val state: State<DecryptionState> = _state
 
+    var itemToDelete: DecryptionHistory? by mutableStateOf(null)
+    var itemToUpdate: DecryptionHistory? by mutableStateOf(null)
+
+
+    fun prepareItemToDelete(item: DecryptionHistory?) {
+        itemToDelete = item
+    }
+
+    fun prepareItemToUpdate(item: DecryptionHistory?) {
+        itemToUpdate = item
+    }
+
+    fun updateId(id: Int) {
+        _state.value = _state.value.copy(id = id)
+    }
+
     fun updateSelectedAlgorithm(algorithm: String) {
         _state.value = _state.value.copy(selectedAlgorithm = algorithm)
     }
@@ -47,12 +65,10 @@ class DecryptionViewModel(private val repository: DecryptionHistoryRepository) :
     /* * The history state holds the list of decryption history records.
      * It is initialized as an empty list and can be updated with new records.
      */
+
     private val _history = mutableStateOf<List<DecryptionHistory>>(emptyList())
     val history: State<List<DecryptionHistory>> = _history
 
-    fun updateSelectedKeySize(keySize: Int) {
-        _state.value = _state.value.copy(selectedKeySize = keySize)
-    }
 
     fun updateInputText(input: String) {
         _state.value = _state.value.copy(inputText = input)
@@ -82,9 +98,6 @@ class DecryptionViewModel(private val repository: DecryptionHistoryRepository) :
         _state.value = _state.value.copy(isBase64Enabled = enabled)
     }
 
-    fun updateShowCopiedToast(show: Boolean) {
-        _state.value = _state.value.copy(showCopiedToast = show)
-    }
 
     fun updatePinPurpose(purpose: String) {
         _state.value = _state.value.copy(pinPurpose = purpose)
@@ -108,7 +121,8 @@ class DecryptionViewModel(private val repository: DecryptionHistoryRepository) :
      * @return A new DecryptionHistory object containing the provided parameters.
      */
 
-    private fun createDecryptionHistory(
+     fun createDecryptionHistory(
+        id: Int? = null,
         algorithm: String,
         transformation: String,
         key: String,
@@ -118,6 +132,7 @@ class DecryptionViewModel(private val repository: DecryptionHistoryRepository) :
         decryptedOutput: String
     ): DecryptionHistory {
         return DecryptionHistory(
+            id = id?: 0, // Use provided ID or default to 0 for auto-generation
             algorithm = algorithm,
             transformation = transformation,
             key = key,
@@ -145,6 +160,7 @@ class DecryptionViewModel(private val repository: DecryptionHistoryRepository) :
      */
 
     suspend fun insertDecryptionHistory(
+        id: Int? = 0,
         pin: String,
         algorithm: String,
         transformation: String,
@@ -157,6 +173,7 @@ class DecryptionViewModel(private val repository: DecryptionHistoryRepository) :
 
         return try {
             val decryptionHistory = createDecryptionHistory(
+                id = id,
                 algorithm,
                 transformation,
                 key,
@@ -177,11 +194,46 @@ class DecryptionViewModel(private val repository: DecryptionHistoryRepository) :
     }
 
     /**
+     * Updates an existing decryption history record in the repository.
+     * This function is called when the user wants to modify an existing record.
+     *
+     * @param pin The PIN used for accessing the database.
+     * @param history The DecryptionHistory object to be updated.
+     */
+
+    suspend fun updateDecryptionHistory(pin: String, history: DecryptionHistory) {
+        try {
+            repository.updateHistory(pin, history)
+            Log.d("DECRYPTION_DB", "History updated successfully")
+        } catch (e: Exception) {
+            Log.e("DECRYPTION_DB", "Error updating history: ${e.message}")
+        }
+    }
+
+    /**
+     * Deletes a specific decryption history record from the repository.
+     * This function is called when the user wants to remove a record from the history.
+     *
+     * @param pin The PIN used for accessing the database.
+     * @param history The DecryptionHistory object to be deleted.
+     */
+
+    suspend fun deleteDecryptionHistory(pin: String, history: DecryptionHistory) {
+        try {
+            repository.deleteHistory(pin, history)
+            Log.d("DECRYPTION_DB", "History deleted successfully")
+        } catch (e: Exception) {
+            Log.e("DECRYPTION_DB", "Error deleting history: ${e.message}")
+        }
+    }
+
+    /**
      * Fetches all decryption history records from the repository.
      * This function is called to initialize the history state when the ViewModel is created.
      *
      * @param pin The PIN used for accessing the database.
      */
+
     private fun getAllDecryptionHistory(pin: String){
         viewModelScope.launch {
             repository.getAllDecryptionHistory(pin)
@@ -203,6 +255,7 @@ class DecryptionViewModel(private val repository: DecryptionHistoryRepository) :
      *
      * @param pin The PIN used for accessing the database.
      */
+
     fun refreshHistory(pin: String) {
         getAllDecryptionHistory(pin)
     }
@@ -210,12 +263,9 @@ class DecryptionViewModel(private val repository: DecryptionHistoryRepository) :
     fun updateAlgorithmList(context: Context) {
         viewModelScope.launch {
             val transformations = getTransformations(context, _state.value.selectedAlgorithm)
-            val keySize = getKeySizes(context, _state.value.selectedAlgorithm)
 
             _state.value = _state.value.copy(
                 transformationList = transformations,
-                keySizeList = keySize,
-                selectedKeySize = keySize.firstOrNull()?.toIntOrNull() ?: 128,
                 selectedMode = transformations.firstOrNull() ?: "",
                 enableIV = !transformations.firstOrNull().toString().contains("ECB"),
             )
@@ -223,28 +273,11 @@ class DecryptionViewModel(private val repository: DecryptionHistoryRepository) :
     }
 
     /**
-     * Generates a new symmetric key based on the selected algorithm and key size.
-     * This function is called when the user requests to generate a new key.
+     * Decrypts the input text using the selected algorithm, mode, and key.
+     * This function is called when the user initiates a decryption operation.
+     *
+     * @param context The context used for accessing resources and strings.
      */
-
-    fun generateKey() {
-        viewModelScope.launch {
-            try {
-                val newKey = SymmetricBasedAlgorithm().generateKey(
-                    _state.value.selectedAlgorithm,
-                    _state.value.selectedKeySize
-                )
-                _state.value = _state.value.copy(
-                    keyText = encodeByteArrayToString(newKey.encoded).trim(),
-                )
-            } catch (e: Exception) {
-                _state.value = _state.value.copy(
-                    outputText = "Key generation failed: ${e.message}"
-                )
-
-            }
-        }
-    }
 
     fun decrypt(context: Context) {
         viewModelScope.launch {

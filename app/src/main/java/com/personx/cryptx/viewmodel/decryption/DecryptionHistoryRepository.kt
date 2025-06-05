@@ -82,4 +82,50 @@ class DecryptionHistoryRepository(private val context: Context) {
             }
         }
     }
+
+    /**
+     * Updates an existing decryption history record in the database.
+     * If the database initialization fails (e.g., invalid PIN), it returns false.
+     *
+     * @param pin The PIN to use for accessing the database.
+     * @param history The DecryptionHistory object to be updated.
+     * @return True if the update was successful, false otherwise.
+     */
+
+    suspend fun updateHistory(pin: String, history: DecryptionHistory): Boolean {
+        // Ensure the database is initialized with the provided PIN
+        return try {
+            val db = ensureDatabase(pin) ?: return false
+            db.historyDao().updateDecryptionHistory(history)
+            true
+        } catch (e: Exception) {
+            e.printStackTrace()
+            false
+        } finally {
+            DatabaseProvider.clearDatabaseInstance()
+        }
+    }
+
+    /**
+     * Deletes a specific decryption history record from the database.
+     * If the database initialization fails (e.g., invalid PIN), it returns false.
+     *
+     * @param pin The PIN to use for accessing the database.
+     * @param history The DecryptionHistory object to be deleted.
+     * @return True if the deletion was successful, false otherwise.
+     */
+
+    suspend fun deleteHistory(pin: String, history: DecryptionHistory): Boolean {
+        // Ensure the database is initialized with the provided PIN
+        return try {
+            val db = ensureDatabase(pin) ?: return false
+            db.historyDao().deleteDecryptionHistory(history)
+            true
+        } catch (e: Exception) {
+            e.printStackTrace()
+            false
+        } finally {
+            DatabaseProvider.clearDatabaseInstance()
+        }
+    }
 }

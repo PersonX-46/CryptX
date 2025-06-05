@@ -198,9 +198,10 @@ fun DecryptionScreen(
                                 Spacer(modifier = Modifier.height(8.dp))
 
                                 CyberpunkKeySection(
+                                    isGenActive = false,
                                     keyText = state.keyText,
                                     onKeyTextChange = { viewModel.updateKeyText(it) },
-                                    onGenerateKey = { viewModel.generateKey() },
+                                    onGenerateKey = { },
                                     title = "Decryption Key"
                                 )
 
@@ -295,8 +296,12 @@ fun DecryptionScreen(
                                                     .show()
                                             },
                                             onSave = {
-                                                viewModel.updatePinPurpose("save")
-                                                viewModel.updateCurrentScreen("pin_login")
+                                                if (state.pinPurpose != "update") {
+                                                    viewModel.updatePinPurpose("save")
+                                                    viewModel.updateCurrentScreen("pin_login")
+                                                } else {
+                                                    viewModel.updateCurrentScreen("pin_login")
+                                                }
                                             },
                                         )
                                     }
@@ -317,6 +322,7 @@ fun DecryptionScreen(
                         "save" -> {
                             scope.launch {
                                 val success = viewModel.insertDecryptionHistory(
+                                    id = state.id,
                                     pin,
                                     state.selectedAlgorithm,
                                     state.selectedMode,
@@ -342,25 +348,79 @@ fun DecryptionScreen(
                             viewModel.refreshHistory(pin)
                             viewModel.updateCurrentScreen("history_screen")
                         }
-                    }
 
+                        "update" -> {
+                            scope.launch {
+                                val itemToUpdate = viewModel.createDecryptionHistory(
+                                    id = state.id,
+                                    algorithm = state.selectedAlgorithm,
+                                    transformation = state.selectedMode,
+                                    key = state.keyText,
+                                    iv = state.ivText,
+                                    isBase64 = state.isBase64Enabled,
+                                    encryptedText = state.inputText,
+                                    decryptedOutput = state.outputText
+                                )
+                                viewModel.prepareItemToUpdate(itemToUpdate)
+                                viewModel.itemToUpdate?.let { item ->
+                                    viewModel.updateDecryptionHistory(pin, item)
+                                    viewModel.refreshHistory(pin)
+                                    viewModel.updateCurrentScreen("history_screen")
+                                    Toast.makeText(context, "History updated!", Toast.LENGTH_SHORT).show()
+                                    viewModel.prepareItemToUpdate(null) // Clear item to update
+                                }
+                            }
+                        }
+
+                        "delete" -> {
+                            scope.launch {
+                                if (viewModel.itemToDelete != null) {
+                                    viewModel.itemToDelete?.let { item ->
+                                        viewModel.deleteDecryptionHistory(pin, item)
+                                        viewModel.refreshHistory(pin)
+                                        viewModel.updateCurrentScreen("history_screen")
+                                        Toast.makeText(context, "History deleted!", Toast.LENGTH_SHORT).show()
+                                        viewModel.prepareItemToDelete(null) // Clear item to delete
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             )
         }
         "history_screen" -> {
             // History Screen
             HistoryScreen(
-                history = viewModel.history.value
-            ) {
-                viewModel.updateSelectedAlgorithm(it.algorithm)
-                viewModel.updateSelectedMode(it.transformation)
-                viewModel.updateKeyText(it.key)
-                viewModel.updateIVText(it.iv?:"")
-                viewModel.updateInputText(it.encryptedText)
-                viewModel.updateBase64Enabled(it.isBase64)
-                viewModel.updateOutputText(it.decryptedOutput)
-                viewModel.updateCurrentScreen("main")
-            }
+                history = viewModel.history.value,
+                onItemClick = {
+                    viewModel.updateSelectedAlgorithm(it.algorithm)
+                    viewModel.updateSelectedMode(it.transformation)
+                    viewModel.updateKeyText(it.key)
+                    viewModel.updateIVText(it.iv?:"")
+                    viewModel.updateInputText(it.encryptedText)
+                    viewModel.updateBase64Enabled(it.isBase64)
+                    viewModel.updateOutputText(it.decryptedOutput)
+                    viewModel.updateCurrentScreen("main")
+                },
+                onEditClick = {
+                    viewModel.updateId(it.id)
+                    viewModel.updateSelectedAlgorithm(it.algorithm)
+                    viewModel.updateSelectedMode(it.transformation)
+                    viewModel.updateKeyText(it.key)
+                    viewModel.updateIVText(it.iv?:"")
+                    viewModel.updateInputText(it.encryptedText)
+                    viewModel.updateBase64Enabled(it.isBase64)
+                    viewModel.updateOutputText(it.decryptedOutput)
+                    viewModel.updatePinPurpose("update")
+                    viewModel.updateCurrentScreen("main")
+                },
+                onDeleteClick = { item ->
+                    viewModel.prepareItemToDelete(item)
+                    viewModel.updatePinPurpose("delete")
+                    viewModel.updateCurrentScreen("pin_login")
+                },
+            )
         }
     }
 }
