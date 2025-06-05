@@ -115,11 +115,6 @@ fun HashGeneratorScreen(
             }
         }
     }
-
-    // Toast notification
-    if (state.showCopiedToast) {
-        Toast("Hash copied to clipboard!")
-    }
 }
 @Composable
 private fun HashOutputSection(
