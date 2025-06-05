@@ -309,7 +309,6 @@ fun EncryptScreen(
                                                     .show()
                                             },
                                             onSave = {
-                                                Log.d("PINPURPOSE", "Current purpose: ${state.pinPurpose}")
                                                 if (state.pinPurpose != "update") {
                                                     viewModel.updatePinPurpose("save")
                                                     viewModel.updateCurrentScreen("pin_login")
