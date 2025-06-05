@@ -3,7 +3,9 @@ package com.personx.cryptx.viewmodel.encryption
 import android.content.Context
 import android.util.Log
 import androidx.compose.runtime.State
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.cryptography.algorithms.SymmetricBasedAlgorithm
@@ -29,6 +31,22 @@ class EncryptionViewModel(private val repository: EncryptionViewModelRepository)
 
     private val _history = mutableStateOf<List<EncryptionHistory>>(emptyList())
     val history: State<List<EncryptionHistory>> = _history
+
+    var itemToDelete: EncryptionHistory? by mutableStateOf(null)
+    var itemToUpdate: EncryptionHistory? by mutableStateOf(null)
+
+
+    fun prepareItemToDelete(item: EncryptionHistory?) {
+        itemToDelete = item
+    }
+
+    fun prepareItemToUpdate(item: EncryptionHistory?) {
+        itemToUpdate = item
+    }
+
+    fun updateId(id: Int) {
+        _state.value = _state.value.copy(id = id)
+    }
 
     fun updateSelectedAlgorithm(algorithm: String) {
         _state.value = _state.value.copy(selectedAlgorithm = algorithm)
@@ -137,7 +155,8 @@ class EncryptionViewModel(private val repository: EncryptionViewModelRepository)
         }
     }
 
-    private fun createEncryptedHistory(
+     fun createEncryptedHistory(
+        id: Int? = null,
         algorithm: String,
         transformation: String,
         keySize: Int,
@@ -149,6 +168,7 @@ class EncryptionViewModel(private val repository: EncryptionViewModelRepository)
     ) : EncryptionHistory {
 
         return EncryptionHistory(
+            id = id?: 0,
             algorithm = algorithm,
             transformation = transformation,
             keySize = keySize,
@@ -162,6 +182,7 @@ class EncryptionViewModel(private val repository: EncryptionViewModelRepository)
     }
 
     suspend fun insertEncryptionHistory(
+        id: Int? = null,
         pin: String,
         algorithm: String,
         transformation: String,
@@ -194,6 +215,24 @@ class EncryptionViewModel(private val repository: EncryptionViewModelRepository)
         }
     }
 
+    suspend fun updateEncryptionHistory(pin: String, history: EncryptionHistory): Boolean {
+        return try {
+            repository.updateHistory(pin, history)
+        } catch (e: Exception) {
+            Log.e("ENCRYPTION_DB", "Update failed: ${e.message}")
+            false
+        }
+    }
+
+    suspend fun deleteEncryptionHistory(pin: String, history: EncryptionHistory): Boolean {
+        return try {
+            repository.deleteHistory(pin, history)
+        } catch (e: Exception) {
+            Log.e("ENCRYPTION_DB", "Deletion failed: ${e.message}")
+            false
+        }
+    }
+
     private fun getAllEncryptionHistory(pin: String) {
         viewModelScope.launch {
             repository.getAllHistory(pin)
@@ -213,7 +252,6 @@ class EncryptionViewModel(private val repository: EncryptionViewModelRepository)
     fun refreshHistory(pin: String) {
         getAllEncryptionHistory(pin)
     }
-
 
     fun encrypt(context: Context){
         viewModelScope.launch {

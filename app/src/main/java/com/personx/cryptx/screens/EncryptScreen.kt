@@ -3,6 +3,7 @@ package com.personx.cryptx.screens
 
 import android.content.ClipData
 import android.content.Context
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
@@ -54,6 +55,7 @@ import com.personx.cryptx.components.CyberpunkKeySection
 import com.personx.cryptx.components.CyberpunkOutputSection
 import com.personx.cryptx.components.Header
 import com.personx.cryptx.crypto.PinCryptoManager
+import com.personx.cryptx.database.encryption.EncryptionHistory
 import com.personx.cryptx.screens.pinlogin.PinLoginScreen
 import com.personx.cryptx.ui.theme.CryptXTheme
 import com.personx.cryptx.viewmodel.encryption.EncryptionViewModel
@@ -307,8 +309,13 @@ fun EncryptScreen(
                                                     .show()
                                             },
                                             onSave = {
-                                                viewModel.updatePinPurpose("save")
-                                                viewModel.updateCurrentScreen("pin_login")
+                                                Log.d("PINPURPOSE", "Current purpose: ${state.pinPurpose}")
+                                                if (state.pinPurpose != "update") {
+                                                    viewModel.updatePinPurpose("save")
+                                                    viewModel.updateCurrentScreen("pin_login")
+                                                } else {
+                                                    viewModel.updateCurrentScreen("pin_login")
+                                                }
                                             },
                                         )
                                     }
@@ -318,7 +325,7 @@ fun EncryptScreen(
                     }
                 }
             }
-            }
+        }
 
         "pin_login" -> {
             PinLoginScreen(
@@ -356,25 +363,81 @@ fun EncryptScreen(
                                 viewModel.updateCurrentScreen("history_screen")
                             }
                         }
-                    }
 
+                        "delete" -> {
+                            scope.launch {
+                                if (viewModel.itemToDelete != null) {
+                                    viewModel.itemToDelete?.let { item ->
+                                        viewModel.deleteEncryptionHistory(pin, item)
+                                        viewModel.refreshHistory(pin)
+                                        viewModel.updateCurrentScreen("history_screen")
+                                        Toast.makeText(context, "History deleted!", Toast.LENGTH_SHORT).show()
+                                        viewModel.prepareItemToDelete(null) // Clear item to delete
+                                    }
+                                }
+                            }
+                        }
+
+                        "update" -> {
+                            scope.launch {
+                                val itemToUpdate = viewModel.createEncryptedHistory(
+                                    id = state.id,
+                                    algorithm = state.selectedAlgorithm,
+                                    transformation = state.selectedMode,
+                                    keySize = state.selectedKeySize,
+                                    key = state.keyText,
+                                    iv = state.ivText,
+                                    secretText = state.inputText,
+                                    isBase64 = state.isBase64Enabled,
+                                    encryptedOutput = state.outputText
+                                )
+                                viewModel.prepareItemToUpdate(itemToUpdate)
+                                viewModel.itemToUpdate?.let { item ->
+                                    viewModel.updateEncryptionHistory(pin, item)
+                                    viewModel.refreshHistory(pin)
+                                    viewModel.updateCurrentScreen("history_screen")
+                                    Toast.makeText(context, "History updated!", Toast.LENGTH_SHORT).show()
+                                    viewModel.prepareItemToUpdate(null) // Clear item to update
+                                }
+                            }
+                        }
+                    }
                 }
             )
         }
         "history_screen" -> {
             HistoryScreen(
-                history = viewModel.history.value
-            ) {
-                viewModel.updateSelectedAlgorithm(it.algorithm)
-                viewModel.updateSelectedMode(it.transformation)
-                viewModel.updateSelectedKeySize(it.keySize)
-                viewModel.updateKeyText(it.key)
-                viewModel.updateIVText(it.iv?:"")
-                viewModel.updateInputText(it.secretText)
-                viewModel.updateBase64Enabled(it.isBase64)
-                viewModel.updateOutputText(it.encryptedOutput)
-                viewModel.updateCurrentScreen("main")
-            }
+                history = viewModel.history.value,
+                onEditClick = {
+                    viewModel.updateId(it.id)
+                    viewModel.updateSelectedAlgorithm(it.algorithm)
+                    viewModel.updateSelectedMode(it.transformation)
+                    viewModel.updateSelectedKeySize(it.keySize)
+                    viewModel.updateKeyText(it.key)
+                    viewModel.updateIVText(it.iv?:"")
+                    viewModel.updateInputText(it.secretText)
+                    viewModel.updateBase64Enabled(it.isBase64)
+                    viewModel.updateOutputText(it.encryptedOutput)
+                    viewModel.updatePinPurpose("update")
+                    viewModel.updateCurrentScreen("main")
+                },
+                onDeleteClick = {
+                    viewModel.prepareItemToDelete(it)
+                    viewModel.updatePinPurpose("delete")
+                    viewModel.updateCurrentScreen("pin_login")
+                },
+                onItemClick = { it: EncryptionHistory ->
+                    viewModel.updateSelectedAlgorithm(it.algorithm)
+                    viewModel.updateSelectedMode(it.transformation)
+                    viewModel.updateSelectedKeySize(it.keySize)
+                    viewModel.updateKeyText(it.key)
+                    viewModel.updateIVText(it.iv?:"")
+                    viewModel.updateInputText(it.secretText)
+                    viewModel.updateBase64Enabled(it.isBase64)
+                    viewModel.updateOutputText(it.encryptedOutput)
+                    viewModel.updateCurrentScreen("main")
+                }
+            )
         }
     }
 }

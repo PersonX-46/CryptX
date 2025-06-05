@@ -29,7 +29,9 @@ import com.personx.cryptx.ui.theme.CryptXTheme
 @Composable
 fun HistoryScreen(
     history: List<EncryptionHistory>,
-    onClick: (EncryptionHistory) -> Unit
+    onItemClick: (EncryptionHistory) -> Unit,
+    onEditClick: (EncryptionHistory) -> Unit,
+    onDeleteClick: (EncryptionHistory) -> Unit,
 ) {
     val cyberpunkGreen = Color(0xFF00FFAA)
 
@@ -71,21 +73,24 @@ fun HistoryScreen(
                             entry = entry,
                             cyberpunkGreen = cyberpunkGreen,
                             modifier = Modifier.fillMaxWidth(),
-                            onClick = onClick
+                            onItemClick = onItemClick,
+                            onEditClick = onEditClick,
+                            onDeleteClick = onDeleteClick
                         )
                     }
                 }
             }
         }
     }
-
-
 }
 
 @Composable
 fun HistoryScreen(
     history: List<DecryptionHistory>,
-    onClick: (DecryptionHistory) -> Unit = { _ -> }
+    onItemClick: (DecryptionHistory) -> Unit = { _ -> },
+    onEditClick: (DecryptionHistory) -> Unit,
+    onDeleteClick: (DecryptionHistory) -> Unit,
+
 ) {
     val cyberpunkGreen = Color(0xFF00FFAA)
 
@@ -126,7 +131,9 @@ fun HistoryScreen(
                             entry = entry,
                             cyberpunkGreen = cyberpunkGreen,
                             modifier = Modifier.fillMaxWidth(),
-                            onClick = onClick
+                            onItemClick = onItemClick,
+                            onEditClick = onEditClick,
+                            onDeleteClick = onDeleteClick
                         )
                     }
                 }
@@ -153,7 +160,9 @@ fun PreviewEncryptionHistoryItem() {
                     iv = "jkbwuifbwioefbwobvob",
                     isBase64 = true,
                 )
-            )
+            ),
+            onItemClick = {  },
+            onEditClick = {  },
         ) {
 
         }
