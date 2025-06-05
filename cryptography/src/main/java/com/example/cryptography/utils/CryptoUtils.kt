@@ -1,8 +1,6 @@
 package com.example.cryptography.utils
 
 import android.util.Base64
-import java.security.SecureRandom
-import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
 import javax.crypto.spec.SecretKeySpec
 
