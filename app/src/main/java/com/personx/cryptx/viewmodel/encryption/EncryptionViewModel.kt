@@ -288,7 +288,7 @@ class EncryptionViewModel(private val repository: EncryptionViewModelRepository)
 
                 val blockSize = when (_state.value.selectedAlgorithm) {
                     "AES", "Blowfish" -> 16
-                    "DES", "3DES" -> 8
+                    "DES", "DESede" -> 8
                     else -> 1
                 }
 
