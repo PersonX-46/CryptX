@@ -1,0 +1,1 @@
+CryptX is a personal project I built during my free time while studying Information Technology and learning about network security in college. It's not perfect, but it's something I made with passion and curiosity while experimenting with encryption and steganography. 😊
