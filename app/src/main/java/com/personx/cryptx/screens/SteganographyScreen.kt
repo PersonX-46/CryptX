@@ -28,6 +28,7 @@ import androidx.compose.material.icons.filled.Save
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
@@ -52,7 +53,8 @@ import kotlinx.coroutines.delay
 
 @Composable
 fun SteganographyScreen(
-    viewModel: SteganographyViewModel = viewModel()
+    viewModel: SteganographyViewModel = viewModel(),
+    windowSizeClass: WindowSizeClass
 ) {
     val context = LocalContext.current
     val cyberpunkGreen = Color(0xFF00FFAA)
@@ -98,8 +100,11 @@ fun SteganographyScreen(
         }
     }
 
-    Column {
-        Header("STEGANOGRAPHY")
+    Column(
+        modifier = Modifier
+            .verticalScroll(rememberScrollState()),
+    ) {
+        Header("STEGANOGRAPHY", windowSizeClass)
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -111,11 +116,11 @@ fun SteganographyScreen(
                         )
                     )
                 )
+                .padding(top = 12.dp),
         ) {
             Column(
                 modifier = Modifier
-                    .padding(16.dp)
-                    .verticalScroll(rememberScrollState()),
+                    .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 // Mode Toggle
@@ -284,6 +289,6 @@ fun SteganographyScreen(
 @Composable
 fun SteganographyScreenPreview() {
     CryptXTheme(darkTheme = true) {
-        SteganographyScreen()
+        //SteganographyScreen()
     }
 }

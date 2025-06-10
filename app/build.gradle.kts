@@ -43,12 +43,12 @@ android {
 dependencies {
     // Room components
     implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.material3.window.size.class1.android)
     ksp(libs.androidx.room.compiler) // Use kasp if you're using Kotlin
 
 // Kotlin Extensions and Coroutines support for Room
     implementation(libs.androidx.room.ktx)
     implementation(libs.android.database.sqlcipher)
-
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

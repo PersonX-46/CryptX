@@ -6,11 +6,20 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ContentCopy
+import androidx.compose.material.icons.filled.Save
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -27,62 +36,140 @@ fun CyberpunkOutputSection(
     output: String,
     onCopy: () -> Unit,
     onSave: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isCompact: Boolean = false,
+    showLength: Boolean = true,
+    maxOutputLines: Int = 5
 ) {
-    Column(modifier = modifier.fillMaxWidth()) {
-        Text(
-            text = stringResource(R.string.encrypted_output),
-            style = MaterialTheme.typography.titleLarge.copy(
-                fontFamily = FontFamily.Monospace,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-            ),
-            modifier = Modifier.padding(vertical = 8.dp)
-        )
+    val cyberpunkGreen = Color(0xFF00FFAA)
+    val textColor = MaterialTheme.colorScheme.onSurface
+    val subtitleColor = textColor.copy(alpha = 0.7f)
 
+    // Responsive values
+    val verticalPadding = if (isCompact) 8.dp else 12.dp
+    val horizontalPadding = if (isCompact) 12.dp else 16.dp
+    val buttonSpacing = if (isCompact) 8.dp else 16.dp
+    val cornerRadius = if (isCompact) 6.dp else 8.dp
+
+    Column(modifier = modifier.fillMaxWidth()) {
+        // Header with optional length indicator
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                text = stringResource(R.string.encrypted_output),
+                style = MaterialTheme.typography.run {
+                    if (isCompact) titleMedium else titleLarge
+                }.copy(
+                    fontFamily = FontFamily.Monospace,
+                    color = subtitleColor
+                )
+            )
+
+            if (showLength && output.isNotEmpty()) {
+                Text(
+                    text = "${output.length} chars",
+                    style = MaterialTheme.typography.labelSmall.copy(
+                        fontFamily = FontFamily.Monospace,
+                        color = cyberpunkGreen.copy(alpha = 0.6f)
+                    )
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(if (isCompact) 4.dp else 8.dp))
+
+        // Output box with scrollable content
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(
                     MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.2f),
-                    shape = RoundedCornerShape(8.dp)
+                    shape = RoundedCornerShape(cornerRadius)
                 )
                 .border(
                     1.dp,
-                    Color(0xFF00FFAA).copy(alpha = 0.5f),
-                    shape = RoundedCornerShape(8.dp)
+                    cyberpunkGreen.copy(alpha = 0.5f),
+                    shape = RoundedCornerShape(cornerRadius)
                 )
-                .padding(12.dp)
         ) {
-            Text(
-                text = output,
-                style = MaterialTheme.typography.bodyMedium.copy(
-                    fontFamily = FontFamily.Monospace,
-                    color = MaterialTheme.colorScheme.onSurface
-                ),
-                modifier = Modifier.fillMaxWidth()
-            )
+            Column(modifier = Modifier.padding(horizontalPadding, verticalPadding)) {
+                // Scrollable output text
+                Scrollbar(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(max = if (isCompact) 120.dp else 150.dp)
+                ) {
+                    Text(
+                        text = output,
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                            fontFamily = FontFamily.Monospace,
+                            color = textColor
+                        ),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+
+                // Optional copy button inside the box for quick access
+                if (isCompact && output.isNotEmpty()) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    IconButton(
+                        onClick = onCopy,
+                        modifier = Modifier.align(Alignment.End)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.ContentCopy,
+                            contentDescription = stringResource(R.string.copy_output),
+                            tint = cyberpunkGreen
+                        )
+                    }
+                }
+            }
         }
 
-        Row(
-            modifier = Modifier
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            CyberpunkButton(
-                onClick = onCopy,
-                icon = Icons.Default.ContentCopy,
-                text = stringResource(R.string.copy_output),
-                modifier = Modifier.padding(top = 16.dp)
-            )
-            CyberpunkButton(
-                onClick = onSave,
-                icon = Icons.Default.ContentCopy,
-                text = stringResource(R.string.save_output),
-                modifier = Modifier.padding(top = 16.dp)
-            )
+        // Action buttons - different layout for compact vs regular
+        if (!isCompact || output.isNotEmpty()) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = if (isCompact) 8.dp else 16.dp),
+                horizontalArrangement = if (isCompact) Arrangement.End else Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                if (!isCompact) {
+                    CyberpunkButton(
+                        onClick = onCopy,
+                        icon = Icons.Default.ContentCopy,
+                        text = stringResource(R.string.copy_output),
+                        isCompact = isCompact,
+                        modifier = Modifier.weight(1f)
+                    )
+
+                    Spacer(modifier = Modifier.width(buttonSpacing))
+                }
+
+                CyberpunkButton(
+                    onClick = onSave,
+                    icon = Icons.Default.Save,
+                    text = if (isCompact) ("SAVE")
+                    else stringResource(R.string.save_output),
+                    isCompact = isCompact,
+                    modifier = if (isCompact) Modifier else Modifier.weight(1f)
+                )
+            }
         }
+    }
+}
 
-
+// Simple scrollbar indicator
+@Composable
+private fun Scrollbar(
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit
+) {
+    Box(modifier = modifier.verticalScroll(rememberScrollState())) {
+        content()
     }
 }

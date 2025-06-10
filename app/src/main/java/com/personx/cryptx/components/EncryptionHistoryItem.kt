@@ -23,6 +23,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.windowsizeclass.WindowSizeClass
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -31,6 +33,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.personx.cryptx.database.encryption.EncryptionHistory
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -43,12 +46,24 @@ fun EncryptionHistoryItem(
     onItemClick: (EncryptionHistory) -> Unit,
     onEditClick: (EncryptionHistory) -> Unit,
     onDeleteClick: (EncryptionHistory) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    windowSizeClass: WindowSizeClass
 ) {
+    val isCompact = windowSizeClass.widthSizeClass == WindowWidthSizeClass.Compact
+
+    // Responsive values
+    val padding = if (isCompact) 12.dp else 16.dp
+    val verticalSpacing = if (isCompact) 8.dp else 12.dp
+    val smallVerticalSpacing = if (isCompact) 4.dp else 8.dp
+    val iconSize = if (isCompact) 20.dp else 24.dp
+    val smallIconSize = if (isCompact) 14.dp else 16.dp
+    val chipPadding = if (isCompact) 4.dp else 8.dp
+    val maxChars = if (isCompact) 20 else 24
+
     Card(
         modifier = modifier
             .clickable { onItemClick(entry) }
-            .padding(vertical = 4.dp),
+            .padding(vertical = if (isCompact) 2.dp else 4.dp),
         colors = CardDefaults.cardColors(
             containerColor = Color.Black
         ),
@@ -56,7 +71,7 @@ fun EncryptionHistoryItem(
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(
-            modifier = Modifier.padding(16.dp)
+            modifier = Modifier.padding(padding)
         ) {
             // Header with algorithm and timestamp
             Row(
@@ -70,10 +85,13 @@ fun EncryptionHistoryItem(
                     modifier = Modifier
                         .clip(RoundedCornerShape(8.dp))
                         .background(cyberpunkGreen.copy(alpha = 0.1f))
-                        .padding(horizontal = 8.dp, vertical = 4.dp)
+                        .padding(horizontal = chipPadding, vertical = chipPadding)
                 ) {
                     Text(
-                        text = "${entry.algorithm}/${entry.transformation.take(10)}... • ${entry.keySize} bits",
+                        text = if (isCompact)
+                            "${entry.algorithm.take(4)}/${entry.transformation.take(3)}... • ${entry.keySize}b"
+                        else
+                            "${entry.algorithm}/${entry.transformation.take(10)}... • ${entry.keySize} bits",
                         style = MaterialTheme.typography.labelMedium.copy(
                             color = cyberpunkGreen,
                             fontFamily = FontFamily.Monospace
@@ -82,36 +100,40 @@ fun EncryptionHistoryItem(
                 }
 
                 Text(
-                    text = SimpleDateFormat("MMM dd, HH:mm", Locale.getDefault())
-                        .format(Date(entry.timestamp)),
+                    text = SimpleDateFormat(
+                        if (isCompact) "MMM dd" else "MMM dd, HH:mm",
+                        Locale.getDefault()
+                    ).format(Date(entry.timestamp)),
                     style = MaterialTheme.typography.labelSmall.copy(
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                     )
                 )
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(verticalSpacing))
 
             // Content sections
             HistoryItemSection(
                 title = "PLAINTEXT",
                 content = entry.secretText,
-                maxChars = 24,
+                maxChars = maxChars,
                 titleColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
-                contentColor = cyberpunkGreen.copy(alpha = 0.9f)
+                contentColor = cyberpunkGreen.copy(alpha = 0.9f),
+                isCompact = isCompact
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(smallVerticalSpacing))
 
             HistoryItemSection(
                 title = "ENCRYPTED",
                 content = entry.encryptedOutput,
-                maxChars = 24,
+                maxChars = maxChars,
                 titleColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
-                contentColor = MaterialTheme.colorScheme.onSurface
+                contentColor = MaterialTheme.colorScheme.onSurface,
+                isCompact = isCompact
             )
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(verticalSpacing))
 
             // Footer with key and actions
             Row(
@@ -122,7 +144,7 @@ fun EncryptionHistoryItem(
                 // Key with IV if available
                 Column {
                     Text(
-                        text = "Key: ${entry.key.take(8)}...",
+                        text = "Key: ${entry.key.take(if (isCompact) 6 else 8)}...",
                         style = MaterialTheme.typography.labelSmall.copy(
                             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
                             fontFamily = FontFamily.Monospace
@@ -130,7 +152,7 @@ fun EncryptionHistoryItem(
                     )
                     entry.iv?.let {
                         Text(
-                            text = "IV: ${it.take(6)}...",
+                            text = "IV: ${it.take(if (isCompact) 4 else 6)}...",
                             style = MaterialTheme.typography.labelSmall.copy(
                                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f),
                                 fontFamily = FontFamily.Monospace
@@ -143,27 +165,27 @@ fun EncryptionHistoryItem(
                 Row {
                     IconButton(
                         onClick = { onEditClick(entry) },
-                        modifier = Modifier.size(24.dp)
+                        modifier = Modifier.size(iconSize)
                     ) {
                         Icon(
                             imageVector = Icons.Default.Edit,
                             contentDescription = "Edit",
                             tint = cyberpunkGreen.copy(alpha = 0.7f),
-                            modifier = Modifier.size(16.dp)
+                            modifier = Modifier.size(smallIconSize)
                         )
                     }
 
-                    Spacer(modifier = Modifier.width(4.dp))
+                    Spacer(modifier = Modifier.width(if (isCompact) 4.dp else 8.dp))
 
                     IconButton(
                         onClick = { onDeleteClick(entry) },
-                        modifier = Modifier.size(24.dp)
+                        modifier = Modifier.size(iconSize)
                     ) {
                         Icon(
                             imageVector = Icons.Default.Delete,
                             contentDescription = "Delete",
                             tint = cyberpunkGreen.copy(alpha = 0.7f),
-                            modifier = Modifier.size(16.dp)
+                            modifier = Modifier.size(smallIconSize)
                         )
                     }
                 }
@@ -178,21 +200,24 @@ private fun HistoryItemSection(
     content: String,
     maxChars: Int,
     titleColor: Color,
-    contentColor: Color
+    contentColor: Color,
+    isCompact: Boolean
 ) {
     Column {
         Text(
             text = title,
             style = MaterialTheme.typography.labelSmall.copy(
                 color = titleColor,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                fontSize = if (isCompact) 12.sp else 14.sp
             )
         )
         Text(
             text = if (content.length > maxChars) "${content.take(maxChars)}..." else content,
             style = MaterialTheme.typography.bodySmall.copy(
                 color = contentColor,
-                fontFamily = FontFamily.Monospace
+                fontFamily = FontFamily.Monospace,
+                fontSize = if (isCompact) 12.sp else 14.sp
             ),
             modifier = Modifier.padding(top = 2.dp)
         )

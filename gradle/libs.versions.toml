@@ -1,4 +1,5 @@
 [versions]
+accompanistBlur = "0.32.0"
 agp = "8.10.1"
 androidDatabaseSqlcipher = "4.5.4"
 coilCompose = "2.4.0"
@@ -18,8 +19,10 @@ navigationComposeJvmstubs = "2.9.0"
 navigationComposeVersion = "2.7.7"
 roomRuntime = "2.7.1"
 securityCryptoKtx = "1.0.0"
+material3WindowSizeClassAndroid = "1.3.2"
 
 [libraries]
+accompanist-blur = { module = "com.google.accompanist:accompanist-blur", version.ref = "accompanistBlur" }
 android-database-sqlcipher = { module = "net.zetetic:android-database-sqlcipher", version.ref = "androidDatabaseSqlcipher" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-material-icons-extended = { module = "androidx.compose.material:material-icons-extended", version.ref = "materialIconsExtended" }
@@ -43,6 +46,7 @@ androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+androidx-material3-window-size-class1-android = { group = "androidx.compose.material3", name = "material3-window-size-class-android", version.ref = "material3WindowSizeClassAndroid" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

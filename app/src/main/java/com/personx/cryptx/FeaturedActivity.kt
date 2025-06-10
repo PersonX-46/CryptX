@@ -20,7 +20,11 @@ import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
+import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
+import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -33,58 +37,86 @@ import androidx.navigation.compose.rememberNavController
 import com.personx.cryptx.components.CyberpunkNavBar
 import com.personx.cryptx.data.NavBarItem
 import com.personx.cryptx.screens.HomeScreen
+import com.personx.cryptx.screens.LocalNavController
+//import com.personx.cryptx.screens.LocalNavController
 import com.personx.cryptx.ui.theme.CryptXTheme
 
 class FeaturedActivity : ComponentActivity() {
-
     companion object {
         const val EXTRA_SCREEN = "decrypt"
     }
 
+    @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             CryptXTheme(darkTheme = true) {
+                val windowSizeClass = calculateWindowSizeClass(this)
                 val screen = intent.getStringExtra(EXTRA_SCREEN) ?: "home"
                 val navController = rememberNavController()
-
                 val selectedLabel = remember { mutableStateOf(screen) }
+
+                // Responsive values
+                val navBarPadding = if (windowSizeClass.widthSizeClass == WindowWidthSizeClass.Compact) 16.dp else 24.dp
+                val contentPadding = if (windowSizeClass.widthSizeClass == WindowWidthSizeClass.Compact) 70.dp else 80.dp
+
                 LaunchedEffect(Unit) {
-                        navController.navigate(screen){
-                            popUpTo(0) { inclusive = true }
-                            launchSingleTop = true
-                        }
+                    navController.navigate(screen) {
+                        popUpTo(0) { inclusive = true }
+                        launchSingleTop = true
+                    }
                 }
 
                 val navItems = listOf(
                     NavBarItem(Icons.Filled.Home, "Home") {
-                        navController.navigate("home")
+                        navController.navigate("home") {
+                            launchSingleTop = true
+                            restoreState = true
+                        }
                         selectedLabel.value = "home"
                     },
                     NavBarItem(Icons.Filled.Lock, "Encrypt") {
-                        navController.navigate("encrypt")
+                        navController.navigate("encrypt") {
+                            launchSingleTop = true
+                            restoreState = true
+                        }
                         selectedLabel.value = "encrypt"
                     },
                     NavBarItem(Icons.Filled.LockOpen, "Decrypt") {
-                        navController.navigate("decrypt")
+                        navController.navigate("decrypt") {
+                            launchSingleTop = true
+                            restoreState = true
+                        }
                         selectedLabel.value = "decrypt"
                     },
-                    NavBarItem(Icons.Filled.Code, "HashGenerator") {
-                        navController.navigate("hashGenerator")
+                    NavBarItem(Icons.Filled.Code, "Hash") {
+                        navController.navigate("hashGenerator") {
+                            launchSingleTop = true
+                            restoreState = true
+                        }
                         selectedLabel.value = "hashGenerator"
                     },
-                    NavBarItem(Icons.Filled.Search, "HashDetector") {
-                        navController.navigate("hashDetector")
+                    NavBarItem(Icons.Filled.Search, "Detect") {
+                        navController.navigate("hashDetector") {
+                            launchSingleTop = true
+                            restoreState = true
+                        }
                         selectedLabel.value = "hashDetector"
                     },
-                    NavBarItem(Icons.Filled.VisibilityOff, "Steganography") {
-                        navController.navigate("steganography")
+                    NavBarItem(Icons.Filled.VisibilityOff, "Stego") {
+                        navController.navigate("steganography") {
+                            launchSingleTop = true
+                            restoreState = true
+                        }
                         selectedLabel.value = "steganography"
-                    },
+                    }
                 )
 
-                Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
+                ) {
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
@@ -100,28 +132,31 @@ class FeaturedActivity : ComponentActivity() {
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(bottom = 70.dp)
+                                .padding(bottom = contentPadding)
                         ) {
-                            AppNavGraph(
-                                navController = navController,
-                            )
+                            CompositionLocalProvider(LocalNavController provides navController) {
+                                AppNavGraph(
+                                    navController = navController,
+                                    windowSizeClass = windowSizeClass,
+                                    startDestination = screen
+                                )
+                            }
                         }
 
                         CyberpunkNavBar(
                             items = navItems,
                             modifier = Modifier
                                 .align(Alignment.BottomCenter)
-                                .padding(bottom = 20.dp),
-                            selectedLabel = selectedLabel.value
+                                .padding(bottom = navBarPadding),
+                            selectedLabel = selectedLabel.value,
+                            windowSizeClass = windowSizeClass
                         )
                     }
                 }
             }
         }
-
     }
 }
-
 @Preview
 @Composable
 fun PreviewFeaturedActivity() {
@@ -134,8 +169,7 @@ fun PreviewFeaturedActivity() {
                         .fillMaxSize()
                         .padding(padding)
                 ) {
-                    HomeScreen(
-                   )
+
                 }
             }
         )

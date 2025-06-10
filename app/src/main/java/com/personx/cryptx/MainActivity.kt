@@ -9,6 +9,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
+import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -21,16 +23,18 @@ import com.personx.cryptx.screens.pinsetup.PinSetupScreen
 import com.personx.cryptx.ui.theme.CryptXTheme
 
 class MainActivity : ComponentActivity() {
-
+    @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            CryptXTheme(darkTheme = true) {
+            // Calculate window size class for responsive design
+            val windowSizeClass = calculateWindowSizeClass(this)
 
-                Surface (
-                    modifier = Modifier.
-                    fillMaxSize()
+            CryptXTheme(darkTheme = true) {
+                Surface(
+                    modifier = Modifier
+                        .fillMaxSize()
                         .background(MaterialTheme.colorScheme.onPrimary),
                     color = MaterialTheme.colorScheme.background
                 ) {
@@ -42,35 +46,42 @@ class MainActivity : ComponentActivity() {
 
                     // Track which screen to show
                     val currentScreen = remember { mutableStateOf(
-                        if (saltString == null || ivString == null || secretString == null) "pinSetup" else "login"
+                        if (saltString == null || ivString == null || secretString == null)
+                            "pinSetup"
+                        else
+                            "login"
                     )}
 
                     when (currentScreen.value) {
                         "pinSetup" -> {
-                            PinSetupScreen(pinCryptoManager = PinCryptoManager(LocalContext.current)) {
-                                currentScreen.value = "login" // Update screen after setup
-                            }
+                            PinSetupScreen(
+                                pinCryptoManager = PinCryptoManager(LocalContext.current),
+                                windowSizeClass = windowSizeClass,
+                                onSetupComplete = {
+                                    currentScreen.value = "login" // Update screen after setup
+                                }
+                            )
                         }
                         "login" -> {
-                            PinLoginScreen(pinCryptoManager = PinCryptoManager(LocalContext.current)) {
-                                val intent = Intent(this, FeaturedActivity::class.java)
-                                startActivity(intent)
-                            }
+                            PinLoginScreen(
+                                pinCryptoManager = PinCryptoManager(LocalContext.current),
+                                windowSizeClass = windowSizeClass,
+                                onLoginSuccess = {
+                                    val intent = Intent(this, FeaturedActivity::class.java)
+                                    startActivity(intent)
+                                }
+                            )
                         }
                     }
                 }
-
             }
         }
     }
 }
-
 @Preview(showBackground = true)
 @Composable
 fun HomeScreenPreview() {
     CryptXTheme(darkTheme = true) {
-        PinSetupScreen(pinCryptoManager = PinCryptoManager(LocalContext.current)) {
 
-        }
     }
 }

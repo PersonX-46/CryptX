@@ -1,5 +1,9 @@
 package com.personx.cryptx
 
+import android.app.Activity
+import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
+import androidx.compose.material3.windowsizeclass.WindowSizeClass
+import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
@@ -14,27 +18,41 @@ import com.personx.cryptx.screens.SteganographyScreen
 import com.personx.cryptx.viewmodel.decryption.DecryptionHistoryRepository
 import com.personx.cryptx.viewmodel.encryption.EncryptionViewModelRepository
 
+@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @Composable
-fun AppNavGraph(navController: NavHostController, startDestination: String = "home") {
+fun AppNavGraph(
+    navController: NavHostController,
+    startDestination: String,
+    windowSizeClass: WindowSizeClass
+) {
     NavHost(navController = navController, startDestination = startDestination) {
 
+
         composable("home") {
-            HomeScreen()
+            HomeScreen(windowSizeClass)
         }
         composable("encrypt") {
-            EncryptScreen(EncryptionViewModelRepository(LocalContext.current))
+            EncryptScreen(
+                EncryptionViewModelRepository(LocalContext.current),
+                windowSizeClass = windowSizeClass
+            )
         }
         composable("decrypt") {
-            DecryptionScreen(DecryptionHistoryRepository(LocalContext.current))
+            DecryptionScreen(
+                DecryptionHistoryRepository(LocalContext.current),
+                windowSizeClass = windowSizeClass
+            )
         }
         composable("hashGenerator") {
-            HashGeneratorScreen()
+            HashGeneratorScreen(
+                windowSizeClass = windowSizeClass
+            )
         }
         composable("hashDetector") {
-            HashDetector()
+            HashDetector(windowSizeClass = windowSizeClass)
         }
         composable("steganography") {
-            SteganographyScreen()
+            SteganographyScreen(windowSizeClass = windowSizeClass)
 
         }
     }

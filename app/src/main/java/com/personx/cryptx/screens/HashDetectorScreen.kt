@@ -14,6 +14,7 @@ import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Fingerprint
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -39,7 +40,8 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun HashDetector(
-    viewModel: HashDetectorViewModel = viewModel()
+    viewModel: HashDetectorViewModel = viewModel(),
+    windowSizeClass: WindowSizeClass
 ) {
     val clipboardManager = LocalClipboard.current
     val scope = rememberCoroutineScope()
@@ -47,7 +49,10 @@ fun HashDetector(
 
     Column(
     ) {
-        Header("HASH DETECTOR")
+        Header(
+            "HASH GENERATOR",
+            windowSizeClass = windowSizeClass
+        )
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -60,6 +65,7 @@ fun HashDetector(
                         )
                     )
                 )
+                .padding(24.dp)
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(12.dp),
             horizontalAlignment = Alignment.CenterHorizontally
@@ -182,6 +188,6 @@ private fun DetectionResultsSection(
 @Composable
 fun HashDetectorPreview() {
     CryptXTheme(darkTheme = true) {
-        HashDetector()
+       // HashDetector()
     }
 }

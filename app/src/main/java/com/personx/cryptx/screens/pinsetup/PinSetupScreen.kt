@@ -22,6 +22,8 @@ import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.windowsizeclass.WindowSizeClass
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -47,7 +49,8 @@ import com.personx.cryptx.viewmodel.PinSetupViewModelFactory
 @Composable
 fun PinSetupScreen(
     pinCryptoManager: PinCryptoManager,
-    onSetupComplete: () -> Unit
+    onSetupComplete: () -> Unit,
+    windowSizeClass: WindowSizeClass
 ) {
     val viewModel: PinSetupViewModel = viewModel(
         factory = PinSetupViewModelFactory(pinCryptoManager)
@@ -56,58 +59,75 @@ fun PinSetupScreen(
     val cyberpunkGreen = MaterialTheme.colorScheme.onSurface
     val cyberpunkLight = Color(0xFF1E1E1E)
 
+    // Responsive values
+    val isCompact = windowSizeClass.widthSizeClass == WindowWidthSizeClass.Compact
+    val padding = if (isCompact) 16.dp else 24.dp
+    val topPadding = if (isCompact) 24.dp else 30.dp
+    val spacing = if (isCompact) 12.dp else 16.dp
+    val smallSpacing = if (isCompact) 6.dp else 8.dp
+    val keypadSpacing = if (isCompact) 16.dp else 24.dp
+    val buttonPadding = if (isCompact) 24.dp else 32.dp
+    val iconSize = if (isCompact) 40.dp else 48.dp
+    val pinDotSize = if (isCompact) 20.dp else 24.dp
+
     LaunchedEffect(state.isCompleted) {
         if (state.isCompleted) {
             onSetupComplete()
         }
     }
 
-
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(
                 Brush.verticalGradient(
-                colors = listOf(
-                    MaterialTheme.colorScheme.onSurface.copy(0.1f),
-                    MaterialTheme.colorScheme.onPrimary.copy(0.01F)
+                    colors = listOf(
+                        MaterialTheme.colorScheme.onSurface.copy(0.1f),
+                        MaterialTheme.colorScheme.onPrimary.copy(0.01F)
+                    )
                 )
-            ))
-            .padding(24.dp),
+            )
+            .padding(padding),
         verticalArrangement = Arrangement.SpaceBetween,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         // Header
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.fillMaxWidth().padding(top = 30.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = topPadding)
         ) {
             Icon(
                 imageVector = Icons.Default.Lock,
                 contentDescription = "Security",
                 tint = cyberpunkGreen,
-                modifier = Modifier.size(48.dp)
+                modifier = Modifier.size(iconSize)
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(spacing))
 
             Text(
                 text = if (state.step == 1) "Create Secure PIN" else "Confirm Your PIN",
-                style = MaterialTheme.typography.headlineSmall.copy(
+                style = MaterialTheme.typography.run {
+                    if (isCompact) titleLarge else headlineSmall
+                }.copy(
                     color = cyberpunkGreen,
                     fontFamily = FontFamily.Monospace,
                     fontWeight = FontWeight.Bold
                 )
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(smallSpacing))
 
             Text(
                 text = if (state.step == 1)
                     "Enter a 4-digit PIN for security"
                 else
                     "Re-enter your PIN to confirm",
-                style = MaterialTheme.typography.bodyMedium.copy(
+                style = MaterialTheme.typography.run {
+                    if (isCompact) bodySmall else bodyMedium
+                }.copy(
                     color = Color.White.copy(alpha = 0.7f),
                     fontFamily = FontFamily.Monospace
                 )
@@ -127,8 +147,8 @@ fun PinSetupScreen(
                 repeat(4) { index ->
                     Box(
                         modifier = Modifier
-                            .size(24.dp)
-                            .padding(5.dp)
+                            .size(pinDotSize)
+                            .padding(4.dp)
                             .background(
                                 color = when {
                                     state.step == 1 && index < state.pin.length -> cyberpunkGreen
@@ -155,19 +175,19 @@ fun PinSetupScreen(
                 style = MaterialTheme.typography.bodySmall.copy(
                     fontFamily = FontFamily.Monospace
                 ),
-                modifier = Modifier.padding(vertical = 8.dp)
+                modifier = Modifier.padding(vertical = smallSpacing)
             )
         }
 
         // Keypad
         Column(
-            horizontalAlignment = Alignment.End,
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(keypadSpacing)
         ) {
             // Row 1-3
             listOf("1 2 3", "4 5 6", "7 8 9").forEach { row ->
                 Row(
-                    horizontalArrangement = Arrangement.spacedBy(24.dp)
+                    horizontalArrangement = Arrangement.spacedBy(keypadSpacing)
                 ) {
                     row.split(" ").forEach { num ->
                         CyberpunkKeypadButton(
@@ -179,7 +199,7 @@ fun PinSetupScreen(
                                     viewModel.event(PinSetupEvent.EnterConfirmPin(state.confirmPin + num))
                                 }
                             },
-                            color = cyberpunkGreen
+                            color = cyberpunkGreen,
                         )
                     }
                 }
@@ -187,7 +207,7 @@ fun PinSetupScreen(
 
             // Bottom row (0 and backspace)
             Row(
-                horizontalArrangement = Arrangement.spacedBy(24.dp)
+                horizontalArrangement = Arrangement.spacedBy(keypadSpacing)
             ) {
                 CyberpunkKeypadButton(
                     text = "0",
@@ -198,7 +218,7 @@ fun PinSetupScreen(
                             viewModel.event(PinSetupEvent.EnterConfirmPin(state.confirmPin + "0"))
                         }
                     },
-                    color = cyberpunkGreen
+                    color = cyberpunkGreen,
                 )
 
                 CyberpunkKeypadButton(
@@ -210,26 +230,25 @@ fun PinSetupScreen(
                             viewModel.event(PinSetupEvent.EnterConfirmPin(state.confirmPin.dropLast(1)))
                         }
                     },
-                    color = cyberpunkGreen
+                    color = cyberpunkGreen,
                 )
             }
         }
 
         // Continue Button
         CyberpunkButton(
-            onClick = {
-                viewModel.event(PinSetupEvent.Continue)
-            },
+            onClick = { viewModel.event(PinSetupEvent.Continue) },
             text = if (state.step == 1) "CONTINUE" else "CONFIRM",
             icon = if (state.step == 1) Icons.AutoMirrored.Filled.ArrowForward else Icons.Default.Check,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 32.dp),
+                .padding(horizontal = buttonPadding),
             isActive = when (state.step) {
                 1 -> state.pin.length == 4
                 2 -> state.confirmPin.length == 4
                 else -> false
-            }
+            },
+            isCompact = isCompact
         )
     }
 }
@@ -240,6 +259,6 @@ fun PinSetupScreen(
 @Composable
 fun PinSetupScreenPreview() {
     CryptXTheme(darkTheme = true) {
-        PinSetupScreen(pinCryptoManager = PinCryptoManager(LocalContext.current)) { }
+        //PinSetupScreen(pinCryptoManager = PinCryptoManager(LocalContext.current)) { }
     }
 }

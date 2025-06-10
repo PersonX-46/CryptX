@@ -7,8 +7,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
@@ -25,7 +28,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 
 @Composable
 fun CyberpunkDropdown(
@@ -33,9 +38,18 @@ fun CyberpunkDropdown(
     selectedItem: String,
     onItemSelected: (String) -> Unit,
     label: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isCompact: Boolean = false
 ) {
     val expanded = remember { mutableStateOf(false) }
+    val cyberpunkGreen = Color(0xFF00FFAA)
+    val labelColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+
+    // Responsive values
+    val padding = if (isCompact) 12.dp else 16.dp
+    val verticalPadding = if (isCompact) 10.dp else 12.dp
+    val cornerRadius = if (isCompact) 6.dp else 8.dp
+    val borderWidth = if (isCompact) 0.5.dp else 1.dp
 
     Box(modifier = modifier) {
         Column {
@@ -43,7 +57,8 @@ fun CyberpunkDropdown(
                 text = label,
                 style = MaterialTheme.typography.labelMedium.copy(
                     fontFamily = FontFamily.Monospace,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                    color = labelColor,
+                    fontSize = if (isCompact) 14.sp else 16.sp
                 ),
                 modifier = Modifier.padding(bottom = 4.dp)
             )
@@ -54,14 +69,14 @@ fun CyberpunkDropdown(
                     .clickable { expanded.value = true }
                     .background(
                         color = Color.Transparent,
-                        shape = RoundedCornerShape(8.dp)
+                        shape = RoundedCornerShape(cornerRadius)
                     )
                     .border(
-                        0.5.dp,
-                        Color(0xFF00FFAA),
-                        shape = RoundedCornerShape(8.dp)
+                        borderWidth,
+                        cyberpunkGreen,
+                        shape = RoundedCornerShape(cornerRadius)
                     )
-                    .padding(horizontal = 16.dp, vertical = 12.dp)
+                    .padding(horizontal = padding, vertical = verticalPadding)
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -72,14 +87,22 @@ fun CyberpunkDropdown(
                         text = selectedItem,
                         style = MaterialTheme.typography.bodyLarge.copy(
                             fontFamily = FontFamily.Monospace,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
+                            color = MaterialTheme.colorScheme.onSurface,
+                            fontSize = if (isCompact) 14.sp else 16.sp
+                        ),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f)
                     )
+
+                    Spacer(modifier = Modifier.width(8.dp))
+
                     Icon(
                         imageVector = if (expanded.value) Icons.Filled.ArrowDropUp
                         else Icons.Filled.ArrowDropDown,
-                        contentDescription = null,
-                        tint = Color(0xFF00FFAA)
+                        contentDescription = if (expanded.value) "Collapse menu" else "Expand menu",
+                        tint = cyberpunkGreen,
+                        modifier = Modifier.size(if (isCompact) 20.dp else 24.dp)
                     )
                 }
             }
@@ -89,8 +112,12 @@ fun CyberpunkDropdown(
             expanded = expanded.value,
             onDismissRequest = { expanded.value = false },
             modifier = Modifier
-                .background(Color.Transparent)
-                .border(1.dp, Color(0xFF00FFAA))
+                .fillMaxWidth(fraction = if (isCompact) 0.95f else 0.85f)
+                .background(
+                    MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
+                    shape = RoundedCornerShape(cornerRadius)
+                )
+                .border(borderWidth, cyberpunkGreen, RoundedCornerShape(cornerRadius))
         ) {
             items.forEach { item ->
                 DropdownMenuItem(
@@ -98,14 +125,24 @@ fun CyberpunkDropdown(
                         Text(
                             text = item,
                             style = MaterialTheme.typography.bodyMedium.copy(
-                                fontFamily = FontFamily.Monospace
-                            )
+                                fontFamily = FontFamily.Monospace,
+                                fontSize = if (isCompact) 14.sp else 16.sp
+                            ),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
                         )
                     },
                     onClick = {
                         onItemSelected(item)
                         expanded.value = false
-                    }
+                    },
+                    modifier = Modifier.background(
+                        if (item == selectedItem) {
+                            cyberpunkGreen.copy(alpha = 0.1f)
+                        } else {
+                            Color.Transparent
+                        }
+                    )
                 )
             }
         }
