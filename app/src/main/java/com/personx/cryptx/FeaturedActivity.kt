@@ -1,5 +1,6 @@
 package com.personx.cryptx
 
+//import com.personx.cryptx.screens.LocalNavController
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -36,9 +37,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.rememberNavController
 import com.personx.cryptx.components.CyberpunkNavBar
 import com.personx.cryptx.data.NavBarItem
-import com.personx.cryptx.screens.HomeScreen
 import com.personx.cryptx.screens.LocalNavController
-//import com.personx.cryptx.screens.LocalNavController
 import com.personx.cryptx.ui.theme.CryptXTheme
 
 class FeaturedActivity : ComponentActivity() {
