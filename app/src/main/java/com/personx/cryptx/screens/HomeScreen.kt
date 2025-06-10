@@ -113,7 +113,7 @@ fun HomeScreen(windowSizeClass: WindowSizeClass) {
                         onClick = item.onClick,
                         windowSizeClass = windowSizeClass,
                         modifier = Modifier
-                            .padding(top = if (isCompact) 24.dp else 5.dp, start = if (isCompact) 10.dp else 5.dp, end = if (isCompact) 10.dp else 5.dp)
+                            .padding(top = 5.dp, end = 5.dp)
                     )
                 }
             }
