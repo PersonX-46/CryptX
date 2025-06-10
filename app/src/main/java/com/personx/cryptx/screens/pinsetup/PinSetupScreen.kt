@@ -180,7 +180,7 @@ fun PinSetupScreen(
 
         // Keypad
         Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
+            horizontalAlignment = Alignment.End,
             verticalArrangement = Arrangement.spacedBy(keypadSpacing)
         ) {
             // Row 1-3
