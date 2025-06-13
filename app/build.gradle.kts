@@ -1,3 +1,5 @@
+import com.android.build.api.dsl.Packaging
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -19,8 +21,30 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    // Exclude non-deterministic files
+
+    // Merge all resources deterministically
+    packaging {
+        resources {
+            // Exclude files that change between builds
+            excludes += setOf(
+                "/META-INF/*.version",
+                "**/version-control-info.textproto",
+                "**/build-data.properties"
+            )
+            // Ensure consistent merging of resources
+            merges += setOf("**/strings.xml")
+            pickFirsts += setOf("**/version.conf")
+        }
+    }
+
     buildTypes {
         release {
+            isProfileable = false  // Disables baseline.prof generation
+            ndk {
+                debugSymbolLevel = "none"  // Or "FULL" if needed
+            }
+
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
