@@ -8,7 +8,7 @@ class SteganographyViewModelFactory(
     private val repository: SteganographyViewModelRepository
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(EncryptionViewModel::class.java)) {
+        if (modelClass.isAssignableFrom(SteganographyViewModel::class.java)) {
             return SteganographyViewModel(repository) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")

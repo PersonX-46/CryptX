@@ -15,6 +15,7 @@ import com.personx.cryptx.screens.HomeScreen
 import com.personx.cryptx.screens.SteganographyScreen
 import com.personx.cryptx.viewmodel.decryption.DecryptionHistoryRepository
 import com.personx.cryptx.viewmodel.encryption.EncryptionViewModelRepository
+import com.personx.cryptx.viewmodel.steganography.SteganographyViewModelRepository
 
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @Composable
@@ -50,7 +51,10 @@ fun AppNavGraph(
             HashDetector(windowSizeClass = windowSizeClass)
         }
         composable("steganography") {
-            SteganographyScreen(windowSizeClass = windowSizeClass)
+            SteganographyScreen(
+                SteganographyViewModelRepository(LocalContext.current),
+                windowSizeClass = windowSizeClass
+            )
 
         }
     }

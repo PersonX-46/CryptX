@@ -31,6 +31,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -48,14 +49,20 @@ import com.personx.cryptx.components.CyberpunkButton
 import com.personx.cryptx.components.Header
 import com.personx.cryptx.components.Toast
 import com.personx.cryptx.ui.theme.CryptXTheme
+import com.personx.cryptx.viewmodel.encryption.EncryptionViewModel
+import com.personx.cryptx.viewmodel.encryption.EncryptionViewModelFactory
 import com.personx.cryptx.viewmodel.steganography.SteganographyViewModel
+import com.personx.cryptx.viewmodel.steganography.SteganographyViewModelFactory
+import com.personx.cryptx.viewmodel.steganography.SteganographyViewModelRepository
 import kotlinx.coroutines.delay
 
 @Composable
 fun SteganographyScreen(
-    viewModel: SteganographyViewModel = viewModel(),
+    repository: SteganographyViewModelRepository,
     windowSizeClass: WindowSizeClass
 ) {
+    val factory = remember { SteganographyViewModelFactory(repository) }
+    val viewModel: SteganographyViewModel = viewModel(factory = factory)
     val context = LocalContext.current
     val cyberpunkGreen = Color(0xFF00FFAA)
     val state = viewModel.state.value
