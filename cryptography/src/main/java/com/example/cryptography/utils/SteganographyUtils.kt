@@ -197,15 +197,4 @@ object SteganographyUtils {
         }
     }
 
-    /**
-     * Saves a Bitmap image to the device's gallery, creating a subdirectory if necessary.
-     * It handles both scoped storage for Android 10 and above, and legacy storage for Android 9 and below.
-     *
-     * @param context The application context.
-     * @param bitmap The Bitmap image to save.
-     * @param fileName The name of the file to save.
-     * @return True if the image was saved successfully, false otherwise.
-     */
-
-
 }
