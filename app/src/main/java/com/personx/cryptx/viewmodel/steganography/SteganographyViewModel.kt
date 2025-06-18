@@ -1,4 +1,4 @@
-package com.personx.cryptx.viewmodel
+package com.personx.cryptx.viewmodel.steganography
 
 import android.content.Context
 import android.graphics.Bitmap
@@ -18,7 +18,7 @@ import kotlinx.coroutines.withContext
  * It holds the cover image, secret file, output image, extracted file, and provides methods
  * to update these states, process steganography operations, and manage toast messages.
  */
-class SteganographyViewModel : ViewModel() {
+class SteganographyViewModel(private val repository: SteganographyViewModelRepository) : ViewModel() {
 
     private val _state = mutableStateOf(SteganographyState())
 
@@ -126,7 +126,7 @@ class SteganographyViewModel : ViewModel() {
                 _state.value = _state.value.copy(isLoading = true)
                 try {
                     val saved = withContext(Dispatchers.IO) {
-                        SteganographyUtils.saveBitmapToGallery(
+                        repository.saveBitmapToGallery(
                             context,
                             bitmap,
                             _state.value.secretFileName
