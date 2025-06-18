@@ -44,6 +44,31 @@ object SteganographyUtils {
     }
 
     /**
+     * Calculates the capacity of the image in bytes based on its dimensions.
+     * The capacity is determined by the number of pixels in the image, assuming each pixel can store 1 bit.
+     *
+     * @param image The Bitmap image for which to calculate the capacity.
+     * @return The capacity of the image in bytes.
+     */
+
+    fun imageCapacity(image: Bitmap) : Int {
+        // Calculate the capacity of the image in bytes based on its dimensions
+        return (image.width * image.height) / 8  // 1 byte per pixel (blue channel LSB)
+    }
+
+    /**
+     * Calculates the size of the file name in bytes.
+     * This is used to determine how much space is needed for metadata when embedding a file.
+     *
+     * @param fileName The name of the file to be embedded.
+     * @return The size of the file name in bytes.
+     */
+
+    fun fileNameSize(fileName: String): Int {
+        // Calculate the size of the file name in bytes
+        return fileName.toByteArray(StandardCharsets.UTF_8).size
+    }
+    /**
      * Embeds a file into an image using the least significant bit (LSB) method.
      * The file is embedded in the blue channel of each pixel, with the first few pixels storing metadata
      * about the file size and name.
@@ -182,49 +207,5 @@ object SteganographyUtils {
      * @return True if the image was saved successfully, false otherwise.
      */
 
-    fun saveBitmapToGallery(context: Context, bitmap: Bitmap, fileName: String): Boolean {
-        return try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                // Scoped storage for Android 10 and above
-                val contentValues = ContentValues().apply {
-                    put(MediaStore.Images.Media.DISPLAY_NAME, fileName)
-                    put(MediaStore.Images.Media.MIME_TYPE, "image/png")
-                    put(MediaStore.Images.Media.RELATIVE_PATH, "DCIM/cryptx/embedded")
-                    put(MediaStore.Images.Media.IS_PENDING, 1)
-                }
 
-                val uri = context.contentResolver.insert(
-                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                    contentValues
-                ) ?: return false
-
-                context.contentResolver.openOutputStream(uri)?.use { stream ->
-                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
-                }
-
-                contentValues.clear()
-                contentValues.put(MediaStore.Images.Media.IS_PENDING, 0)
-                context.contentResolver.update(uri, contentValues, null, null)
-
-            } else {
-                // Legacy storage for Android 9 and below
-                val picturesDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-                val cryptxDir = File(picturesDir, "cryptx/embedded")
-                if (!cryptxDir.exists()) cryptxDir.mkdirs()
-
-                val imageFile = File(cryptxDir, fileName)
-                FileOutputStream(imageFile).use { out ->
-                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
-                }
-
-                // Notify media scanner to make image visible in gallery
-                MediaScannerConnection.scanFile(context, arrayOf(imageFile.absolutePath), null, null)
-            }
-
-            true
-        } catch (e: Exception) {
-            e.printStackTrace()
-            false
-        }
-    }
 }
