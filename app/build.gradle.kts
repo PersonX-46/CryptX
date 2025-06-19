@@ -14,9 +14,18 @@ android {
         minSdk = 24
         targetSdk = 35
         versionCode = 2
-        versionName = "1.2.4"
+        versionName = "1.2.5"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    signingConfigs {
+        create("release") {
+            storeFile = file("keystore.jks")
+            storePassword = System.getenv("KEYSTORE_PASSWORD")
+            keyAlias = System.getenv("KEY_ALIAS")
+            keyPassword = System.getenv("KEY_PASSWORD")
+        }
     }
 
     // Exclude non-deterministic files
@@ -37,10 +46,10 @@ android {
     }
 
     buildTypes {
-        release {
-            isProfileable = false  // Disables baseline.prof generation
+        getByName("release") {
+            isProfileable = false
             ndk {
-                debugSymbolLevel = "none"  // Or "FULL" if needed
+                debugSymbolLevel = "none"
             }
 
             isMinifyEnabled = false
@@ -48,6 +57,9 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+
+            // 🔐 Attach signing config here
+            signingConfig = signingConfigs.getByName("release")
         }
     }
 
