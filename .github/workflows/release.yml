@@ -37,7 +37,7 @@ jobs:
     - name: Upload release APK to GitHub Releases
       uses: softprops/action-gh-release@v2
       with:
-        files: app/build/outputs/apk/release/app-release.apk
+        files: app/release/app-release.apk
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
