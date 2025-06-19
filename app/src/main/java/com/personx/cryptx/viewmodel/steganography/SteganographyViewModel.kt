@@ -1,13 +1,11 @@
 package com.personx.cryptx.viewmodel.steganography
 
-import android.content.Context
 import android.graphics.Bitmap
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.cryptography.utils.SteganographyUtils
-import com.example.cryptography.utils.SteganographyUtils.saveByteArrayToFile
 import com.personx.cryptx.data.SteganographyState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -79,13 +77,12 @@ class SteganographyViewModel(private val repository: SteganographyViewModelRepos
                     if (_state.value.coverImage == null) throw Exception("Select cover image")
                     if (_state.value.secretFile == null) throw Exception("Select file to hide")
 
-                    val result = withContext(Dispatchers.IO) {
-                        SteganographyUtils.embedFileInImage(
+                    val result = SteganographyUtils.embedFileInImage(
                             image = _state.value.coverImage!!,
                             fileBytes = _state.value.secretFile!!,
                             fileName = _state.value.secretFileName
                         ) ?: throw Exception("File too large for selected image")
-                    }
+
                     _state.value = _state.value.copy(
                         outputImage = result,
                         toastMessage = "File hidden successfully!"
@@ -93,10 +90,9 @@ class SteganographyViewModel(private val repository: SteganographyViewModelRepos
                 } else {
                     if (_state.value.coverImage == null) throw Exception("Select encoded image")
 
-                    val result = withContext(Dispatchers.IO) {
-                        SteganographyUtils.extractFileFromImage(_state.value.coverImage!!)
+                    val result = SteganographyUtils.extractFileFromImage(_state.value.coverImage!!)
                             ?: throw Exception("No hidden file found")
-                    }
+
                     _state.value = _state.value.copy(
                         extractedFile = result,
                         toastMessage = "File extracted successfully!"
@@ -116,24 +112,45 @@ class SteganographyViewModel(private val repository: SteganographyViewModelRepos
     }
 
     /**
+     * Returns the current cover image.
+     * This is used to access the image for processing or displaying.
+     *
+     * @return The cover image as a Bitmap, or null if not set.
+     */
+
+    fun getCoverImageCapacity(): Int {
+        return _state.value.coverImage?.let { SteganographyUtils.imageCapacity(it) } ?: 0
+    }
+
+    /**
+     * Returns the size of the secret file and its metadata.
+     * This is used to determine if the file can be embedded in the cover image.
+     *
+     * @return The size of the secret file and metadata in bytes, or 0 if no file is set.
+     */
+
+    fun getFileAndMetaSize(): Int {
+        return _state.value.secretFile?.let { SteganographyUtils.fileAndMetaSize(_state.value.secretFileName, it) } ?: 0
+    }
+
+    /**
      * Saves the output image to the device's gallery.
      * Displays a toast message indicating success or failure.
      */
 
-    fun saveImage(context: Context) {
+    fun saveImage() {
         _state.value.outputImage?.let { bitmap ->
             viewModelScope.launch {
                 _state.value = _state.value.copy(isLoading = true)
                 try {
                     val saved = withContext(Dispatchers.IO) {
                         repository.saveBitmapToGallery(
-                            context,
                             bitmap,
                             _state.value.secretFileName
                         )
                     }
                     _state.value = _state.value.copy(
-                        toastMessage = if (saved) "Image saved!" else "Failed to save image",
+                        toastMessage = if (saved) "Image saved under DCIM/cryptx/embedded!" else "Failed to save image",
                         showToast = true
                     )
                 } catch (e: Exception) {
@@ -152,16 +169,15 @@ class SteganographyViewModel(private val repository: SteganographyViewModelRepos
      * Saves the extracted file to the device's storage.
      * Displays a toast message indicating success or failure.
      */
-    fun saveExtractedFile(context: Context) {
+
+    fun saveExtractedFile() {
         _state.value.extractedFile?.let { (fileName, bytes) ->
             viewModelScope.launch {
                 _state.value = _state.value.copy(isLoading = true)
                 try {
-                    val saved = withContext(Dispatchers.IO) {
-                        saveByteArrayToFile(context, bytes, fileName)
-                    }
+                    val saved = repository.saveByteArrayToFile(bytes, fileName)
                     _state.value = _state.value.copy(
-                        toastMessage = if (saved) "File saved as $fileName!" else "Failed to save file",
+                        toastMessage = if (saved) "File saved as $fileName under Downloads/cryptx/extracted" else "Failed to save file",
                         showToast = true
                     )
                 } catch (e: Exception) {

@@ -64,9 +64,9 @@ object SteganographyUtils {
      * @return The size of the file name in bytes.
      */
 
-    fun fileNameSize(fileName: String): Int {
+    fun fileAndMetaSize(fileName: String, fileBytes: ByteArray): Int {
         // Calculate the size of the file name in bytes
-        return fileName.toByteArray(StandardCharsets.UTF_8).size
+        return fileBytes.size + HEADER_SIZE + fileName.toByteArray(StandardCharsets.UTF_8).size
     }
     /**
      * Embeds a file into an image using the least significant bit (LSB) method.
@@ -142,59 +142,4 @@ object SteganographyUtils {
         val fileName = String(fileNameBytes, StandardCharsets.UTF_8)
         return Pair(fileName, fileContentBytes)
     }
-
-    /**
-     * Saves a byte array to a file in the Downloads directory, creating a subdirectory if necessary.
-     * It handles both scoped storage for Android 10 and above, and legacy storage for Android 9 and below.
-     *
-     * @param context The application context.
-     * @param bytes The byte array to save.
-     * @param fileName The name of the file to save.
-     * @return True if the file was saved successfully, false otherwise.
-     */
-
-    fun saveByteArrayToFile(context: Context, bytes: ByteArray, fileName: String): Boolean {
-        return try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                // For Android 10 and above
-                val contentValues = ContentValues().apply {
-                    put(MediaStore.Downloads.DISPLAY_NAME, fileName)
-                    put(MediaStore.Downloads.MIME_TYPE, "application/octet-stream")
-                    put(MediaStore.Downloads.RELATIVE_PATH, "Download/cryptx/extracted")
-                    put(MediaStore.Downloads.IS_PENDING, 1)
-                }
-
-                val uri = context.contentResolver.insert(
-                    MediaStore.Downloads.EXTERNAL_CONTENT_URI,
-                    contentValues
-                ) ?: return false
-
-                context.contentResolver.openOutputStream(uri)?.use { stream ->
-                    stream.write(bytes)
-                }
-
-                contentValues.clear()
-                contentValues.put(MediaStore.Downloads.IS_PENDING, 0)
-                context.contentResolver.update(uri, contentValues, null, null)
-
-            } else {
-                // For Android 9 and below
-                val downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-                val cryptxDir = File(downloadsDir, "cryptx/extracted")
-                if (!cryptxDir.exists()) cryptxDir.mkdirs()
-
-                val file = File(cryptxDir, fileName)
-                FileOutputStream(file).use { it.write(bytes) }
-
-                // Notify the system to scan the file
-                MediaScannerConnection.scanFile(context, arrayOf(file.absolutePath), null, null)
-            }
-
-            true
-        } catch (e: Exception) {
-            e.printStackTrace()
-            false
-        }
-    }
-
 }
