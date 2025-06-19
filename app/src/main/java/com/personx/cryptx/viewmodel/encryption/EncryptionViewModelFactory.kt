@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModelProvider
 class EncryptionViewModelFactory(
     private val repository: EncryptionViewModelRepository
 ) : ViewModelProvider.Factory {
+    @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(EncryptionViewModel::class.java)) {
             return EncryptionViewModel(repository) as T
