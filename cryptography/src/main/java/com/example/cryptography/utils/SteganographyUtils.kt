@@ -1,21 +1,10 @@
 package com.example.cryptography.utils
 
-
-// File: SteganographyUtils.kt
-
-import android.content.ContentValues
-import android.content.Context
 import android.graphics.Bitmap
-import android.media.MediaScannerConnection
-import android.os.Build
-import android.os.Environment
-import android.provider.MediaStore
-import java.nio.ByteBuffer
-import java.nio.charset.StandardCharsets
 import androidx.core.graphics.get
 import androidx.core.graphics.set
-import java.io.File
-import java.io.FileOutputStream
+import java.nio.ByteBuffer
+import java.nio.charset.StandardCharsets
 
 object SteganographyUtils {
 
