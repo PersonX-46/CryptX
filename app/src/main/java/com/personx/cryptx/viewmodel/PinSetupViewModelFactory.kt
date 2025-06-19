@@ -11,6 +11,7 @@ import com.personx.cryptx.crypto.PinCryptoManager
 class PinSetupViewModelFactory(
     private val pinCryptoManager: PinCryptoManager
 ) : ViewModelProvider.Factory {
+    @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(PinSetupViewModel::class.java)) {
             return PinSetupViewModel(pinCryptoManager) as T
