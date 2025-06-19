@@ -3,7 +3,7 @@ name: Android Release
 on:
   push:
     tags:
-      - 'v*' # triggers only on tag pushes like v1.2.5
+      - 'v*' # Only trigger on version tags like v1.2.5
 
 jobs:
   build-release:
@@ -22,7 +22,7 @@ jobs:
         cache: gradle
 
     - name: Decode keystore
-      run: echo "${{ secrets.SIGNING_KEYSTORE }}" | base64 -d > keystore.jks
+      run: echo "${{ secrets.SIGNING_KEYSTORE }}" | base64 -d > app/keystore.jks
 
     - name: Grant execute permission to gradlew
       run: chmod +x ./gradlew
@@ -34,7 +34,7 @@ jobs:
         SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
         SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
 
-    - name: Upload release APK to GitHub
+    - name: Upload release APK to GitHub Releases
       uses: softprops/action-gh-release@v2
       with:
         files: app/build/outputs/apk/release/app-release.apk
