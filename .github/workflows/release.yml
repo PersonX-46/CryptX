@@ -30,9 +30,9 @@ jobs:
     - name: Build signed release APK
       run: ./gradlew assembleRelease
       env:
-        SIGNING_STORE_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD }}
-        SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
-        SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
+        SIGNING_STORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+        SIGNING_KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+        SIGNING_KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
 
     - name: Upload release APK to GitHub Releases
       uses: softprops/action-gh-release@v2
