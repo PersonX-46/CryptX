@@ -23,14 +23,14 @@ import javax.crypto.spec.SecretKeySpec
  */
 class PinCryptoManager(private val context: Context) {
 
+    private val authSecret = "auth_secret_salt"
+
     /**
      * Sets up a PIN by generating a salt, deriving a key from the PIN, and encrypting a secret value.
      * The salt, IV, and encrypted secret are stored in SharedPreferences.
      *
      * @param pin The PIN to set up.
      */
-
-    private val authSecret = "auth_secret_salt"
 
     fun setupPin(pin: String) {
         val salt = generateSalt()
