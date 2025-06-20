@@ -4,6 +4,10 @@ import android.content.Context
 import android.util.Base64
 import android.util.Log
 import androidx.core.content.edit
+import androidx.room.Room
+import com.personx.cryptx.database.encryption.EncryptedDatabase
+import net.sqlcipher.database.SQLiteDatabase
+import net.sqlcipher.database.SupportFactory
 import java.security.SecureRandom
 import javax.crypto.Cipher
 import javax.crypto.SecretKey
@@ -26,10 +30,12 @@ class PinCryptoManager(private val context: Context) {
      * @param pin The PIN to set up.
      */
 
+    private val authSecret = "auth_secret_salt"
+
     fun setupPin(pin: String) {
         val salt = generateSalt()
         val key = deriveKeyFromPin(pin, salt)
-        val secret = "auth_secret_salt".toByteArray()
+        val secret = authSecret.toByteArray()
         val (encryptedSecret, iv) = encryptSecret(secret, key)
 
         val prefs = context.getSharedPreferences("secure_prefs", Context.MODE_PRIVATE)
@@ -62,7 +68,7 @@ class PinCryptoManager(private val context: Context) {
         return try {
             val decryptedSecret = decryptSecret(encryptedSecret, iv, key)
             Log.d("decryptedSecret", decryptedSecret.toString())
-            return decryptedSecret == "auth_secret_salt" // Check against a known value
+            return decryptedSecret == authSecret // Check against a known value
         } catch (e: Exception) {
             false
         }
@@ -90,13 +96,67 @@ class PinCryptoManager(private val context: Context) {
 
         return try {
             val decryptedSecret = decryptSecret(encryptedSecret, iv, key)
-            if (decryptedSecret == "auth_secret_salt") {
+            if (decryptedSecret == authSecret) {
                 key.encoded // return raw key bytes
             } else {
                 null
             }
         } catch (e: Exception) {
             null
+        }
+    }
+
+    /**
+     * Changes the PIN and rekeys the database with the new PIN.
+     * It validates the old PIN, derives a new key from the new PIN, and updates the database and SharedPreferences.
+     *
+     * @param oldPin The current PIN to validate.
+     * @param newPin The new PIN to set.
+     * @return True if the operation was successful, false otherwise.
+     */
+
+    fun changePinAndRekeyDatabase(oldPin: String, newPin: String): Boolean {
+
+        // Validate the old PIN
+        val oldKeyBytes = getRawKeyIfPinValid(oldPin) ?: return false
+
+        // Derive new key and store new encrypted secret
+        val newSalt = generateSalt()
+        val newKey = deriveKeyFromPin(newPin, newSalt)
+        val newKeyBytes = newKey.encoded
+
+        // Rekey the database and update SharedPreferences
+        try {
+
+            SQLiteDatabase.loadLibs(context)
+
+            val db = Room.databaseBuilder(
+                context.applicationContext,
+                EncryptedDatabase::class.java,
+                "encrypted_history.db"
+            )
+                .openHelperFactory(SupportFactory(oldKeyBytes))
+                .allowMainThreadQueries()
+                .build()
+
+            // Change the encryption key of the database
+            db.openHelper.writableDatabase.execSQL("PRAGMA rekey = '${String(newKeyBytes)}';")
+
+            // Update the stored salt/IV/secret in SharedPreferences
+            val secret = authSecret.toByteArray()
+            val (encryptedSecret, iv) = encryptSecret(secret, newKey)
+
+            val prefs = context.getSharedPreferences("secure_prefs", Context.MODE_PRIVATE)
+            prefs.edit {
+                putString("salt", Base64.encodeToString(newSalt, Base64.NO_WRAP))
+                putString("iv", Base64.encodeToString(iv, Base64.NO_WRAP))
+                putString("secret", Base64.encodeToString(encryptedSecret, Base64.NO_WRAP))
+            }
+
+            return true
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return false
         }
     }
 
