@@ -3,6 +3,7 @@ package com.personx.cryptx.screens
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -45,6 +46,8 @@ fun HistoryScreen(
     onItemClick: (EncryptionHistory) -> Unit,
     onEditClick: (EncryptionHistory) -> Unit,
     onDeleteClick: (EncryptionHistory) -> Unit,
+    enableEditing: Boolean = true,
+    enableDeleting: Boolean = true,
     windowSizeClass: WindowSizeClass
 ) {
     val cyberpunkGreen = Color(0xFF00FFAA)
@@ -69,8 +72,6 @@ fun HistoryScreen(
                     )
                 )
         ) {
-
-
             if (history.isEmpty()) {
                 // Beautiful empty state
                 Column(
@@ -158,7 +159,10 @@ fun HistoryScreen(
                             onItemClick = onItemClick,
                             onEditClick = onEditClick,
                             onDeleteClick = onDeleteClick,
-                            windowSizeClass = windowSizeClass
+                            windowSizeClass = windowSizeClass,
+                            enableEditing = enableEditing,
+                            enableDeleting = enableDeleting
+
                         )
                     }
 
@@ -178,6 +182,7 @@ fun HistoryScreen(
     onItemClick: (DecryptionHistory) -> Unit = { _ -> },
     onEditClick: (DecryptionHistory) -> Unit,
     onDeleteClick: (DecryptionHistory) -> Unit,
+    chooseFromEncrypt: () -> Unit = { },
     windowSizeClass: WindowSizeClass
 ) {
     val cyberpunkGreen = Color(0xFF00FFAA)
@@ -264,17 +269,58 @@ fun HistoryScreen(
                     Spacer(modifier = Modifier.height(24.dp))
 
                     // Action button
+                    Row {
+                        CyberpunkButton(
+                            onClick = chooseFromEncrypt,
+                            icon = Icons.Default.LockOpen,
+                            text = "CHOOSE ENCRYPTS",
+                            modifier = Modifier
+                                .padding(end = 10.dp)
+                                .height(48.dp),
+                            isCompact = isCompact
+                        )
+
+                        CyberpunkButton(
+                            onClick = {navController.navigate("decrypt") },
+                            icon = Icons.Default.LockOpen,
+                            text = "DECRYPT NOW",
+                            modifier = Modifier
+                                .height(48.dp),
+                            isCompact = isCompact
+                        )
+                    }
+
+                }
+            } else {
+
+                Row (
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 5.dp)
+                        .padding(vertical = if (isCompact) 8.dp else 16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    CyberpunkButton(
+                        onClick = chooseFromEncrypt,
+                        icon = Icons.Default.LockOpen,
+                        text = "CHOOSE ENCRYPTS",
+                        modifier = Modifier
+                            .padding(end = 10.dp)
+                            .height(48.dp),
+                        isCompact = isCompact
+                    )
+
                     CyberpunkButton(
                         onClick = {navController.navigate("decrypt") },
                         icon = Icons.Default.LockOpen,
                         text = "DECRYPT NOW",
                         modifier = Modifier
-                            .padding(horizontal = 48.dp)
                             .height(48.dp),
                         isCompact = isCompact
                     )
                 }
-            } else {
+
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxSize()
@@ -301,8 +347,6 @@ fun HistoryScreen(
             }
         }
     }
-
-
 }
 
 @Preview

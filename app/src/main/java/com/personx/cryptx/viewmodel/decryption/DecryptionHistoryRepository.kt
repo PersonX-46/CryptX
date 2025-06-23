@@ -4,6 +4,7 @@ import android.content.Context
 import com.personx.cryptx.database.encryption.DatabaseProvider
 import com.personx.cryptx.database.encryption.DecryptionHistory
 import com.personx.cryptx.database.encryption.EncryptedDatabase
+import com.personx.cryptx.database.encryption.EncryptionHistory
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
@@ -74,6 +75,30 @@ class DecryptionHistoryRepository(private val context: Context) {
             try {
                 val db = ensureDatabase(pin) ?: throw Exception("DB init failed")
                 db.historyDao().getAllDecryptionHistory().collect { emit(it) }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                emit(emptyList())
+            } finally {
+                DatabaseProvider.clearDatabaseInstance()
+            }
+        }
+    }
+
+    /**
+     * Retrieves all encryption history records from the database.
+     * It returns a Flow that emits a list of EncryptionHistory objects.
+     * If the database initialization fails (e.g., invalid PIN), it emits an empty list.
+     *
+     * @param pin The PIN to use for accessing the database.
+     * @return A Flow that emits a list of EncryptionHistory objects.
+     */
+
+    fun getAllEncryptionHistory(pin: String): Flow<List<EncryptionHistory>> {
+        // Use flow builder to emit the decryption history records
+        return flow {
+            try {
+                val db = ensureDatabase(pin) ?: throw Exception("DB init failed")
+                db.historyDao().getAllEncryptionHistory().collect { emit(it) }
             } catch (e: Exception) {
                 e.printStackTrace()
                 emit(emptyList())

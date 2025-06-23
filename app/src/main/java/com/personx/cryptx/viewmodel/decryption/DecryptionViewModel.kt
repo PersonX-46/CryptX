@@ -16,6 +16,7 @@ import com.example.cryptography.utils.CryptoUtils.encodeByteArrayToString
 import com.personx.cryptx.R
 import com.personx.cryptx.data.DecryptionState
 import com.personx.cryptx.database.encryption.DecryptionHistory
+import com.personx.cryptx.database.encryption.EncryptionHistory
 import com.personx.cryptx.screens.getKeySizes
 import com.personx.cryptx.screens.getTransformations
 import kotlinx.coroutines.flow.catch
@@ -69,6 +70,8 @@ class DecryptionViewModel(private val repository: DecryptionHistoryRepository) :
     private val _history = mutableStateOf<List<DecryptionHistory>>(emptyList())
     val history: State<List<DecryptionHistory>> = _history
 
+    private val _encryptionHistory = mutableStateOf<List<EncryptionHistory>>(emptyList())
+    val encryptionHistory: State<List<EncryptionHistory>> = _encryptionHistory
 
     fun updateInputText(input: String) {
         _state.value = _state.value.copy(inputText = input)
@@ -245,6 +248,26 @@ class DecryptionViewModel(private val repository: DecryptionHistoryRepository) :
                 .collect { historyList ->
                     Log.d("DECRYPTION_DB", "History fetched: ${historyList.size} records")
                     _history.value = historyList
+                }
+        }
+    }
+
+    /**
+     * Fetches all encryption history records from the repository.
+     * This function is called to initialize the encryption history state when the ViewModel is created.
+     *
+     * @param pin The PIN used for accessing the database.
+     */
+
+     fun getAllEncryptionHistory(pin: String) {
+        viewModelScope.launch {
+            repository.getAllEncryptionHistory(pin)
+                .catch { d ->
+                    Log.e("ENCRYPTION_DB", "Error: ${d.message}")
+                }
+                .collect { historyList ->
+                    Log.d("ENCRYPTION_DB", "History fetched: ${historyList.size} records")
+                    _encryptionHistory.value = historyList
                 }
         }
     }

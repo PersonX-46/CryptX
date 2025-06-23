@@ -41,12 +41,14 @@ import java.util.Locale
 
 @Composable
 fun EncryptionHistoryItem(
+    modifier: Modifier = Modifier,
     entry: EncryptionHistory,
     cyberpunkGreen: Color,
     onItemClick: (EncryptionHistory) -> Unit,
     onEditClick: (EncryptionHistory) -> Unit,
     onDeleteClick: (EncryptionHistory) -> Unit,
-    modifier: Modifier = Modifier,
+    enableEditing: Boolean = true,
+    enableDeleting: Boolean = true,
     windowSizeClass: WindowSizeClass
 ) {
     val isCompact = windowSizeClass.widthSizeClass == WindowWidthSizeClass.Compact
@@ -164,6 +166,7 @@ fun EncryptionHistoryItem(
                 // Action buttons
                 Row {
                     IconButton(
+                        enabled = enableEditing,
                         onClick = { onEditClick(entry) },
                         modifier = Modifier.size(iconSize)
                     ) {
@@ -178,6 +181,7 @@ fun EncryptionHistoryItem(
                     Spacer(modifier = Modifier.width(if (isCompact) 4.dp else 8.dp))
 
                     IconButton(
+                        enabled = enableDeleting,
                         onClick = { onDeleteClick(entry) },
                         modifier = Modifier.size(iconSize)
                     ) {

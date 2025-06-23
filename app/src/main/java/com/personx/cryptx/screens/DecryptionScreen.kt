@@ -391,10 +391,17 @@ fun DecryptionScreen(
                                 }
                             }
                         }
+
                         "history" -> {
                             viewModel.refreshHistory(pin)
                             viewModel.updateCurrentScreen("history_screen")
                         }
+
+                        "encrypted_history" -> {
+                            viewModel.getAllEncryptionHistory(pin)
+                            viewModel.updateCurrentScreen("encrypted_history_screen")
+                        }
+
                         "update" -> {
                             scope.launch {
                                 val itemToUpdate = viewModel.createDecryptionHistory(
@@ -470,7 +477,31 @@ fun DecryptionScreen(
                     viewModel.updatePinPurpose("delete")
                     viewModel.updateCurrentScreen("pin_login")
                 },
-                windowSizeClass = windowSizeClass
+                windowSizeClass = windowSizeClass,
+                chooseFromEncrypt = {
+                    viewModel.updatePinPurpose("encrypted_history")
+                    viewModel.updateCurrentScreen("pin_login")
+                }
+            )
+        }
+        "encrypted_history_screen" -> {
+            HistoryScreen(
+                history = viewModel.encryptionHistory.value,
+                enableEditing = false,
+                enableDeleting = false,
+                onItemClick = {
+                    viewModel.updateSelectedAlgorithm(it.algorithm)
+                    viewModel.updateSelectedMode(it.transformation)
+                    viewModel.updateKeyText(it.key)
+                    viewModel.updateIVText(it.iv ?: "")
+                    viewModel.updateInputText(it.encryptedOutput)
+                    viewModel.updateBase64Enabled(it.isBase64)
+                    viewModel.updateOutputText("")
+                    viewModel.updateCurrentScreen("main")
+                },
+                onEditClick = {},
+                onDeleteClick = {},
+                windowSizeClass = windowSizeClass,
             )
         }
     }
