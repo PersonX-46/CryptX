@@ -116,8 +116,9 @@ class PinCryptoManager(private val context: Context) {
      */
 
     fun changePinAndRekeyDatabase(oldPin: String, newPin: String): Boolean {
-        // 1. Validate old PIN and get current key
+        // 1. Validate old PIN
         val oldKeyBytes = getRawKeyIfPinValid(oldPin) ?: return false
+        val oldKeyHex = oldKeyBytes.joinToString("") { "%02x".format(it) }
 
         // 2. Derive new key
         val newSalt = generateSalt()
@@ -125,42 +126,30 @@ class PinCryptoManager(private val context: Context) {
         val newKeyBytes = newKey.encoded
         val newKeyHex = newKeyBytes.joinToString("") { "%02x".format(it) }
 
-        val dbFile = context.getDatabasePath("encrypted_history.db")
-        Log.d("KeyCheck", "Old Key Bytes: ${oldKeyBytes.contentToString()}")
-        Log.d("KeyCheck", "New Key Hex: $newKeyHex")
-
-
         return try {
             SQLiteDatabase.loadLibs(context)
 
-            // 3. Rekey the database
+            // 3. Rekey using hex format for consistency
             SQLiteDatabase.openOrCreateDatabase(
-                dbFile.absolutePath,
-                oldKeyBytes, // Raw bytes for code access
+                context.getDatabasePath("encrypted_history.db").absolutePath,
+                oldKeyHex,  // Using hex format here
                 null,
                 null
             ).use { db ->
-                // For consistency with manual access, we'll use hex PRAGMA
-                db.rawQuery("PRAGMA hexkey = '$newKeyHex'", null).close()
                 db.rawQuery("PRAGMA rekey = '$newKeyHex'", null).close()
             }
 
-            try {
-                SQLiteDatabase.openOrCreateDatabase(
-                    dbFile.absolutePath,
-                    newKeyHex,
-                    null,
-                    null
-                ).use { db ->
-                    db.rawQuery("SELECT count(*) FROM sqlite_master", null).use { cursor ->
-                        Log.d("KeyCheck", "Rekey verification successful, tables: ${cursor.count}")
-                    }
-                }
-            } catch (e: Exception) {
-                Log.e("KeyCheck", "Rekey verification failed", e)
+            // 4. Verify with new key (using hex)
+            SQLiteDatabase.openOrCreateDatabase(
+                context.getDatabasePath("encrypted_history.db").absolutePath,
+                newKeyHex,
+                null,
+                null
+            ).use { db ->
+                db.rawQuery("SELECT 1", null).close()
             }
 
-            // 4. Update stored credentials
+            // 5. Update stored credentials
             val secret = authSecret.toByteArray()
             val (encryptedSecret, iv) = encryptSecret(secret, newKey)
 
@@ -170,11 +159,11 @@ class PinCryptoManager(private val context: Context) {
                 putString("secret", Base64.encodeToString(encryptedSecret, Base64.NO_WRAP))
             }
 
-            // 5. Refresh database instance
+            // 6. Refresh database instance
             DatabaseProvider.clearDatabaseInstance()
             true
         } catch (e: Exception) {
-            Log.e("PinCryptoManager", "Rekey failed", e)
+            Log.e("PinCryptoManager", "PIN change failed", e)
             false
         }
     }

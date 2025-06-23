@@ -148,12 +148,12 @@ fun HomeScreen(
                     .padding(top = spacing * 2)
                     .fillMaxWidth(0.8f)
                     .background(
-                        color = cyberDark.copy(alpha = 0.7f),
+                        color = Color.Transparent,
                         shape = RoundedCornerShape(12.dp)
                     )
                     .border(
                         width = 1.dp,
-                        color = cyberGreen.copy(alpha = 0.5f),
+                        color = MaterialTheme.colorScheme.onSurface,
                         shape = RoundedCornerShape(12.dp)
                     )
                     .clickable { viewModel.updateShowPinDialog(true)}
@@ -171,14 +171,18 @@ fun HomeScreen(
 
                 Text(
                     "Change PIN",
-                    color = cyberGreen,
-                    style = MaterialTheme.typography.labelLarge
+                    color = MaterialTheme.colorScheme.onSurface,
+                    style = MaterialTheme.typography.labelLarge.copy(
+                        fontFamily = FontFamily.Monospace
+                    )
                 )
 
                 Text(
                     "Update your security PIN",
-                    color = cyberTeal,
-                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    style = MaterialTheme.typography.bodySmall.copy(
+                        fontFamily = FontFamily.Monospace,
+                    ),
                     modifier = Modifier.padding(top = 4.dp)
                 )
             }
@@ -193,12 +197,12 @@ fun HomeScreen(
             Column(
                 modifier = Modifier
                     .background(
-                        color = Color.Transparent,
+                        color = Color.Black,
                         shape = RoundedCornerShape(12.dp)
                     )
                     .border(
-                        width = 1.dp,
-                        color = cyberGreen,
+                        width = 2.dp,
+                        color = MaterialTheme.colorScheme.onSurface,
                         shape = RoundedCornerShape(12.dp)
                     )
                     .padding(24.dp)
@@ -257,26 +261,25 @@ fun HomeScreen(
 
                     Button(
                         onClick = {
-                            val result = PinCryptoManager(
-                                context = context
-                            ).changePinAndRekeyDatabase(
-                                oldPin = "2580",
-                                newPin = "1234",
-                            )
-                            Toast.makeText(context, result.toString(), Toast.LENGTH_SHORT).show()
-//                            viewModel.updatePin(
-//                                oldPin = state.value.currentPin ?: "",
-//                                newPin = state.value.newPin?: "",
-//                                confirmPin = state.value.confirmPin?: "",
-//                                onResult = { success ->
-//                                    if (success) {
-//                                        Toast.makeText(context, "PIN changed successfully!", Toast.LENGTH_SHORT).show()
-//                                        viewModel.updateShowPinDialog(false)
-//                                    } else {
-//                                        Toast.makeText(context, "Failed to change PIN. Please try again.", Toast.LENGTH_SHORT).show()
-//                                    }
-//                                }
-//                            )
+                            try {
+                                viewModel.updatePin(
+                                    oldPin = state.value.currentPin ?: "",
+                                    newPin = state.value.newPin?: "",
+                                    confirmPin = state.value.confirmPin?: "",
+                                    onResult = { success ->
+                                        if (success) {
+                                            Toast.makeText(context, "PIN changed successfully!", Toast.LENGTH_SHORT).show()
+                                            viewModel.updateShowPinDialog(false)
+                                        } else {
+                                            Toast.makeText(context, "Failed to change PIN. Please try again.", Toast.LENGTH_SHORT).show()
+                                        }
+                                    }
+                                )
+                            } catch (e: Exception) {
+                                Toast.makeText(context, "Error changing PIN: ${e.message}", Toast.LENGTH_SHORT).show()
+                            }
+
+
                         },
                         colors = ButtonDefaults.buttonColors(
                             containerColor = cyberGreen,
