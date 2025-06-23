@@ -5,9 +5,11 @@ import android.util.Base64
 import android.util.Log
 import androidx.core.content.edit
 import androidx.room.Room
+import com.personx.cryptx.database.encryption.DatabaseProvider
 import com.personx.cryptx.database.encryption.EncryptedDatabase
 import net.sqlcipher.database.SQLiteDatabase
 import net.sqlcipher.database.SupportFactory
+import java.nio.charset.Charset
 import java.security.SecureRandom
 import javax.crypto.Cipher
 import javax.crypto.SecretKey
@@ -102,6 +104,8 @@ class PinCryptoManager(private val context: Context) {
                 null
             }
         } catch (e: Exception) {
+
+            Log.e("PinCryptoManager", "Decryption failed: ${e.message}", e)
             null
         }
     }
@@ -116,49 +120,69 @@ class PinCryptoManager(private val context: Context) {
      */
 
     fun changePinAndRekeyDatabase(oldPin: String, newPin: String): Boolean {
-
-        // Validate the old PIN
+        // 1. Validate old PIN and get current key
         val oldKeyBytes = getRawKeyIfPinValid(oldPin) ?: return false
 
-        // Derive new key and store new encrypted secret
+        // 2. Derive new key
         val newSalt = generateSalt()
         val newKey = deriveKeyFromPin(newPin, newSalt)
         val newKeyBytes = newKey.encoded
+        val newKeyHex = newKeyBytes.joinToString("") { "%02x".format(it) }
 
-        // Rekey the database and update SharedPreferences
-        try {
+        val dbFile = context.getDatabasePath("encrypted_history.db")
+        Log.d("KeyCheck", "Old Key Bytes: ${oldKeyBytes.contentToString()}")
+        Log.d("KeyCheck", "New Key Hex: $newKeyHex")
 
+
+        return try {
             SQLiteDatabase.loadLibs(context)
 
-            val db = Room.databaseBuilder(
-                context.applicationContext,
-                EncryptedDatabase::class.java,
-                "encrypted_history.db"
-            )
-                .openHelperFactory(SupportFactory(oldKeyBytes))
-                .allowMainThreadQueries()
-                .build()
+            // 3. Rekey the database
+            SQLiteDatabase.openOrCreateDatabase(
+                dbFile.absolutePath,
+                oldKeyBytes, // Raw bytes for code access
+                null,
+                null
+            ).use { db ->
+                // For consistency with manual access, we'll use hex PRAGMA
+                db.rawQuery("PRAGMA hexkey = '$newKeyHex'", null).close()
+                db.rawQuery("PRAGMA rekey = '$newKeyHex'", null).close()
+            }
 
-            // Change the encryption key of the database
-            db.openHelper.writableDatabase.execSQL("PRAGMA rekey = '${String(newKeyBytes)}';")
+            try {
+                SQLiteDatabase.openOrCreateDatabase(
+                    dbFile.absolutePath,
+                    newKeyHex,
+                    null,
+                    null
+                ).use { db ->
+                    db.rawQuery("SELECT count(*) FROM sqlite_master", null).use { cursor ->
+                        Log.d("KeyCheck", "Rekey verification successful, tables: ${cursor.count}")
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("KeyCheck", "Rekey verification failed", e)
+            }
 
-            // Update the stored salt/IV/secret in SharedPreferences
+            // 4. Update stored credentials
             val secret = authSecret.toByteArray()
             val (encryptedSecret, iv) = encryptSecret(secret, newKey)
 
-            val prefs = context.getSharedPreferences("secure_prefs", Context.MODE_PRIVATE)
-            prefs.edit {
+            context.getSharedPreferences("secure_prefs", Context.MODE_PRIVATE).edit {
                 putString("salt", Base64.encodeToString(newSalt, Base64.NO_WRAP))
                 putString("iv", Base64.encodeToString(iv, Base64.NO_WRAP))
                 putString("secret", Base64.encodeToString(encryptedSecret, Base64.NO_WRAP))
             }
 
-            return true
+            // 5. Refresh database instance
+            DatabaseProvider.clearDatabaseInstance()
+            true
         } catch (e: Exception) {
-            e.printStackTrace()
-            return false
+            Log.e("PinCryptoManager", "Rekey failed", e)
+            false
         }
     }
+
 
     /**
      * Derives a secret key from the provided PIN and salt using PBKDF2 with HMAC SHA-256.
@@ -221,7 +245,7 @@ class PinCryptoManager(private val context: Context) {
             val decrypted = cipher.doFinal(encrypted)
             String(decrypted)
         } catch (e: Exception) {
-            e.printStackTrace()
+            Log.e("PinCryptoManager", "Decryption failed: ${e.message}", e)
             null
         }
     }

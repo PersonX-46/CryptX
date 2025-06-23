@@ -385,27 +385,32 @@ fun EncryptScreen(
                     when (state.pinPurpose) {
                         "save" -> {
                             scope.launch {
-                                val success = viewModel.insertEncryptionHistory(
-                                    id = state.id,
-                                    pin = pin,
-                                    algorithm = state.selectedAlgorithm,
-                                    transformation = state.selectedMode,
-                                    keySize = state.selectedKeySize,
-                                    key = state.keyText,
-                                    iv = if (state.enableIV) state.ivText else null,
-                                    secretText = state.inputText,
-                                    isBase64 = state.isBase64Enabled,
-                                    encryptedOutput = state.outputText
-                                )
-                                if (success) {
-                                    viewModel.updateCurrentScreen("main")
-                                    viewModel.refreshHistory(pin)
-                                    delay(200)
-                                    viewModel.clearOutput()
-                                    Toast.makeText(context, "Encryption history saved!", Toast.LENGTH_SHORT).show()
-                                } else {
-                                    Toast.makeText(context, "Failed to save history.", Toast.LENGTH_SHORT).show()
+                                try {
+                                    val success = viewModel.insertEncryptionHistory(
+                                        id = state.id,
+                                        pin = pin,
+                                        algorithm = state.selectedAlgorithm,
+                                        transformation = state.selectedMode,
+                                        keySize = state.selectedKeySize,
+                                        key = state.keyText,
+                                        iv = if (state.enableIV) state.ivText else null,
+                                        secretText = state.inputText,
+                                        isBase64 = state.isBase64Enabled,
+                                        encryptedOutput = state.outputText
+                                    )
+                                    if (success) {
+                                        viewModel.updateCurrentScreen("main")
+                                        viewModel.refreshHistory(pin)
+                                        delay(200)
+                                        viewModel.clearOutput()
+                                        Toast.makeText(context, "Encryption history saved!", Toast.LENGTH_SHORT).show()
+                                    } else {
+                                        Toast.makeText(context, "Failed to save history.", Toast.LENGTH_SHORT).show()
+                                    }
+                                } catch (e: Exception) {
+                                    Toast.makeText(context, "Error saving history: ${e.message}", Toast.LENGTH_SHORT).show()
                                 }
+
                             }
                         }
 

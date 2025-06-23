@@ -37,6 +37,7 @@ object DatabaseProvider {
             // If the instance is null, we need to create it
             val pinCryptoManager = PinCryptoManager(context)
             val keyBytes = pinCryptoManager.getRawKeyIfPinValid(pin)
+            val keyHex = keyBytes?.joinToString("") { "%02x".format(it) }
 
             if (keyBytes == null) {
                 return null // Invalid PIN, cannot access database
@@ -46,8 +47,7 @@ object DatabaseProvider {
             SQLiteDatabase.loadLibs(context)
 
             // Create a SupportFactory with the key bytes
-            val factory = SupportFactory(keyBytes)
-
+            val factory = SupportFactory(keyHex?.toByteArray())
             // Build the database instance using Room
             INSTANCE = Room.databaseBuilder(
                 context.applicationContext,

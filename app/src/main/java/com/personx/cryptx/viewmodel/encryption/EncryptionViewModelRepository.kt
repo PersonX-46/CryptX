@@ -1,6 +1,7 @@
 package com.personx.cryptx.viewmodel.encryption
 
 import android.content.Context
+import android.util.Log
 import com.personx.cryptx.database.encryption.DatabaseProvider
 import com.personx.cryptx.database.encryption.EncryptedDatabase
 import com.personx.cryptx.database.encryption.EncryptionHistory
@@ -54,6 +55,7 @@ class EncryptionViewModelRepository(private val context: Context) {
             db.historyDao().insertEncryptionHistory(history)
             true
         } catch (e: Exception) {
+            Log.d("EncryptionViewModelRepository", "Insert history failed: ${e.message}")
             false
         } finally {
             DatabaseProvider.clearDatabaseInstance()
