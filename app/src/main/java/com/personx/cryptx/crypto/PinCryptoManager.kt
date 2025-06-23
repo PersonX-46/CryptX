@@ -4,12 +4,8 @@ import android.content.Context
 import android.util.Base64
 import android.util.Log
 import androidx.core.content.edit
-import androidx.room.Room
 import com.personx.cryptx.database.encryption.DatabaseProvider
-import com.personx.cryptx.database.encryption.EncryptedDatabase
 import net.sqlcipher.database.SQLiteDatabase
-import net.sqlcipher.database.SupportFactory
-import java.nio.charset.Charset
 import java.security.SecureRandom
 import javax.crypto.Cipher
 import javax.crypto.SecretKey
