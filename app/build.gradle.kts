@@ -14,7 +14,7 @@ android {
         minSdk = 24
         targetSdk = 35
         versionCode = 2
-        versionName = "1.2.6"
+        versionName = "1.2.7"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -58,7 +58,7 @@ android {
                 "proguard-rules.pro"
             )
 
-            // 🔐 Attach signing config here
+            //  Attach signing config here
             signingConfig = signingConfigs.getByName("release")
         }
     }

@@ -168,7 +168,6 @@ class PinCryptoManager(private val context: Context) {
         }
     }
 
-
     /**
      * Derives a secret key from the provided PIN and salt using PBKDF2 with HMAC SHA-256.
      *
