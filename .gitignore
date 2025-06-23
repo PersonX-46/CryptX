@@ -15,8 +15,10 @@
 .cxx
 local.properties
 /app/release/*
+/app/keystore.jks
 /.kotlin/errors
 
 fastlane/report.xml
 fastlane/Fastfile
 fastlane/Appfile
+fastlane/README.md
