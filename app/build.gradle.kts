@@ -13,8 +13,8 @@ android {
         applicationId = "com.personx.cryptx"
         minSdk = 24
         targetSdk = 35
-        versionCode = 2
-        versionName = "1.2.7"
+        versionCode = 3
+        versionName = "1.2.8"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
