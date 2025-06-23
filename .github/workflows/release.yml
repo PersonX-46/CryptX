@@ -3,7 +3,7 @@ name: Android Release
 on:
   push:
     tags:
-      - 'v*' # Only trigger on version tags like v1.2.5
+      - '*' # Only trigger on version tags like v1.2.5
 
 jobs:
   build-release:
