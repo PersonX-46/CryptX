@@ -28,8 +28,6 @@ android {
         }
     }
 
-    // Exclude non-deterministic files
-
     // Merge all resources deterministically
     packaging {
         resources {
