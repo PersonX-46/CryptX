@@ -1,7 +1,6 @@
 package com.personx.cryptx.screens
 
 import android.app.Activity
-import android.content.ClipData
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -36,8 +35,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.ClipEntry
-import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
@@ -47,6 +44,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.personx.cryptx.ClipboardManagerHelper
 import com.personx.cryptx.R
 import com.personx.cryptx.components.CyberpunkButton
 import com.personx.cryptx.components.CyberpunkDropdown
@@ -62,7 +60,7 @@ fun HashGeneratorScreen(
     windowSizeClass: WindowSizeClass
 ) {
     val context = LocalContext.current
-    val clipboardManager = LocalClipboard.current
+    val clipboardManager = ClipboardManagerHelper(LocalContext.current)
     val scope = rememberCoroutineScope()
     val state = viewModel.state.value
 
@@ -146,8 +144,7 @@ fun HashGeneratorScreen(
                         algorithm = state.selectedAlgorithm,
                         onCopy = {
                             scope.launch {
-                                clipboardManager.setClipEntry(
-                                    ClipEntry(ClipData.newPlainText("Copied", state.generatedHash)))
+                                clipboardManager.copyTextWithTimeout(state.generatedHash)
                             }
                         },
                         windowSizeClass = windowSizeClass,

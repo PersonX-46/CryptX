@@ -1,6 +1,5 @@
 package com.personx.cryptx.screens
 
-import android.content.ClipData
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
@@ -43,14 +42,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.ClipEntry
-import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.personx.cryptx.ClipboardManagerHelper
 import com.personx.cryptx.R
 import com.personx.cryptx.components.CyberpunkButton
 import com.personx.cryptx.components.CyberpunkDropdown
@@ -76,7 +74,7 @@ fun DecryptionScreen(
     val viewModel: DecryptionViewModel = viewModel(factory = factory)
     val context = LocalContext.current
     val state = viewModel.state.value
-    val clipboard = LocalClipboard.current
+    val clipboard = ClipboardManagerHelper(LocalContext.current)
     val scope = rememberCoroutineScope()
     val cyberpunkGreen = Color(0xFF00FFAA)
 
@@ -320,14 +318,7 @@ fun DecryptionScreen(
                                                 output = state.outputText,
                                                 onCopy = {
                                                     scope.launch {
-                                                        clipboard.setClipEntry(
-                                                            ClipEntry(
-                                                                ClipData.newPlainText(
-                                                                    "Copied",
-                                                                    state.outputText
-                                                                )
-                                                            )
-                                                        )
+                                                        clipboard.copyTextWithTimeout(state.outputText)
                                                     }
                                                     Toast.makeText(
                                                         context,

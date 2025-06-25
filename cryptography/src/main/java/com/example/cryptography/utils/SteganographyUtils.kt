@@ -6,13 +6,12 @@ import androidx.core.graphics.set
 import java.nio.ByteBuffer
 import java.nio.charset.StandardCharsets
 
+/**
+ * SteganographyUtils provides utility functions for embedding files into images and extracting
+ * files from images using the least significant bit (LSB) method.
+ * It also includes methods for saving the embedded image and extracted file to the device storage.
+ */
 object SteganographyUtils {
-
-    /**
-     * SteganographyUtils provides utility functions for embedding files into images and extracting
-     * files from images using the least significant bit (LSB) method.
-     * It also includes methods for saving the embedded image and extracted file to the device storage.
-     */
 
     private const val HEADER_SIZE = 8  // 4 bytes for length, 4 bytes for name length
 
