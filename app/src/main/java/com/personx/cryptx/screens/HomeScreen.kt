@@ -25,6 +25,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Code
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.LockOpen
+import androidx.compose.material.icons.filled.LockReset
 import androidx.compose.material.icons.filled.MoreHoriz
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
@@ -52,11 +53,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import com.personx.cryptx.components.CyberpunkButton
 import com.personx.cryptx.components.FeatureCardButton
 import com.personx.cryptx.components.Header
 import com.personx.cryptx.crypto.PinCryptoManager
@@ -71,16 +74,10 @@ fun HomeScreen(
 
     val context = LocalContext.current
     val navController = LocalNavController.current
-    val scope = rememberCoroutineScope()
     val state = viewModel.state.collectAsState()
-
-    // State for PIN change dialog
-
 
     // Cyberpunk colors
     val cyberGreen = Color(0xFF00FF9D)
-    val cyberDark = Color(0xFF0A0A12)
-    val cyberTeal = Color(0xFF00E0FF)
 
     val isCompact = windowSizeClass.widthSizeClass == WindowWidthSizeClass.Compact
     val padding = if (isCompact) 16.dp else 24.dp
@@ -212,7 +209,8 @@ fun HomeScreen(
                     style = MaterialTheme.typography.headlineSmall.copy(
                         color = cyberGreen,
                         fontFamily = FontFamily.Monospace,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.Center
                     ),
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
@@ -251,15 +249,19 @@ fun HomeScreen(
                     TextButton(
                         onClick = { viewModel.updateShowPinDialog(false) },
                         colors = ButtonDefaults.textButtonColors(
-                            contentColor = cyberTeal
-                        )
+                            contentColor = MaterialTheme.colorScheme.onSurface
+                        ),
                     ) {
-                        Text("CANCEL")
+                        Text("CANCEL",
+                            style = MaterialTheme.typography.labelLarge.copy(
+                                fontFamily = FontFamily.Monospace,
+                            )
+                        )
                     }
 
                     Spacer(Modifier.width(16.dp))
 
-                    Button(
+                    CyberpunkButton(
                         onClick = {
                             try {
                                 viewModel.updatePin(
@@ -278,17 +280,11 @@ fun HomeScreen(
                             } catch (e: Exception) {
                                 Toast.makeText(context, "Error changing PIN: ${e.message}", Toast.LENGTH_SHORT).show()
                             }
-
-
                         },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = cyberGreen,
-                            contentColor = Color.Black
-                        ),
-                        border = BorderStroke(1.dp, cyberTeal)
-                    ) {
-                        Text("CONFIRM")
-                    }
+                        icon = Icons.Default.LockReset,
+                        text = "CONFIRM",
+                        isCompact = isCompact,
+                    )
                 }
             }
         }
@@ -329,9 +325,10 @@ fun CyberpunkPinField(
                 )
                 .padding(12.dp),
             textStyle = LocalTextStyle.current.copy(
-                color = Color.White,
-                fontSize = 16.sp
+                color = MaterialTheme.colorScheme.onSurface,
+                fontSize = 26.sp
             ),
+
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.NumberPassword,
                 imeAction = ImeAction.Next
