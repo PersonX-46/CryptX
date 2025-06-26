@@ -5,15 +5,15 @@
 <h1 align="center">🔐 CryptX — Simple Android Security Toolkit</h1>
 
 <p align="center">
-  <a href="https://f-droid.org/packages/com.rk.xededitor">
+  <a href="https://f-droid.org/packages/com.personx.cryptx">
     <img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png" alt="Get it on F-Droid" height="70">
   </a>
   &nbsp;
-  <a href="https://apt.izzysoft.de/fdroid/index/apk/com.rk.xededitor">
+  <a href="https://apt.izzysoft.de/fdroid/index/apk/com.personx.cryptx">
     <img src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroid.png?ref_type=heads" alt="Get it on IzzyOnDroid" height="70">
   </a>
   &nbsp;
-  <a href="https://github.com/Xed-Editor/Xed-Editor/releases/latest">
+  <a href="https://github.com/PersonX-46/CryptX/releases/latest">
     <img src="https://raw.githubusercontent.com/Kunzisoft/Github-badge/main/get-it-on-github.png" alt="Get it on GitHub" height="70">
   </a>
 </p>
