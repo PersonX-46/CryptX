@@ -49,16 +49,15 @@ fun CyberpunkDropdown(
     val padding = if (isCompact) 12.dp else 16.dp
     val verticalPadding = if (isCompact) 10.dp else 12.dp
     val cornerRadius = if (isCompact) 6.dp else 8.dp
-    val borderWidth = if (isCompact) 0.5.dp else 1.dp
+    val borderWidth = if (isCompact) 0.2.dp else 1.dp
 
     Box(modifier = modifier) {
         Column {
             Text(
                 text = label,
-                style = MaterialTheme.typography.labelMedium.copy(
+                style = MaterialTheme.typography.labelSmall.copy(
                     fontFamily = FontFamily.Monospace,
                     color = labelColor,
-                    fontSize = if (isCompact) 14.sp else 16.sp
                 ),
                 modifier = Modifier.padding(bottom = 4.dp)
             )
@@ -68,14 +67,10 @@ fun CyberpunkDropdown(
                     .fillMaxWidth()
                     .clickable { expanded.value = true }
                     .background(
-                        color = Color.Transparent,
+                        color = cyberpunkGreen.copy(0.05f),
                         shape = RoundedCornerShape(cornerRadius)
                     )
-                    .border(
-                        borderWidth,
-                        cyberpunkGreen,
-                        shape = RoundedCornerShape(cornerRadius)
-                    )
+
                     .padding(horizontal = padding, vertical = verticalPadding)
             ) {
                 Row(
@@ -114,7 +109,7 @@ fun CyberpunkDropdown(
             modifier = Modifier
                 .fillMaxWidth(fraction = if (isCompact) 0.95f else 0.85f)
                 .background(
-                    MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
+                    Color.Black,
                     shape = RoundedCornerShape(cornerRadius)
                 )
                 .border(borderWidth, cyberpunkGreen, RoundedCornerShape(cornerRadius))

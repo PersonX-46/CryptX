@@ -29,12 +29,7 @@ fun CyberpunkInputBox(
         modifier = modifier
             .fillMaxWidth()
             .background(
-                color = Color.Transparent,
-                shape = RoundedCornerShape(10.dp)
-            )
-            .border(
-                0.5.dp,
-                Color(0xFF00FFAA),
+                color = MaterialTheme.colorScheme.onSurface.copy(0.05f),
                 shape = RoundedCornerShape(10.dp)
             )
     ) {
@@ -54,7 +49,7 @@ fun CyberpunkInputBox(
                 Text(
                     text = placeholder,
                     style = TextStyle(
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
                         fontFamily = FontFamily.Monospace
                     )
                 )

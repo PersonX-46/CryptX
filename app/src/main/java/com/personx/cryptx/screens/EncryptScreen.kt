@@ -9,6 +9,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,6 +22,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.History
@@ -46,6 +48,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringArrayResource
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -135,19 +138,26 @@ fun EncryptScreen(
                         Card(
                             modifier = Modifier.fillMaxWidth(),
                             colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.onSurface.copy(0.05f)
+                                containerColor = Color.Transparent
                             )
                         ) {
-                            Column(modifier = Modifier.padding(12.dp)) {
+                            Column(
+                                modifier = Modifier
+                                    .padding(12.dp)
+                            ) {
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement = Arrangement.SpaceBetween,
                                     modifier = Modifier.fillMaxWidth()
+                                        .border(0.5.dp, cyberpunkGreen, shape = RoundedCornerShape(15.dp))
+                                        .padding(horizontal = 5.dp),
                                 ) {
                                     Text(
+                                        modifier = Modifier.padding(start = 3.dp),
                                         text = "Encryption Algorithm",
                                         style = MaterialTheme.typography.labelMedium.copy(
                                             color = cyberpunkGreen.copy(alpha = 0.8f),
+                                            fontFamily = FontFamily.Monospace,
                                             fontSize = if (isCompact) MaterialTheme.typography.labelLarge.fontSize
                                             else MaterialTheme.typography.titleSmall.fontSize
                                         )
@@ -206,14 +216,16 @@ fun EncryptScreen(
                             Card(
                                 modifier = Modifier.fillMaxWidth(),
                                 colors = CardDefaults.cardColors(
-                                    containerColor = MaterialTheme.colorScheme.onSurface.copy(0.05f)
+                                    containerColor = Color.Transparent
                                 )
+
                             ) {
                                 Column(modifier = Modifier.padding(12.dp)) {
                                     Text(
                                         text = "Input Data",
                                         style = MaterialTheme.typography.labelMedium.copy(
                                             color = cyberpunkGreen.copy(alpha = 0.8f),
+                                            fontFamily = FontFamily.Monospace,
                                             fontSize = if (isCompact) MaterialTheme.typography.labelLarge.fontSize
                                             else MaterialTheme.typography.titleSmall.fontSize
                                         )
@@ -236,14 +248,15 @@ fun EncryptScreen(
                             Card(
                                 modifier = Modifier.fillMaxWidth(),
                                 colors = CardDefaults.cardColors(
-                                    containerColor = MaterialTheme.colorScheme.onSurface.copy(0.05f)
+                                    containerColor = Color.Transparent
                                 )
                             ) {
                                 Column(modifier = Modifier.padding(12.dp)) {
                                     Text(
                                         text = "Security Parameters",
-                                        style = MaterialTheme.typography.labelMedium.copy(
+                                        style = MaterialTheme.typography.labelSmall.copy(
                                             color = cyberpunkGreen.copy(alpha = 0.8f),
+                                            fontFamily = FontFamily.Monospace,
                                             fontSize = if (isCompact) MaterialTheme.typography.labelLarge.fontSize
                                             else MaterialTheme.typography.titleSmall.fontSize
                                         )
@@ -307,7 +320,6 @@ fun EncryptScreen(
                                 onClick = { viewModel.encrypt(context) },
                                 icon = Icons.Default.Lock,
                                 text = "ENCRYPT",
-                                modifier = Modifier.fillMaxWidth(),
                                 isCompact = isCompact
                             )
 
