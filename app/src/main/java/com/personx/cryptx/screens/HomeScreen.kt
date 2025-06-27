@@ -55,7 +55,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavHostController
+import com.personx.cryptx.LocalNavController
 import com.personx.cryptx.components.CyberpunkButton
 import com.personx.cryptx.components.FeatureCardButton
 import com.personx.cryptx.components.Header
@@ -334,7 +334,3 @@ fun CyberpunkPinField(
     }
 }
 
-// Create this in your theme package
-val LocalNavController = staticCompositionLocalOf<NavHostController> {
-    error("No NavController provided")
-}

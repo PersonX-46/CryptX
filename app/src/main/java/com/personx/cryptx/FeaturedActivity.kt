@@ -37,7 +37,6 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.rememberNavController
 import com.personx.cryptx.components.CyberpunkNavBar
 import com.personx.cryptx.data.NavBarItem
-import com.personx.cryptx.screens.LocalNavController
 import com.personx.cryptx.ui.theme.CryptXTheme
 
 class FeaturedActivity : ComponentActivity() {
@@ -51,6 +50,7 @@ class FeaturedActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             CryptXTheme(darkTheme = true) {
+
                 val windowSizeClass = calculateWindowSizeClass(this)
                 val screen = intent.getStringExtra(EXTRA_SCREEN) ?: "home"
                 val navController = rememberNavController()

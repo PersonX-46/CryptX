@@ -62,7 +62,6 @@ fun AppNavGraph(
                 SteganographyViewModelRepository(LocalContext.current),
                 windowSizeClass = windowSizeClass
             )
-
         }
     }
 }

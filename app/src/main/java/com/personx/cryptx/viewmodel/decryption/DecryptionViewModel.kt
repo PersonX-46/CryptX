@@ -12,13 +12,11 @@ import com.example.cryptography.algorithms.SymmetricBasedAlgorithm
 import com.example.cryptography.data.CryptoParams
 import com.example.cryptography.utils.CryptoUtils.decodeBase64ToSecretKey
 import com.example.cryptography.utils.CryptoUtils.decodeStringToByteArray
-import com.example.cryptography.utils.CryptoUtils.encodeByteArrayToString
 import com.personx.cryptx.R
 import com.personx.cryptx.data.DecryptionState
 import com.personx.cryptx.database.encryption.DecryptionHistory
 import com.personx.cryptx.database.encryption.EncryptionHistory
-import com.personx.cryptx.screens.getKeySizes
-import com.personx.cryptx.screens.getTransformations
+import com.personx.cryptx.screens.encryptscreen.getTransformations
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 

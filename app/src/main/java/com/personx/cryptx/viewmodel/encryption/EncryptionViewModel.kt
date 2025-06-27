@@ -17,8 +17,8 @@ import com.example.cryptography.utils.CryptoUtils.padTextToBlockSize
 import com.personx.cryptx.R
 import com.personx.cryptx.data.EncryptionState
 import com.personx.cryptx.database.encryption.EncryptionHistory
-import com.personx.cryptx.screens.getKeySizes
-import com.personx.cryptx.screens.getTransformations
+import com.personx.cryptx.screens.encryptscreen.getKeySizes
+import com.personx.cryptx.screens.encryptscreen.getTransformations
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 import java.security.SecureRandom
