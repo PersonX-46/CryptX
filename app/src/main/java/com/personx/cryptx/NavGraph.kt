@@ -8,16 +8,20 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.personx.cryptx.crypto.PinCryptoManager
-import com.personx.cryptx.screens.DecryptionScreen
+import com.personx.cryptx.screens.decryptscreen.DecryptionScreen
 import com.personx.cryptx.screens.encryptscreen.EncryptMainScreen
 import com.personx.cryptx.screens.HashDetector
 import com.personx.cryptx.screens.HashGeneratorScreen
 import com.personx.cryptx.screens.HomeScreen
 import com.personx.cryptx.screens.SteganographyScreen
+import com.personx.cryptx.screens.decryptscreen.DecryptHistoryScreen
+import com.personx.cryptx.screens.decryptscreen.DecryptPinHandler
+import com.personx.cryptx.screens.decryptscreen.EncryptedHistoryHandler
 import com.personx.cryptx.screens.encryptscreen.EncryptHistoryScreen
 import com.personx.cryptx.screens.encryptscreen.EncryptPinHandler
 import com.personx.cryptx.viewmodel.HomeScreenViewModel
 import com.personx.cryptx.viewmodel.decryption.DecryptionHistoryRepository
+import com.personx.cryptx.viewmodel.decryption.DecryptionViewModel
 import com.personx.cryptx.viewmodel.encryption.EncryptionViewModel
 import com.personx.cryptx.viewmodel.encryption.EncryptionViewModelRepository
 import com.personx.cryptx.viewmodel.steganography.SteganographyViewModelRepository
@@ -34,6 +38,9 @@ fun AppNavGraph(
         repository = EncryptionViewModelRepository(
             context
         )
+    )
+    val decryptViewModel = DecryptionViewModel(
+        repository = DecryptionHistoryRepository(context)
     )
     NavHost(navController = navController, startDestination = startDestination) {
         composable("home") {
@@ -67,8 +74,30 @@ fun AppNavGraph(
         }
         composable("decrypt") {
             DecryptionScreen(
-                DecryptionHistoryRepository(context),
-                windowSizeClass = windowSizeClass
+                viewModel = decryptViewModel,
+                windowSizeClass = windowSizeClass,
+                navController = navController,
+            )
+        }
+        composable("decrypt_history") {
+            DecryptHistoryScreen(
+                viewModel = decryptViewModel,
+                windowSizeClass = windowSizeClass,
+                navController = navController
+            )
+        }
+        composable("decrypt_pin_handler") {
+            DecryptPinHandler(
+                viewModel = decryptViewModel,
+                windowSizeClass = windowSizeClass,
+                navController = navController
+            )
+        }
+        composable("decrypt_encrypted_history_handler") {
+            EncryptedHistoryHandler(
+                viewModel = decryptViewModel,
+                windowSizeClass = windowSizeClass,
+                navController = navController
             )
         }
         composable("hashGenerator") {
