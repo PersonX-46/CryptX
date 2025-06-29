@@ -34,7 +34,7 @@ fun AppNavGraph(
     windowSizeClass: WindowSizeClass
 ) {
     val context = LocalContext.current
-    val encryptViewmodel: EncryptionViewModel = EncryptionViewModel(
+    val encryptViewmodel = EncryptionViewModel(
         repository = EncryptionViewModelRepository(
             context
         )

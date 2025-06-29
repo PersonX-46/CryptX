@@ -1,6 +1,5 @@
 package com.personx.cryptx
 
-import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -37,7 +36,6 @@ import androidx.navigation.compose.rememberNavController
 import com.personx.cryptx.components.CyberpunkNavBar
 import com.personx.cryptx.crypto.PinCryptoManager
 import com.personx.cryptx.data.NavBarItem
-import com.personx.cryptx.database.encryption.DatabaseProvider
 import com.personx.cryptx.screens.pinlogin.PinLoginScreen
 import com.personx.cryptx.screens.pinsetup.PinSetupScreen
 import com.personx.cryptx.ui.theme.CryptXTheme
