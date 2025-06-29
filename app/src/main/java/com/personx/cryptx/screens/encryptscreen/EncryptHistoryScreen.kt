@@ -2,12 +2,17 @@ package com.personx.cryptx.screens.encryptscreen
 
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
+import androidx.navigation.NavController
 import com.personx.cryptx.database.encryption.EncryptionHistory
 import com.personx.cryptx.screens.HistoryScreen
 import com.personx.cryptx.viewmodel.encryption.EncryptionViewModel
 
 @Composable
-fun EncryptHistoryScreen(viewModel: EncryptionViewModel, windowSizeClass: WindowSizeClass) {
+fun EncryptHistoryScreen(
+    viewModel: EncryptionViewModel,
+    windowSizeClass: WindowSizeClass,
+    navController: NavController
+) {
     HistoryScreen(
         history = viewModel.history.value,
         onEditClick = { it: EncryptionHistory ->
@@ -21,12 +26,12 @@ fun EncryptHistoryScreen(viewModel: EncryptionViewModel, windowSizeClass: Window
             viewModel.updateBase64Enabled(it.isBase64)
             viewModel.updateOutputText(it.encryptedOutput)
             viewModel.updatePinPurpose("update")
-            viewModel.updateCurrentScreen("main")
+            navController.navigate("encrypt")
         },
         onDeleteClick = { it: EncryptionHistory ->
             viewModel.prepareItemToDelete(it)
             viewModel.updatePinPurpose("delete")
-            viewModel.updateCurrentScreen("pin_login")
+            navController.navigate("encrypt_pin_handler")
         },
         onItemClick = { it: EncryptionHistory ->
             viewModel.updateSelectedAlgorithm(it.algorithm)
@@ -37,7 +42,7 @@ fun EncryptHistoryScreen(viewModel: EncryptionViewModel, windowSizeClass: Window
             viewModel.updateInputText(it.secretText)
             viewModel.updateBase64Enabled(it.isBase64)
             viewModel.updateOutputText(it.encryptedOutput)
-            viewModel.updateCurrentScreen("main")
+            navController.navigate("encrypt")
         },
         windowSizeClass = windowSizeClass
     )

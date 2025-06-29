@@ -53,6 +53,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import com.personx.cryptx.ClipboardManagerHelper
 import com.personx.cryptx.R
 import com.personx.cryptx.components.CyberpunkButton
@@ -74,11 +75,11 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun EncryptMainScreen(
-    repository: EncryptionViewModelRepository,
-    windowSizeClass: WindowSizeClass
+    viewModel: EncryptionViewModel,
+    windowSizeClass: WindowSizeClass,
+    navController: NavController
 ) {
-    val factory = remember { EncryptionViewModelFactory(repository) }
-    val viewModel: EncryptionViewModel = viewModel(factory = factory)
+
     val context = LocalContext.current
     val state = viewModel.state.value
     val cyberpunkGreen = Color(0xFF00FFAA)
@@ -162,7 +163,7 @@ fun EncryptMainScreen(
                             IconButton(
                                 onClick = {
                                     viewModel.updatePinPurpose("history")
-                                    viewModel.updateCurrentScreen("pin_login")
+                                    navController.navigate("encrypt_history")
                                 }
                             ) {
                                 Icon(
@@ -361,9 +362,9 @@ fun EncryptMainScreen(
                                         onSave = {
                                             if (state.pinPurpose != "update") {
                                                 viewModel.updatePinPurpose("save")
-                                                viewModel.updateCurrentScreen("pin_login")
+                                                navController.navigate("encrypt_pin_handler")
                                             } else {
-                                                viewModel.updateCurrentScreen("pin_login")
+                                                navController.navigate("encrypt_pin_handler")
                                             }
                                         },
                                         isCompact = isCompact
@@ -377,93 +378,6 @@ fun EncryptMainScreen(
         }
     }
 }
-
-//@Composable
-//fun l(){
-//    PinLoginScreen(
-//        pinCryptoManager = PinCryptoManager(context),
-//        onLoginSuccess = { pin: String ->
-//            when (state.pinPurpose) {
-//                "save" -> {
-//                    scope.launch {
-//                        try {
-//                            val success = viewModel.insertEncryptionHistory(
-//                                id = state.id,
-//                                pin = pin,
-//                                algorithm = state.selectedAlgorithm,
-//                                transformation = state.selectedMode,
-//                                keySize = state.selectedKeySize,
-//                                key = state.keyText,
-//                                iv = if (state.enableIV) state.ivText else null,
-//                                secretText = state.inputText,
-//                                isBase64 = state.isBase64Enabled,
-//                                encryptedOutput = state.outputText
-//                            )
-//                            if (success) {
-//                                viewModel.updateCurrentScreen("main")
-//                                viewModel.refreshHistory(pin)
-//                                delay(200)
-//                                viewModel.clearOutput()
-//                                Toast.makeText(context, "Encryption history saved!", Toast.LENGTH_SHORT).show()
-//                            } else {
-//                                Toast.makeText(context, "Failed to save history.", Toast.LENGTH_SHORT).show()
-//                            }
-//                        } catch (e: Exception) {
-//                            Toast.makeText(context, "Error saving history: ${e.message}", Toast.LENGTH_SHORT).show()
-//                        }
-//
-//                    }
-//                }
-//
-//                "history" -> {
-//                    scope.launch {
-//                        viewModel.refreshHistory(pin)
-//                        viewModel.updateCurrentScreen("history_screen")
-//                    }
-//                }
-//
-//                "delete" -> {
-//                    scope.launch {
-//                        if (viewModel.itemToDelete != null) {
-//                            viewModel.itemToDelete?.let { item ->
-//                                viewModel.deleteEncryptionHistory(pin, item)
-//                                viewModel.refreshHistory(pin)
-//                                viewModel.updateCurrentScreen("history_screen")
-//                                Toast.makeText(context, "History deleted!", Toast.LENGTH_SHORT).show()
-//                                viewModel.prepareItemToDelete(null)
-//                            }
-//                        }
-//                    }
-//                }
-//
-//                "update" -> {
-//                    scope.launch {
-//                        val itemToUpdate = viewModel.createEncryptedHistory(
-//                            id = state.id,
-//                            algorithm = state.selectedAlgorithm,
-//                            transformation = state.selectedMode,
-//                            keySize = state.selectedKeySize,
-//                            key = state.keyText,
-//                            iv = state.ivText,
-//                            secretText = state.inputText,
-//                            isBase64 = state.isBase64Enabled,
-//                            encryptedOutput = state.outputText
-//                        )
-//                        viewModel.prepareItemToUpdate(itemToUpdate)
-//                        viewModel.itemToUpdate?.let { item ->
-//                            viewModel.updateEncryptionHistory(pin, item)
-//                            viewModel.refreshHistory(pin)
-//                            viewModel.updateCurrentScreen("history_screen")
-//                            Toast.makeText(context, "History updated!", Toast.LENGTH_SHORT).show()
-//                            viewModel.prepareItemToUpdate(null)
-//                        }
-//                    }
-//                }
-//            }
-//        },
-//        windowSizeClass = windowSizeClass
-//    )
-//}
 
 fun getTransformations(context: Context, algorithm: String): List<String> = when (algorithm) {
     "AES" -> context.resources.getStringArray(R.array.aes_transformation_list).toList()

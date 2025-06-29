@@ -206,9 +206,6 @@ class EncryptionViewModel(private val repository: EncryptionViewModelRepository)
                 isBase64 = isBase64
             )
             val result = repository.insertHistory(pin, encryptionHistory)
-            if (result) {
-                updateCurrentScreen("main")
-            }
             result
         } catch (e: Exception) {
             Log.d("ENCRYPTION DATABASE HISTORY UPDATE ERROR", "Insertion failed: ${e.message}")

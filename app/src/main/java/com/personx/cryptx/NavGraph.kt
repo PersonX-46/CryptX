@@ -9,13 +9,16 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.personx.cryptx.crypto.PinCryptoManager
 import com.personx.cryptx.screens.DecryptionScreen
-import com.personx.cryptx.screens.EncryptScreen
+import com.personx.cryptx.screens.encryptscreen.EncryptMainScreen
 import com.personx.cryptx.screens.HashDetector
 import com.personx.cryptx.screens.HashGeneratorScreen
 import com.personx.cryptx.screens.HomeScreen
 import com.personx.cryptx.screens.SteganographyScreen
+import com.personx.cryptx.screens.encryptscreen.EncryptHistoryScreen
+import com.personx.cryptx.screens.encryptscreen.EncryptPinHandler
 import com.personx.cryptx.viewmodel.HomeScreenViewModel
 import com.personx.cryptx.viewmodel.decryption.DecryptionHistoryRepository
+import com.personx.cryptx.viewmodel.encryption.EncryptionViewModel
 import com.personx.cryptx.viewmodel.encryption.EncryptionViewModelRepository
 import com.personx.cryptx.viewmodel.steganography.SteganographyViewModelRepository
 
@@ -26,26 +29,45 @@ fun AppNavGraph(
     startDestination: String,
     windowSizeClass: WindowSizeClass
 ) {
+    val context = LocalContext.current
+    val encryptViewmodel: EncryptionViewModel = EncryptionViewModel(
+        repository = EncryptionViewModelRepository(
+            context
+        )
+    )
     NavHost(navController = navController, startDestination = startDestination) {
-
-
         composable("home") {
             HomeScreen(
                 HomeScreenViewModel(
-                    PinCryptoManager(LocalContext.current)
+                    PinCryptoManager(context)
                 ),
                 windowSizeClass
             )
         }
         composable("encrypt") {
-            EncryptScreen(
-                EncryptionViewModelRepository(LocalContext.current),
-                windowSizeClass = windowSizeClass
+            EncryptMainScreen(
+                viewModel = encryptViewmodel,
+                windowSizeClass = windowSizeClass,
+                navController = navController
+            )
+        }
+        composable("encrypt_history") { 
+            EncryptHistoryScreen(
+                viewModel = encryptViewmodel,
+                windowSizeClass = windowSizeClass,
+                navController = navController
+            )
+        }
+        composable("encrypt_pin_handler") {
+            EncryptPinHandler(
+                viewModel = encryptViewmodel,
+                windowSizeClass = windowSizeClass,
+                navController = navController
             )
         }
         composable("decrypt") {
             DecryptionScreen(
-                DecryptionHistoryRepository(LocalContext.current),
+                DecryptionHistoryRepository(context),
                 windowSizeClass = windowSizeClass
             )
         }
@@ -59,7 +81,7 @@ fun AppNavGraph(
         }
         composable("steganography") {
             SteganographyScreen(
-                SteganographyViewModelRepository(LocalContext.current),
+                SteganographyViewModelRepository(context),
                 windowSizeClass = windowSizeClass
             )
         }
