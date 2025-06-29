@@ -75,10 +75,6 @@ class DecryptionViewModel(private val repository: DecryptionHistoryRepository) :
         _state.value = _state.value.copy(inputText = input)
     }
 
-    fun updateCurrentScreen(screen: String) {
-        _state.value = _state.value.copy(currentScreen = screen)
-    }
-
     fun updateOutputText(output: String) {
         _state.value = _state.value.copy(outputText = output)
     }
@@ -184,9 +180,6 @@ class DecryptionViewModel(private val repository: DecryptionHistoryRepository) :
                 decryptedOutput
             )
             val result = repository.insertHistory(pin, decryptionHistory)
-            if (result) {
-                updateCurrentScreen("main")
-            }
             result
         } catch (e: Exception) {
             Log.d("DECRYPTION DATABASE HISTORY UPDATE ERROR", "Insertion failed: ${e.message}")

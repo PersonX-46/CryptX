@@ -11,6 +11,5 @@ data class DecryptionState(
     val enableIV: Boolean = false,
     val isBase64Enabled: Boolean = false,
     val transformationList: List<String> = emptyList(),
-    val currentScreen: String = "main",
     val pinPurpose: String = "",
 )

@@ -72,10 +72,6 @@ class EncryptionViewModel(private val repository: EncryptionViewModelRepository)
         _state.value = _state.value.copy(outputText = output)
     }
 
-    fun updateCurrentScreen(screen: String) {
-        _state.value = _state.value.copy(currentScreen = screen)
-    }
-
     fun updateIVText(iv: String) {
         _state.value = _state.value.copy(ivText = iv)
     }

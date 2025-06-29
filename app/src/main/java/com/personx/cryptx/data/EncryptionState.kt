@@ -14,6 +14,5 @@ data class EncryptionState(
     val enableIV: Boolean = false,
     val isBase64Enabled: Boolean = false,
     val showCopiedToast: Boolean = false,
-    val currentScreen: String = "main",
     val pinPurpose: String = "",
 )
