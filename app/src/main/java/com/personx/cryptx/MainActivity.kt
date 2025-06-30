@@ -121,36 +121,31 @@ fun AppContent(windowSizeClass: WindowSizeClass) {
         },
         NavBarItem(Icons.Filled.Lock, "Encrypt") {
             navController.navigate("encrypt") {
-                launchSingleTop = true
-                restoreState = true
+                popUpTo(0) { inclusive = true }
             }
             selectedLabel.value = "encrypt"
         },
         NavBarItem(Icons.Filled.LockOpen, "Decrypt") {
             navController.navigate("decrypt") {
-                launchSingleTop = true
-                restoreState = true
+                popUpTo(0) { inclusive = true }
             }
             selectedLabel.value = "decrypt"
         },
         NavBarItem(Icons.Filled.Code, "Hash") {
             navController.navigate("hashGenerator") {
-                launchSingleTop = true
-                restoreState = true
+                popUpTo(0) { inclusive = true }
             }
             selectedLabel.value = "hashGenerator"
         },
         NavBarItem(Icons.Filled.Search, "Detect") {
             navController.navigate("hashDetector") {
-                launchSingleTop = true
-                restoreState = true
+                popUpTo(0) { inclusive = true }
             }
             selectedLabel.value = "hashDetector"
         },
         NavBarItem(Icons.Filled.VisibilityOff, "Stego") {
             navController.navigate("steganography") {
-                launchSingleTop = true
-                restoreState = true
+                popUpTo(0) { inclusive = true }
             }
             selectedLabel.value = "steganography"
         }
