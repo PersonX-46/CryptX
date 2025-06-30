@@ -24,7 +24,10 @@ fun EncryptedHistoryHandler(
             viewModel.updateInputText(it.encryptedOutput)
             viewModel.updateBase64Enabled(it.isBase64)
             viewModel.updateOutputText("")
-            navController.navigate("decrypt")
+            navController.navigate("decrypt") {
+                popUpTo("decrypt_encrypted_history_handler") { inclusive = true } // clears entire backstack
+                launchSingleTop = true
+            }
         },
         onEditClick = {},
         onDeleteClick = {},
