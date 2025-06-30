@@ -154,7 +154,7 @@ fun EncryptMainScreen(
                             IconButton(
                                 onClick = {
                                     viewModel.updatePinPurpose("history")
-                                    navController.navigate("encrypt_history") {
+                                    navController.navigate("encrypt_pin_handler") {
                                         popUpTo("encrypt") { inclusive = true } // clears entire backstack
                                         launchSingleTop = true
                                     }
