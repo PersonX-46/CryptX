@@ -26,12 +26,18 @@ fun EncryptHistoryScreen(
             viewModel.updateBase64Enabled(it.isBase64)
             viewModel.updateOutputText(it.encryptedOutput)
             viewModel.updatePinPurpose("update")
-            navController.navigate("encrypt")
+            navController.navigate("encrypt") {
+                popUpTo("encrypt_history") { inclusive = true } // clears entire backstack
+                launchSingleTop = true
+            }
         },
         onDeleteClick = { it: EncryptionHistory ->
             viewModel.prepareItemToDelete(it)
             viewModel.updatePinPurpose("delete")
-            navController.navigate("encrypt_pin_handler")
+            navController.navigate("encrypt_pin_handler") {
+                popUpTo("encrypt_history") { inclusive = true } // clears entire backstack
+                launchSingleTop = true
+            }
         },
         onItemClick = { it: EncryptionHistory ->
             viewModel.updateSelectedAlgorithm(it.algorithm)
@@ -42,7 +48,10 @@ fun EncryptHistoryScreen(
             viewModel.updateInputText(it.secretText)
             viewModel.updateBase64Enabled(it.isBase64)
             viewModel.updateOutputText(it.encryptedOutput)
-            navController.navigate("encrypt")
+            navController.navigate("encrypt") {
+                popUpTo("encrypt_history") { inclusive = true } // clears entire backstack
+                launchSingleTop = true
+            }
         },
         windowSizeClass = windowSizeClass
     )

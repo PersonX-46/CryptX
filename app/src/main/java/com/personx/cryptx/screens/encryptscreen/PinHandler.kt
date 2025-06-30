@@ -48,7 +48,10 @@ fun EncryptPinHandler(
                                 delay(200)
                                 viewModel.clearOutput()
                                 Toast.makeText(context, "Encryption history saved!", Toast.LENGTH_SHORT).show()
-                                navController.navigate("encrypt")
+                                navController.navigate("encrypt") {
+                                    popUpTo("encrypt_pin_handler") { inclusive = true } // clears entire backstack
+                                    launchSingleTop = true
+                                }
 
                             } else {
                                 Toast.makeText(context, "Failed to save history.", Toast.LENGTH_SHORT).show()
@@ -63,7 +66,10 @@ fun EncryptPinHandler(
                 "history" -> {
                     scope.launch {
                         viewModel.refreshHistory(pin)
-                        navController.navigate("encrypt_history")
+                        navController.navigate("encrypt_history") {
+                            popUpTo("encrypt_pin_handler") { inclusive = true } // clears entire backstack
+                            launchSingleTop = true
+                        }
                     }
                 }
 
@@ -73,7 +79,10 @@ fun EncryptPinHandler(
                             viewModel.itemToDelete?.let { item ->
                                 viewModel.deleteEncryptionHistory(pin, item)
                                 viewModel.refreshHistory(pin)
-                                navController.navigate("encrypt_history")
+                                navController.navigate("encrypt_history") {
+                                    popUpTo("encrypt_pin_handler") { inclusive = true } // clears entire backstack
+                                    launchSingleTop = true
+                                }
                                 Toast.makeText(context, "History deleted!", Toast.LENGTH_SHORT).show()
                                 viewModel.prepareItemToDelete(null)
                             }
@@ -98,7 +107,10 @@ fun EncryptPinHandler(
                         viewModel.itemToUpdate?.let { item ->
                             viewModel.updateEncryptionHistory(pin, item)
                             viewModel.refreshHistory(pin)
-                            navController.navigate("encrypt_history")
+                            navController.navigate("encrypt_history") {
+                                popUpTo("encrypt_pin_handler") { inclusive = true } // clears entire backstack
+                                launchSingleTop = true
+                            }
                             Toast.makeText(context, "History updated!", Toast.LENGTH_SHORT).show()
                             viewModel.prepareItemToUpdate(null)
                         }
