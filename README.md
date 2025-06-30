@@ -9,12 +9,15 @@
     <img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png" alt="Get it on F-Droid" height="70">
   </a>
   &nbsp;
-  <a href="https://apt.izzysoft.de/fdroid/index/apk/com.personx.cryptx">
+  <a href="https://apt.izzysoft.de/fdroid/index/apk/com.personx.cryptx?repo=main">
     <img src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroid.png?ref_type=heads" alt="Get it on IzzyOnDroid" height="70">
   </a>
   &nbsp;
   <a href="https://github.com/PersonX-46/CryptX/releases/latest">
     <img src="https://raw.githubusercontent.com/Kunzisoft/Github-badge/main/get-it-on-github.png" alt="Get it on GitHub" height="70">
+  </a>
+  <a href="https://www.openapk.net/cryptx/com.personx.cryptx/">
+    <img src="https://www.openapk.net/images/openapk-badge.png" alt="Get it on GitHub" height="70">
   </a>
 </p>
 
