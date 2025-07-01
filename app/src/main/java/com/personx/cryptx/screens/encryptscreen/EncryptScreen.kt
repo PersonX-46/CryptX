@@ -10,6 +10,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.gestures.snapping.SnapPosition
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -48,6 +49,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -89,6 +91,8 @@ fun EncryptMainScreen(
         WindowWidthSizeClass.Medium -> 600.dp
         else -> 800.dp
     }
+    val cardPadding = if (isCompact) 8.dp else 12.dp
+    val spacing = if (isCompact) 8.dp else 12.dp
 
     LaunchedEffect(state.selectedAlgorithm) {
         viewModel.updateAlgorithmAndModeLists(context)
@@ -136,14 +140,21 @@ fun EncryptMainScreen(
                     ) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceBetween,
+                            horizontalArrangement = Arrangement.SpaceEvenly,
                             modifier = Modifier.fillMaxWidth()
                                 .border(0.5.dp, cyberpunkGreen, shape = RoundedCornerShape(15.dp))
                                 .padding(horizontal = 5.dp),
                         ) {
+                            Icon(
+                                imageVector = Icons.Default.Lock,
+                                contentDescription = "History",
+                                tint = cyberpunkGreen,
+                                modifier = Modifier.size(if (isCompact) 24.dp else 28.dp)
+                            )
                             Text(
                                 modifier = Modifier.padding(start = 3.dp),
                                 text = "Encryption Algorithm",
+                                textAlign = TextAlign.Center,
                                 style = MaterialTheme.typography.labelMedium.copy(
                                     color = cyberpunkGreen.copy(alpha = 0.8f),
                                     fontFamily = FontFamily.Monospace,
@@ -309,6 +320,7 @@ fun EncryptMainScreen(
 
                     // Action Button
                     CyberpunkButton(
+                        modifier = Modifier.fillMaxWidth(),
                         onClick = { viewModel.encrypt(context) },
                         icon = Icons.Default.Lock,
                         text = "ENCRYPT",
@@ -326,20 +338,21 @@ fun EncryptMainScreen(
                                 modifier = Modifier.fillMaxWidth(),
                                 colors = CardDefaults.cardColors(
                                     containerColor = MaterialTheme.colorScheme.onSurface
-                                        .copy(0.05f)
+                                        .copy(0.07f)
                                 )
                             ) {
-                                Column(modifier = Modifier.padding(12.dp)) {
+                                Column(modifier = Modifier.padding(cardPadding)) {
                                     Text(
-                                        text = "Encrypted Output",
+                                        text = "Decrypted Output",
                                         style = MaterialTheme.typography.labelMedium.copy(
                                             color = cyberpunkGreen.copy(alpha = 0.8f),
+                                            fontFamily = FontFamily.Monospace,
                                             fontSize = if (isCompact) MaterialTheme.typography.labelLarge.fontSize
                                             else MaterialTheme.typography.titleSmall.fontSize
                                         )
                                     )
 
-                                    Spacer(modifier = Modifier.height(8.dp))
+                                    Spacer(modifier = Modifier.height(spacing))
 
                                     CyberpunkOutputSection(
                                         output = state.outputText,
@@ -356,12 +369,11 @@ fun EncryptMainScreen(
                                         onSave = {
                                             if (state.pinPurpose != "update") {
                                                 viewModel.updatePinPurpose("save")
-                                                navController.navigate("encrypt_pin_handler")
+                                                navController.navigate("decrypt_pin_handler")
                                             } else {
-                                                navController.navigate("encrypt_pin_handler")
+                                                navController.navigate("decrypt_pin_handler")
                                             }
                                         },
-                                        isCompact = isCompact
                                     )
                                 }
                             }

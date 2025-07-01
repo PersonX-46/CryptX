@@ -7,6 +7,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,6 +20,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.History
@@ -43,6 +45,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringArrayResource
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -113,20 +116,32 @@ fun DecryptionScreen(
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.onSurface.copy(0.07f)
+                        containerColor = Color.Transparent
                     ),
                     elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                 ) {
-                    Column(modifier = Modifier.padding(cardPadding)) {
+                    Column(
+                        modifier = Modifier
+                            .padding(12.dp)
+                    ) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceBetween,
+                            horizontalArrangement = Arrangement.SpaceAround,
                             modifier = Modifier.fillMaxWidth()
+                                .border(0.5.dp, cyberpunkGreen, shape = RoundedCornerShape(15.dp))
+                                .padding(horizontal = 5.dp),
                         ) {
+                            Icon(
+                                imageVector = Icons.Filled.LockOpen,
+                                contentDescription = "History",
+                                tint = cyberpunkGreen,
+                                modifier = Modifier.size(if (isCompact) 24.dp else 28.dp)
+                            )
                             Text(
                                 text = "Decryption Algorithm",
                                 style = MaterialTheme.typography.labelMedium.copy(
                                     color = cyberpunkGreen.copy(alpha = 0.8f),
+                                    fontFamily = FontFamily.Monospace,
                                     fontSize = if (isCompact) MaterialTheme.typography.labelLarge.fontSize
                                     else MaterialTheme.typography.titleSmall.fontSize
                                 )
@@ -177,7 +192,7 @@ fun DecryptionScreen(
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.onSurface.copy(0.07f)
+                            containerColor = Color.Transparent
                         )
                     ) {
                         Column(modifier = Modifier.padding(cardPadding)) {
@@ -205,7 +220,7 @@ fun DecryptionScreen(
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.onSurface.copy(0.07f)
+                            containerColor = Color.Transparent
                         )
                     ) {
                         Column(modifier = Modifier.padding(cardPadding)) {
@@ -298,6 +313,7 @@ fun DecryptionScreen(
                                         text = "Decrypted Output",
                                         style = MaterialTheme.typography.labelMedium.copy(
                                             color = cyberpunkGreen.copy(alpha = 0.8f),
+                                            fontFamily = FontFamily.Monospace,
                                             fontSize = if (isCompact) MaterialTheme.typography.labelLarge.fontSize
                                             else MaterialTheme.typography.titleSmall.fontSize
                                         )
