@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.Log
 import androidx.room.Room
 import com.personx.cryptx.crypto.PinCryptoManager
+import com.personx.cryptx.crypto.SessionKeyManager
 import net.zetetic.database.sqlcipher.SupportOpenHelperFactory
 
 object DatabaseProvider {
@@ -25,7 +26,7 @@ object DatabaseProvider {
      * @return An instance of EncryptedDatabase or null if the PIN is invalid.
      */
 
-    fun getDatabase(context: Context, pin: String): EncryptedDatabase? {
+    fun getDatabase(context: Context): EncryptedDatabase? {
 
         // Check if the database instance already exists
         synchronized(this) {
@@ -33,19 +34,17 @@ object DatabaseProvider {
             // If the instance is already created, return it
             if (INSTANCE != null) return INSTANCE
 
-            // If the instance is null, we need to create it
-            val pinCryptoManager = PinCryptoManager(context)
-            val keyBytes = pinCryptoManager.getRawKeyIfPinValid(pin)
-            val keyHex = keyBytes?.joinToString("") { "%02x".format(it) }
-
-            if (keyBytes == null) {
-                return null // Invalid PIN, cannot access database
+            val sessionKey = SessionKeyManager.getSessionKey()
+            if (sessionKey == null) {
+                Log.e("DatabaseProvider", "Session key is null, cannot access database")
+                return null
             }
+            val keyHex = sessionKey.joinToString("") { "%02x".format(it) }
 
             // Load the SQLCipher library
             System.loadLibrary("sqlcipher")
             // Create a SupportFactory with the key bytes
-            val factory = SupportOpenHelperFactory(keyHex?.toByteArray())
+            val factory = SupportOpenHelperFactory(keyHex.toByteArray())
             // Build the database instance using Room
             INSTANCE = Room.databaseBuilder(
                 context.applicationContext,
