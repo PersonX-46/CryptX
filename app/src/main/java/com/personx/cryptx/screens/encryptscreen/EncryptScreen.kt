@@ -61,8 +61,10 @@ import com.personx.cryptx.components.CyberpunkInputBox
 import com.personx.cryptx.components.CyberpunkKeySection
 import com.personx.cryptx.components.CyberpunkOutputSection
 import com.personx.cryptx.components.Header
+import com.personx.cryptx.crypto.SessionKeyManager
 import com.personx.cryptx.ui.theme.CryptXTheme
 import com.personx.cryptx.viewmodel.encryption.EncryptionViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
@@ -163,10 +165,19 @@ fun EncryptMainScreen(
                             )
                             IconButton(
                                 onClick = {
-                                    viewModel.updatePinPurpose("history")
-                                    navController.navigate("encrypt_pin_handler") {
-                                        popUpTo("encrypt") { inclusive = true } // clears entire backstack
-                                        launchSingleTop = true
+                                    val sessionKey = SessionKeyManager.getSessionKey()
+                                    if (sessionKey == null) {
+                                        viewModel.updatePinPurpose("history")
+                                        navController.navigate("encrypt_pin_handler") {
+                                            popUpTo("encrypt") { inclusive = true } // clears entire backstack
+                                            launchSingleTop = true
+                                        }
+                                    } else {
+                                        viewModel.refreshHistory()
+                                        navController.navigate("encrypt_history") {
+                                            popUpTo("encrypt") { inclusive = true } // clears entire backstack
+                                            launchSingleTop = true
+                                        }
                                     }
                                 }
                             ) {
@@ -366,11 +377,72 @@ fun EncryptMainScreen(
                                             ).show()
                                         },
                                         onSave = {
-                                            if (state.pinPurpose != "update") {
-                                                viewModel.updatePinPurpose("save")
-                                                navController.navigate("encrypt_pin_handler")
-                                            } else {
-                                                navController.navigate("encrypt_pin_handler")
+                                            val sessionKey = SessionKeyManager.getSessionKey()
+                                            if (sessionKey == null) {
+                                                if (state.pinPurpose != "update") {
+                                                    viewModel.updatePinPurpose("save")
+                                                    navController.navigate("encrypt_pin_handler")
+                                                } else {
+                                                    navController.navigate("encrypt_pin_handler")
+                                                }
+                                            }else {
+                                                if (state.pinPurpose != "update") {
+                                                    scope.launch {
+                                                        try {
+                                                            val success = viewModel.insertEncryptionHistory(
+                                                                id = state.id,
+                                                                algorithm = state.selectedAlgorithm,
+                                                                transformation = state.selectedMode,
+                                                                keySize = state.selectedKeySize,
+                                                                key = state.keyText,
+                                                                iv = if (state.enableIV) state.ivText else null,
+                                                                secretText = state.inputText,
+                                                                isBase64 = state.isBase64Enabled,
+                                                                encryptedOutput = state.outputText
+                                                            )
+                                                            if (success) {
+                                                                viewModel.refreshHistory()
+                                                                delay(200)
+                                                                viewModel.clearOutput()
+                                                                Toast.makeText(context, "Encryption history saved!", Toast.LENGTH_SHORT).show()
+                                                                navController.navigate("encrypt") {
+                                                                    popUpTo(0) { inclusive = true } // clears entire backstack
+                                                                    launchSingleTop = true
+                                                                }
+
+                                                            } else {
+                                                                Toast.makeText(context, "Failed to save history.", Toast.LENGTH_SHORT).show()
+                                                            }
+                                                        } catch (e: Exception) {
+                                                            Toast.makeText(context, "Error saving history: ${e.message}", Toast.LENGTH_SHORT).show()
+                                                        }
+                                                    }
+                                                } else {
+                                                    scope.launch {
+                                                        val itemToUpdate = viewModel.createEncryptedHistory(
+                                                            id = state.id,
+                                                            algorithm = state.selectedAlgorithm,
+                                                            transformation = state.selectedMode,
+                                                            keySize = state.selectedKeySize,
+                                                            key = state.keyText,
+                                                            iv = state.ivText,
+                                                            secretText = state.inputText,
+                                                            isBase64 = state.isBase64Enabled,
+                                                            encryptedOutput = state.outputText
+                                                        )
+                                                        viewModel.prepareItemToUpdate(itemToUpdate)
+                                                        viewModel.itemToUpdate?.let { item ->
+                                                            viewModel.updateEncryptionHistory( item)
+                                                            viewModel.refreshHistory()
+                                                            navController.navigate("encrypt_history") {
+                                                                popUpTo("encrypt_pin_handler") { inclusive = true } // clears entire backstack
+                                                                launchSingleTop = true
+                                                            }
+                                                            Toast.makeText(context, "History updated!", Toast.LENGTH_SHORT).show()
+                                                            viewModel.prepareItemToUpdate(null)
+                                                        }
+                                                    }
+                                                }
                                             }
                                         },
                                     )
