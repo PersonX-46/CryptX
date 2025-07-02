@@ -172,7 +172,7 @@ fun AppContent(windowSizeClass: WindowSizeClass) {
         if (showBottomNavBar) {
             CyberpunkNavBar(
                 items = navItems,
-                selectedLabel = currentRoute ?: "home",
+                selectedLabel = currentRoute,
                 windowSizeClass = windowSizeClass,
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
