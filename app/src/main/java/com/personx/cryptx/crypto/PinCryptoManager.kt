@@ -33,7 +33,7 @@ class PinCryptoManager(private val context: Context) {
     fun setupPin(pin: String) {
         val salt = generateSalt()
         val key = deriveKeyFromPin(pin, salt)
-        val secret = authSecret.toByteArray()
+        val secret = SecureRandom().generateSeed(16)
         val (encryptedSecret, iv) = encryptSecret(secret, key)
 
         val prefs = context.getSharedPreferences("secure_prefs", Context.MODE_PRIVATE)
@@ -41,7 +41,12 @@ class PinCryptoManager(private val context: Context) {
             putString("salt", Base64.encodeToString(salt, Base64.NO_WRAP))
             putString("iv", Base64.encodeToString(iv, Base64.NO_WRAP))
             putString("secret", Base64.encodeToString(encryptedSecret, Base64.NO_WRAP))
+            putString(authSecret, Base64.encodeToString(secret, Base64.NO_WRAP))
         }
+
+        key.encoded.fill(0) // Clear the key bytes from memory
+        secret.fill(0)
+        salt.fill(0)
     }
 
     /**
@@ -55,18 +60,23 @@ class PinCryptoManager(private val context: Context) {
         val prefs = context.getSharedPreferences("secure_prefs", Context.MODE_PRIVATE)
         val saltString = prefs.getString("salt", null) ?: return false
         val ivString = prefs.getString("iv", null) ?: return false
-        val secretString = prefs.getString("secret", null) ?: return false
+        val encryptedSecretString = prefs.getString("secret", null) ?: return false
+        val storedSecretString = prefs.getString(authSecret, null) ?: return false
 
         val salt = Base64.decode(saltString, Base64.NO_WRAP)
         val iv = Base64.decode(ivString, Base64.NO_WRAP)
-        val encryptedSecret = Base64.decode(secretString, Base64.NO_WRAP)
-
+        val encryptedSecret = Base64.decode(encryptedSecretString, Base64.NO_WRAP)
+        val storedSecret = Base64.decode(storedSecretString, Base64.NO_WRAP)
         val key = deriveKeyFromPin(pin, salt)
 
         return try {
-            val decryptedSecret = decryptSecret(encryptedSecret, iv, key)
-            return decryptedSecret == authSecret // Check against a known value
+            val decryptedSecret = decryptSecret(encryptedSecret, iv, key)?.toByteArray()
+            val isValid = decryptedSecret != null && decryptedSecret.contentEquals(storedSecret)
+            key.encoded.fill(0)
+            decryptedSecret?.fill(0)
+            isValid
         } catch (e: Exception) {
+            key.encoded.fill(0)
             false
         }
     }
@@ -83,19 +93,27 @@ class PinCryptoManager(private val context: Context) {
         val prefs = context.getSharedPreferences("secure_prefs", Context.MODE_PRIVATE)
         val saltString = prefs.getString("salt", null) ?: return null
         val ivString = prefs.getString("iv", null) ?: return null
-        val secretString = prefs.getString("secret", null) ?: return null
+        val encryptedSecretString = prefs.getString("secret", null) ?: return null
+        val storedSecretString = prefs.getString(authSecret, null) ?: return null
 
         val salt = Base64.decode(saltString, Base64.NO_WRAP)
         val iv = Base64.decode(ivString, Base64.NO_WRAP)
-        val encryptedSecret = Base64.decode(secretString, Base64.NO_WRAP)
-
+        val encryptedSecret = Base64.decode(encryptedSecretString, Base64.NO_WRAP)
+        val storedSecret = Base64.decode(storedSecretString, Base64.NO_WRAP)
         val key = deriveKeyFromPin(pin, salt)
 
         return try {
-            val decryptedSecret = decryptSecret(encryptedSecret, iv, key)
-            if (decryptedSecret == authSecret) {
-                key.encoded // return raw key bytes
+            val decryptedSecret = decryptSecret(encryptedSecret, iv, key)?.toByteArray()
+            val isValid = decryptedSecret != null && decryptedSecret.contentEquals(storedSecret)
+            if (isValid) {
+                val keyBytes = key.encoded.copyOf()
+                SessionKeyManager.setSessionKey(keyBytes)
+                key.encoded.fill(0)
+                decryptedSecret.fill(0)
+                keyBytes
             } else {
+                key.encoded.fill(0)
+                decryptedSecret?.fill(0)
                 null
             }
         } catch (e: Exception) {
@@ -115,9 +133,12 @@ class PinCryptoManager(private val context: Context) {
      */
 
     fun changePinAndRekeyDatabase(oldPin: String, newPin: String): Boolean {
-        // 1. Validate old PIN
+        // 1. Validate old PIN and get the current random secret
+        val prefs = context.getSharedPreferences("secure_prefs", Context.MODE_PRIVATE)
         val oldKeyBytes = getRawKeyIfPinValid(oldPin) ?: return false
         val oldKeyHex = oldKeyBytes.joinToString("") { "%02x".format(it) }
+        val storedSecretString = prefs.getString(authSecret, null) ?: return false
+        val storedSecret = Base64.decode(storedSecretString, Base64.NO_WRAP)
 
         // 2. Derive new key
         val newSalt = generateSalt()
@@ -126,7 +147,7 @@ class PinCryptoManager(private val context: Context) {
         val newKeyHex = newKeyBytes.joinToString("") { "%02x".format(it) }
         return try {
             System.loadLibrary("sqlcipher")
-            // 3. Rekey using hex format for consistency
+            // 3. Rekey database
             SQLiteDatabase.openOrCreateDatabase(
                 context.getDatabasePath("encrypted_history.db").absolutePath,
                 oldKeyHex,  // Using hex format here
@@ -136,7 +157,7 @@ class PinCryptoManager(private val context: Context) {
                 db.rawQuery("PRAGMA rekey = '$newKeyHex'", null).close()
             }
 
-            // 4. Verify with new key (using hex)
+            // 4. Verify with new key
             SQLiteDatabase.openOrCreateDatabase(
                 context.getDatabasePath("encrypted_history.db").absolutePath,
                 newKeyHex,
@@ -146,18 +167,22 @@ class PinCryptoManager(private val context: Context) {
                 db.rawQuery("SELECT 1", null).close()
             }
 
-            // 5. Update stored credentials
-            val secret = authSecret.toByteArray()
-            val (encryptedSecret, iv) = encryptSecret(secret, newKey)
-
-            context.getSharedPreferences("secure_prefs", Context.MODE_PRIVATE).edit {
+            // 5. Re-encrypt and store the same random secret with the new key
+            val (encryptedSecret, iv) = encryptSecret(storedSecret, newKey)
+            prefs.edit {
                 putString("salt", Base64.encodeToString(newSalt, Base64.NO_WRAP))
                 putString("iv", Base64.encodeToString(iv, Base64.NO_WRAP))
                 putString("secret", Base64.encodeToString(encryptedSecret, Base64.NO_WRAP))
+                putString(authSecret, Base64.encodeToString(storedSecret, Base64.NO_WRAP)) // Store the same secret
             }
 
             // 6. Refresh database instance
             DatabaseProvider.clearDatabaseInstance()
+
+            // 7. Clear sensitive data from memory
+            oldKeyBytes.fill(0)
+            newKeyBytes.fill(0)
+            storedSecret.fill(0)
             true
         } catch (e: Exception) {
             Log.e("PinCryptoManager", "PIN change failed", e)
