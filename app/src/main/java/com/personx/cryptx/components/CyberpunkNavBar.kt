@@ -57,8 +57,8 @@ fun CyberpunkNavBar(
     val buttonSize = if (isCompact) 36.dp else 40.dp
     val borderWidth = if (isCompact) 0.8.dp else 1.dp
 
-    val selectedItem = remember { mutableStateOf(items.find { it.label.equals(selectedLabel, ignoreCase = true) } ?: items[0]) }
-
+    val selectedItem = items.find { it.label.equals(selectedLabel, ignoreCase = true)}
+        ?: items[0]
     Row(
         modifier = modifier
             .height(height)
@@ -76,7 +76,7 @@ fun CyberpunkNavBar(
         horizontalArrangement = Arrangement.SpaceAround
     ) {
         items.forEach { item ->
-            val isSelected = selectedItem.value == item
+            val isSelected = item == selectedItem
             val tint by animateColorAsState(
                 targetValue = if (isSelected) cyberpunkGreen else cyberpunkGreen.copy(alpha = 0.5f),
                 animationSpec = tween(durationMillis = 200),
@@ -87,7 +87,6 @@ fun CyberpunkNavBar(
                 modifier = Modifier
                     .clip(CircleShape)
                     .clickable {
-                        selectedItem.value = item
                         item.onclick()
                     }
                     .animateContentSize()
@@ -98,7 +97,6 @@ fun CyberpunkNavBar(
                 ) {
                     IconButton(
                         onClick = {
-                            selectedItem.value = item
                             item.onclick()
                         },
                         modifier = Modifier.size(buttonSize)
