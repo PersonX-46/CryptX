@@ -3,6 +3,7 @@ package com.personx.cryptx
 import android.annotation.SuppressLint
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -29,6 +30,7 @@ import com.personx.cryptx.viewmodel.steganography.SteganographyViewModelReposito
 @SuppressLint("ViewModelConstructorInComposable")
 @Composable
 fun AppNavGraph(
+    modifier: Modifier,
     navController: NavHostController,
     startDestination: String,
     windowSizeClass: WindowSizeClass
@@ -42,7 +44,7 @@ fun AppNavGraph(
     val decryptViewModel = DecryptionViewModel(
         repository = DecryptionHistoryRepository(context)
     )
-    NavHost(navController = navController, startDestination = startDestination) {
+    NavHost(modifier = modifier, navController = navController, startDestination = startDestination) {
         composable("home") {
             HomeScreen(
                 HomeScreenViewModel(

@@ -7,9 +7,13 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Code
 import androidx.compose.material.icons.filled.Home
@@ -25,13 +29,16 @@ import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.personx.cryptx.components.CyberpunkNavBar
 import com.personx.cryptx.crypto.PinCryptoManager
@@ -53,8 +60,9 @@ class MainActivity : ComponentActivity() {
                 Surface(
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(MaterialTheme.colorScheme.onPrimary),
-                    color = MaterialTheme.colorScheme.background
+                        .background(MaterialTheme.colorScheme.onPrimary)
+                        .padding(WindowInsets.navigationBars.asPaddingValues()),
+                color = MaterialTheme.colorScheme.background
                 ) {
                     // Changed to background color for better edge-to-edge experience
                     val prefs = getSharedPreferences("secure_prefs", MODE_PRIVATE)
@@ -102,7 +110,6 @@ class MainActivity : ComponentActivity() {
 fun AppContent(windowSizeClass: WindowSizeClass) {
     val screen = remember { mutableStateOf("home") }
     val navController = rememberNavController()
-    val selectedLabel = remember { mutableStateOf(screen.value) }
 
     LaunchedEffect(screen.value) {
         navController.navigate(screen.value) {
@@ -112,72 +119,72 @@ fun AppContent(windowSizeClass: WindowSizeClass) {
     }
 
     val navItems = listOf(
-        NavBarItem(Icons.Filled.Home, "Home") {
+        NavBarItem(Icons.Filled.Home, "home") {
             navController.navigate("home") {
                 launchSingleTop = true
                 restoreState = true
             }
-            selectedLabel.value = "home"
         },
-        NavBarItem(Icons.Filled.Lock, "Encrypt") {
+        NavBarItem(Icons.Filled.Lock, "encrypt") {
             navController.navigate("encrypt") {
                 popUpTo(0) { inclusive = true }
             }
-            selectedLabel.value = "encrypt"
         },
-        NavBarItem(Icons.Filled.LockOpen, "Decrypt") {
+        NavBarItem(Icons.Filled.LockOpen, "decrypt") {
             navController.navigate("decrypt") {
                 popUpTo(0) { inclusive = true }
             }
-            selectedLabel.value = "decrypt"
         },
-        NavBarItem(Icons.Filled.Code, "Hash") {
+        NavBarItem(Icons.Filled.Code, "hashGenerator") {
             navController.navigate("hashGenerator") {
                 popUpTo(0) { inclusive = true }
             }
-            selectedLabel.value = "hashGenerator"
         },
-        NavBarItem(Icons.Filled.Search, "Detect") {
+        NavBarItem(Icons.Filled.Search, "hashDetector") {
             navController.navigate("hashDetector") {
                 popUpTo(0) { inclusive = true }
             }
-            selectedLabel.value = "hashDetector"
         },
-        NavBarItem(Icons.Filled.VisibilityOff, "Stego") {
+        NavBarItem(Icons.Filled.VisibilityOff, "steganography") {
             navController.navigate("steganography") {
                 popUpTo(0) { inclusive = true }
             }
-            selectedLabel.value = "steganography"
         }
     )
 
-    Box(
-        modifier = Modifier.fillMaxSize()
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 80.dp)
-        ) {
-            CompositionLocalProvider(LocalNavController provides navController) {
-                AppNavGraph(
-                    navController = navController,
-                    windowSizeClass = windowSizeClass,
-                    startDestination = screen.value
-                )
-            }
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
+    val showBottomNavBar = currentRoute?.contains("pin")?.not() ?: false
+
+    val bottomNavBarHeight = 80.dp
+
+    Box(modifier = Modifier.fillMaxSize()) {
+
+        // Main AppNavGraph with bottom padding
+        CompositionLocalProvider(LocalNavController provides navController) {
+            AppNavGraph(
+                navController = navController,
+                windowSizeClass = windowSizeClass,
+                startDestination = screen.value,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(bottom = if (showBottomNavBar) bottomNavBarHeight else 0.dp)
+            )
         }
 
-        CyberpunkNavBar(
-            items = navItems,
-            selectedLabel = selectedLabel.value,
-            windowSizeClass = windowSizeClass,
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .padding(bottom = 16.dp)
-        )
+        // Cyberpunk navbar floating at bottom
+        if (showBottomNavBar) {
+            CyberpunkNavBar(
+                items = navItems,
+                selectedLabel = currentRoute ?: "home",
+                windowSizeClass = windowSizeClass,
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+            )
+        }
     }
 }
+
 
 
 @Preview(showBackground = true)
