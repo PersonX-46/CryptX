@@ -30,7 +30,6 @@ import com.personx.cryptx.viewmodel.steganography.SteganographyViewModelReposito
 @SuppressLint("ViewModelConstructorInComposable")
 @Composable
 fun AppNavGraph(
-    modifier: Modifier,
     navController: NavHostController,
     startDestination: String,
     windowSizeClass: WindowSizeClass
@@ -44,7 +43,7 @@ fun AppNavGraph(
     val decryptViewModel = DecryptionViewModel(
         repository = DecryptionHistoryRepository(context)
     )
-    NavHost(modifier = modifier, navController = navController, startDestination = startDestination) {
+    NavHost(navController = navController, startDestination = startDestination) {
         composable("home") {
             HomeScreen(
                 HomeScreenViewModel(

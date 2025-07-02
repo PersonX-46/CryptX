@@ -1,5 +1,4 @@
 [versions]
-accompanistBlur = "0.32.0"
 agp = "8.11.0"
 coilCompose = "2.7.0"
 kotlin = "2.2.0"
@@ -45,6 +44,7 @@ androidx-material3-window-size-class1-android = { group = "androidx.compose.mate
 sqlcipher-android = { module = "net.zetetic:sqlcipher-android", version.ref = "sqlcipherAndroid" }
 
 [plugins]
+ksp = { id = "com.google.devtools.ksp", version = "2.2.0-2.0.2" }
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }

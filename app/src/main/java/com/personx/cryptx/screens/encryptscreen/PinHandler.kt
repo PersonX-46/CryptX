@@ -22,6 +22,7 @@ fun EncryptPinHandler(
     val state = viewModel.state.value
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+    Log.d("EncryptPinHandlerPinPurpose", state.pinPurpose)
     PinLoginScreen(
         pinCryptoManager = PinCryptoManager(LocalContext.current),
         onLoginSuccess = { pin: String ->
@@ -29,6 +30,8 @@ fun EncryptPinHandler(
             when (state.pinPurpose) {
 
                 "save" -> {
+                    Log.d("EncryptPinHandlerSave",state.pinPurpose)
+                    Log.d("EncryptPinHandler", "Saving encryption history")
                     scope.launch {
                         try {
                             val success = viewModel.insertEncryptionHistory(
@@ -64,12 +67,16 @@ fun EncryptPinHandler(
                 }
 
                 "history" -> {
+                    Log.d("EncryptPinHandler", state.pinPurpose)
                     scope.launch {
+                        Log.d("EncryptPinHandler", "Refreshing history")
                         viewModel.refreshHistory(pin)
+                        Log.d("EncryptPinHandler", "Navigating to history")
                         navController.navigate("encrypt_history") {
                             popUpTo("encrypt_pin_handler") { inclusive = true } // clears entire backstack
                             launchSingleTop = true
                         }
+                        Log.d("EncryptPinHandler", "History refreshed and navigation complete")
                     }
                 }
 

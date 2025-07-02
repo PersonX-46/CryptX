@@ -4,8 +4,7 @@ import android.content.Context
 import android.util.Log
 import androidx.room.Room
 import com.personx.cryptx.crypto.PinCryptoManager
-import net.sqlcipher.database.SQLiteDatabase
-import net.sqlcipher.database.SupportFactory
+import net.zetetic.database.sqlcipher.SupportOpenHelperFactory
 
 object DatabaseProvider {
 
@@ -44,10 +43,9 @@ object DatabaseProvider {
             }
 
             // Load the SQLCipher library
-            SQLiteDatabase.loadLibs(context)
-
+            System.loadLibrary("sqlcipher")
             // Create a SupportFactory with the key bytes
-            val factory = SupportFactory(keyHex?.toByteArray())
+            val factory = SupportOpenHelperFactory(keyHex?.toByteArray())
             // Build the database instance using Room
             INSTANCE = Room.databaseBuilder(
                 context.applicationContext,

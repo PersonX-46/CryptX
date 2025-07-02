@@ -5,7 +5,7 @@ import android.util.Base64
 import android.util.Log
 import androidx.core.content.edit
 import com.personx.cryptx.database.encryption.DatabaseProvider
-import net.sqlcipher.database.SQLiteDatabase
+import net.zetetic.database.sqlcipher.SQLiteDatabase
 import java.security.SecureRandom
 import javax.crypto.Cipher
 import javax.crypto.SecretKey
@@ -125,10 +125,8 @@ class PinCryptoManager(private val context: Context) {
         val newKey = deriveKeyFromPin(newPin, newSalt)
         val newKeyBytes = newKey.encoded
         val newKeyHex = newKeyBytes.joinToString("") { "%02x".format(it) }
-
         return try {
-            SQLiteDatabase.loadLibs(context)
-
+            System.loadLibrary("sqlcipher")
             // 3. Rekey using hex format for consistency
             SQLiteDatabase.openOrCreateDatabase(
                 context.getDatabasePath("encrypted_history.db").absolutePath,

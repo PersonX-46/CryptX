@@ -369,9 +369,9 @@ fun EncryptMainScreen(
                                         onSave = {
                                             if (state.pinPurpose != "update") {
                                                 viewModel.updatePinPurpose("save")
-                                                navController.navigate("decrypt_pin_handler")
+                                                navController.navigate("encrypt_pin_handler")
                                             } else {
-                                                navController.navigate("decrypt_pin_handler")
+                                                navController.navigate("encrypt_pin_handler")
                                             }
                                         },
                                     )

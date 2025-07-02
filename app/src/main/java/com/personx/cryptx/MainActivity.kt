@@ -6,6 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -138,12 +139,10 @@ fun AppContent(windowSizeClass: WindowSizeClass) {
         },
         NavBarItem(Icons.Filled.Search, "hashDetector") {
             navController.navigate("hashDetector") {
-                popUpTo(0) { inclusive = true }
             }
         },
         NavBarItem(Icons.Filled.VisibilityOff, "steganography") {
             navController.navigate("steganography") {
-                popUpTo(0) { inclusive = true }
             }
         }
     )
@@ -157,16 +156,18 @@ fun AppContent(windowSizeClass: WindowSizeClass) {
     Box(modifier = Modifier.fillMaxSize()) {
 
         // Main AppNavGraph with bottom padding
-        CompositionLocalProvider(LocalNavController provides navController) {
-            AppNavGraph(
-                navController = navController,
-                windowSizeClass = windowSizeClass,
-                startDestination = screen.value,
-                modifier = Modifier
+        Column(modifier = Modifier
                     .fillMaxSize()
-                    .padding(bottom = if (showBottomNavBar) bottomNavBarHeight else 0.dp)
-            )
+                    .padding(bottom = if (showBottomNavBar) bottomNavBarHeight else 0.dp)) {
+            CompositionLocalProvider(LocalNavController provides navController) {
+                AppNavGraph(
+                    navController = navController,
+                    windowSizeClass = windowSizeClass,
+                    startDestination = screen.value,
+                )
+            }
         }
+
 
         // Cyberpunk navbar floating at bottom
         if (showBottomNavBar) {
