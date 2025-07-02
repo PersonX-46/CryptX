@@ -52,7 +52,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             // Calculate window size class for responsive design
             val windowSizeClass = calculateWindowSizeClass(this)
-
+            val context = LocalContext.current
             CryptXTheme(darkTheme = true) {
                 Surface(
                     modifier = Modifier
@@ -90,6 +90,7 @@ class MainActivity : ComponentActivity() {
                                 pinCryptoManager = PinCryptoManager(LocalContext.current),
                                 windowSizeClass = windowSizeClass,
                                 onLoginSuccess = { pin ->
+                                    PinCryptoManager(context).getRawKeyIfPinValid(pin)
                                     currentScreen.value = "home"
                                 }
                             )
