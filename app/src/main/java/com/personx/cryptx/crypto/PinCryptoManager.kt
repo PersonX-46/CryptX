@@ -65,7 +65,6 @@ class PinCryptoManager(private val context: Context) {
 
         return try {
             val decryptedSecret = decryptSecret(encryptedSecret, iv, key)
-            Log.d("decryptedSecret", decryptedSecret.toString())
             return decryptedSecret == authSecret // Check against a known value
         } catch (e: Exception) {
             false
