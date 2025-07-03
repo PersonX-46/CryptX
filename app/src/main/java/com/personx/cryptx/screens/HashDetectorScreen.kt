@@ -49,7 +49,7 @@ fun HashDetector(
     Column(
     ) {
         Header(
-            "HASH GENERATOR",
+            "HASH DETECTOR",
             windowSizeClass = windowSizeClass
         )
         Column(
