@@ -386,7 +386,7 @@ fun EncryptMainScreen(
                                                     navController.navigate("encrypt_pin_handler")
                                                 }
                                             }else {
-                                                if (state.pinPurpose != "update") {
+                                                if (state.pinPurpose == "save") {
                                                     scope.launch {
                                                         try {
                                                             val success = viewModel.insertEncryptionHistory(
