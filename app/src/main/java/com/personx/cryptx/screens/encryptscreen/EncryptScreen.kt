@@ -386,7 +386,8 @@ fun EncryptMainScreen(
                                                     navController.navigate("encrypt_pin_handler")
                                                 }
                                             }else {
-                                                if (state.pinPurpose == "save") {
+                                                if (state.pinPurpose != "update") {
+                                                    viewModel.updatePinPurpose("save")
                                                     scope.launch {
                                                         try {
                                                             val success = viewModel.insertEncryptionHistory(
@@ -413,8 +414,10 @@ fun EncryptMainScreen(
                                                             } else {
                                                                 Toast.makeText(context, "Failed to save history.", Toast.LENGTH_SHORT).show()
                                                             }
+                                                            viewModel.updatePinPurpose("")
                                                         } catch (e: Exception) {
                                                             Toast.makeText(context, "Error saving history: ${e.message}", Toast.LENGTH_SHORT).show()
+                                                            viewModel.updatePinPurpose("")
                                                         }
                                                     }
                                                 } else {
@@ -434,13 +437,10 @@ fun EncryptMainScreen(
                                                         viewModel.itemToUpdate?.let { item ->
                                                             viewModel.updateEncryptionHistory( item)
                                                             viewModel.refreshHistory()
-                                                            navController.navigate("encrypt_history") {
-                                                                popUpTo("encrypt_pin_handler") { inclusive = true } // clears entire backstack
-                                                                launchSingleTop = true
-                                                            }
                                                             Toast.makeText(context, "History updated!", Toast.LENGTH_SHORT).show()
                                                             viewModel.prepareItemToUpdate(null)
                                                         }
+                                                        viewModel.updatePinPurpose("")
                                                     }
                                                 }
                                             }
