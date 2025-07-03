@@ -1,18 +1,29 @@
 package com.personx.cryptx.crypto
 
+import javax.crypto.SecretKey
+
 object SessionKeyManager {
-    private var sessionKey: ByteArray? = null
+    private var sessionKey: SecretKey? = null
 
-    fun setSessionKey(key: ByteArray) {
-        sessionKey = key.copyOf()
+    @Synchronized
+    fun setSessionKey(key: SecretKey) {
+        sessionKey?.encoded?.fill(0)
+        sessionKey = key
     }
 
-    fun getSessionKey(): ByteArray? {
-        return sessionKey?.copyOf()
+    @Synchronized
+    fun getSessionKey(): SecretKey? {
+        return sessionKey
     }
 
+    @Synchronized
     fun clearSessionKey() {
-        sessionKey?.fill(0) // Clear the key bytes from memory
+        sessionKey?.encoded?.fill(0) // Clear the key bytes from memory
         sessionKey = null
+    }
+
+    @Synchronized
+    fun isSessionActive(): Boolean {
+        return sessionKey != null
     }
 }
