@@ -65,7 +65,7 @@ class MainActivity : ComponentActivity() {
                     val prefs = getSharedPreferences("secure_prefs", MODE_PRIVATE)
                     val saltString = prefs.getString("salt", null)
                     val ivString = prefs.getString("iv", null)
-                    val secretString = prefs.getString("secret", null)
+                    val secretString = prefs.getString("encryptedSessionKey", null)
 
                     // Track which screen to show
                     val currentScreen = remember { mutableStateOf(
