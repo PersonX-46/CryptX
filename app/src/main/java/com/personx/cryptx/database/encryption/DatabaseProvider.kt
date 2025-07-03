@@ -39,8 +39,7 @@ object DatabaseProvider {
                 Log.e("DatabaseProvider", "Session key is null, cannot access database")
                 return null
             }
-            val keyHex = sessionKey.joinToString("") { "%02x".format(it) }
-
+            val keyHex = sessionKey.encoded.joinToString("") { "%02x".format(it) }
             // Load the SQLCipher library
             System.loadLibrary("sqlcipher")
             // Create a SupportFactory with the key bytes
