@@ -8,6 +8,7 @@ import com.personx.cryptx.database.encryption.DatabaseProvider
 import net.zetetic.database.sqlcipher.SQLiteDatabase
 import java.security.SecureRandom
 import javax.crypto.Cipher
+import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
 import javax.crypto.SecretKeyFactory
 import javax.crypto.spec.GCMParameterSpec
@@ -19,9 +20,12 @@ import javax.crypto.spec.SecretKeySpec
  * PinCryptoManager is responsible for managing PIN-based encryption and decryption of sensitive data.
  * It allows setting up a PIN, verifying the PIN, and retrieving the raw key if the PIN is valid.
  */
-class PinCryptoManager(private val context: Context) {
 
-    private val authSecret = "auth_secret_salt"
+private const val SALT = "salt"
+private const val IV = "iv"
+private const val ENCRYPTED_SESSION_KEY = "encryptedSessionKey"
+private const val TRANSFORMATION = "AES/GCM/NoPadding"
+class PinCryptoManager(private val context: Context) {
 
     /**
      * Sets up a PIN by generating a salt, deriving a key from the PIN, and encrypting a secret value.
@@ -31,22 +35,25 @@ class PinCryptoManager(private val context: Context) {
      */
 
     fun setupPin(pin: String) {
-        val salt = generateSalt()
-        val key = deriveKeyFromPin(pin, salt)
-        val secret = SecureRandom().generateSeed(16)
-        val (encryptedSecret, iv) = encryptSecret(secret, key)
-
         val prefs = context.getSharedPreferences("secure_prefs", Context.MODE_PRIVATE)
+        val sessionKey = KeyGenerator.getInstance("AES").apply { init(256) }
+            .generateKey()
+        val salt = generateSalt()
+        val pinKey = deriveKeyFromPin(pin,salt)
+
+        val cipher = Cipher.getInstance(TRANSFORMATION)
+        val iv = ByteArray(12).also { SecureRandom().nextBytes(it) }
+        cipher.init(Cipher.ENCRYPT_MODE, pinKey, GCMParameterSpec(128, iv))
+        val encryptedSessionKey = cipher.doFinal(sessionKey.encoded)
+
         prefs.edit {
-            putString("salt", Base64.encodeToString(salt, Base64.NO_WRAP))
-            putString("iv", Base64.encodeToString(iv, Base64.NO_WRAP))
-            putString("secret", Base64.encodeToString(encryptedSecret, Base64.NO_WRAP))
-            putString(authSecret, Base64.encodeToString(secret, Base64.NO_WRAP))
+            putString(SALT, Base64.encodeToString(salt, Base64.NO_WRAP))
+            putString(IV, Base64.encodeToString(iv, Base64.NO_WRAP))
+            putString(ENCRYPTED_SESSION_KEY, Base64.encodeToString(encryptedSessionKey, Base64.NO_WRAP))
         }
 
-        key.encoded.fill(0) // Clear the key bytes from memory
-        secret.fill(0)
-        salt.fill(0)
+        pinKey.encoded.fill(0)
+        SessionKeyManager.setSessionKey(sessionKey)
     }
 
     /**
@@ -58,25 +65,30 @@ class PinCryptoManager(private val context: Context) {
 
     fun verifyPin(pin: String): Boolean {
         val prefs = context.getSharedPreferences("secure_prefs", Context.MODE_PRIVATE)
-        val saltString = prefs.getString("salt", null) ?: return false
-        val ivString = prefs.getString("iv", null) ?: return false
-        val encryptedSecretString = prefs.getString("secret", null) ?: return false
-        val storedSecretString = prefs.getString(authSecret, null) ?: return false
+        val saltString = prefs.getString(SALT, null) ?: return false
+        val ivString = prefs.getString(IV, null) ?: return false
+        val encryptedKeyString = prefs.getString(ENCRYPTED_SESSION_KEY, null) ?: return false
 
         val salt = Base64.decode(saltString, Base64.NO_WRAP)
         val iv = Base64.decode(ivString, Base64.NO_WRAP)
-        val encryptedSecret = Base64.decode(encryptedSecretString, Base64.NO_WRAP)
-        val storedSecret = Base64.decode(storedSecretString, Base64.NO_WRAP)
+        val encryptedSessionKey = Base64.decode(encryptedKeyString, Base64.NO_WRAP)
+
         val key = deriveKeyFromPin(pin, salt)
 
         return try {
-            val decryptedSecret = decryptSecret(encryptedSecret, iv, key)?.toByteArray()
-            val isValid = decryptedSecret != null && decryptedSecret.contentEquals(storedSecret)
+            val cipher = Cipher.getInstance(TRANSFORMATION)
+            cipher.init(Cipher.DECRYPT_MODE, key, GCMParameterSpec(128, iv))
+            val decryptedKeyBytes = cipher.doFinal(encryptedSessionKey)
+
+            val sessionKey = SecretKeySpec(decryptedKeyBytes, "AES")
+            SessionKeyManager.setSessionKey(sessionKey)
+
             key.encoded.fill(0)
-            decryptedSecret?.fill(0)
-            isValid
+            decryptedKeyBytes.fill(0)
+            true
         } catch (e: Exception) {
             key.encoded.fill(0)
+            Log.e("PinCryptoManager", "PIN verification failed: ${e.message}")
             false
         }
     }
@@ -89,37 +101,36 @@ class PinCryptoManager(private val context: Context) {
      * @return The raw key bytes if the PIN is valid, null otherwise.
      */
 
-    fun getRawKeyIfPinValid(pin: String): ByteArray? {
-        val prefs = context.getSharedPreferences("secure_prefs", Context.MODE_PRIVATE)
-        val saltString = prefs.getString("salt", null) ?: return null
-        val ivString = prefs.getString("iv", null) ?: return null
-        val encryptedSecretString = prefs.getString("secret", null) ?: return null
-        val storedSecretString = prefs.getString(authSecret, null) ?: return null
+    fun loadSessionKeyIfPinValid(pin: String): Boolean {
+        val prefs = context.getSharedPreferences(
+            "secure_prefs", Context.MODE_PRIVATE
+        )
+        val saltString = prefs.getString(SALT, null) ?: return false
+        val ivString = prefs.getString(IV, null) ?: return false
+        val encryptedSessionKeyString = prefs.getString(
+            ENCRYPTED_SESSION_KEY, null
+        ) ?: return false
 
         val salt = Base64.decode(saltString, Base64.NO_WRAP)
         val iv = Base64.decode(ivString, Base64.NO_WRAP)
-        val encryptedSecret = Base64.decode(encryptedSecretString, Base64.NO_WRAP)
-        val storedSecret = Base64.decode(storedSecretString, Base64.NO_WRAP)
-        val key = deriveKeyFromPin(pin, salt)
+        val encryptedSessionKey = Base64.decode(encryptedSessionKeyString, Base64.NO_WRAP)
+
+        val pinKey = deriveKeyFromPin(pin, salt)
 
         return try {
-            val decryptedSecret = decryptSecret(encryptedSecret, iv, key)?.toByteArray()
-            val isValid = decryptedSecret != null && decryptedSecret.contentEquals(storedSecret)
-            if (isValid) {
-                val keyBytes = key.encoded.copyOf()
-                SessionKeyManager.setSessionKey(keyBytes)
-                key.encoded.fill(0)
-                decryptedSecret.fill(0)
-                keyBytes
-            } else {
-                key.encoded.fill(0)
-                decryptedSecret?.fill(0)
-                null
-            }
-        } catch (e: Exception) {
+            val cipher = Cipher.getInstance(TRANSFORMATION)
+            cipher.init(Cipher.DECRYPT_MODE, pinKey, GCMParameterSpec(128, iv))
+            val sessionKeyBytes = cipher.doFinal(encryptedSessionKey)
+            val sessionKey = SecretKeySpec(sessionKeyBytes, "AES")
+            SessionKeyManager.setSessionKey(sessionKey)
 
+            pinKey.encoded.fill(0)
+            sessionKeyBytes.fill(0)
+            true
+        } catch (e: Exception) {
+            pinKey.encoded.fill(0)
             Log.e("PinCryptoManager", "Decryption failed: ${e.message}", e)
-            null
+            false
         }
     }
 
@@ -133,18 +144,21 @@ class PinCryptoManager(private val context: Context) {
      */
 
     fun changePinAndRekeyDatabase(oldPin: String, newPin: String): Boolean {
-        // 1. Validate old PIN and get the current random secret
         val prefs = context.getSharedPreferences("secure_prefs", Context.MODE_PRIVATE)
-        val oldKeyBytes = getRawKeyIfPinValid(oldPin) ?: return false
-        val oldKeyHex = oldKeyBytes.joinToString("") { "%02x".format(it) }
-        val storedSecretString = prefs.getString(authSecret, null) ?: return false
-        val storedSecret = Base64.decode(storedSecretString, Base64.NO_WRAP)
 
-        // 2. Derive new key
+        // 1. Validate old PIN and get the current random secret
+        val pinValid = loadSessionKeyIfPinValid(oldPin)
+        val sessionKey = SessionKeyManager.getSessionKey() ?: return false
+
+        val oldKeyBytes = sessionKey.encoded.copyOf()
+        val oldKeyHex = oldKeyBytes.joinToString("") { "%02x".format(it) }
+
+        // 2. Derive new key from the new PIN
         val newSalt = generateSalt()
-        val newKey = deriveKeyFromPin(newPin, newSalt)
-        val newKeyBytes = newKey.encoded
-        val newKeyHex = newKeyBytes.joinToString("") { "%02x".format(it) }
+        val newPinKey = deriveKeyFromPin(newPin, newSalt)
+        val newPinKeyBytes = newPinKey.encoded
+        val newKeyHex = newPinKeyBytes.joinToString("") { "%02x".format(it) }
+
         return try {
             System.loadLibrary("sqlcipher")
             // 3. Rekey database
@@ -157,23 +171,21 @@ class PinCryptoManager(private val context: Context) {
                 db.rawQuery("PRAGMA rekey = '$newKeyHex'", null).close()
             }
 
-            // 4. Verify with new key
-            SQLiteDatabase.openOrCreateDatabase(
-                context.getDatabasePath("encrypted_history.db").absolutePath,
-                newKeyHex,
-                null,
-                null
-            ).use { db ->
-                db.rawQuery("SELECT 1", null).close()
-            }
+            // 4. Re-encrypt the session key with the new Pin-derived key
+            val cipher = Cipher.getInstance(TRANSFORMATION)
+            val newIv = ByteArray(12).also { SecureRandom().nextBytes(it) }
+            cipher.init(Cipher.ENCRYPT_MODE, newPinKey, GCMParameterSpec(128, newIv))
+            val newEncryptedSessionKey = cipher.doFinal(sessionKey.encoded)
+
 
             // 5. Re-encrypt and store the same random secret with the new key
-            val (encryptedSecret, iv) = encryptSecret(storedSecret, newKey)
             prefs.edit {
-                putString("salt", Base64.encodeToString(newSalt, Base64.NO_WRAP))
-                putString("iv", Base64.encodeToString(iv, Base64.NO_WRAP))
-                putString("secret", Base64.encodeToString(encryptedSecret, Base64.NO_WRAP))
-                putString(authSecret, Base64.encodeToString(storedSecret, Base64.NO_WRAP)) // Store the same secret
+                putString(SALT, Base64.encodeToString(newSalt, Base64.NO_WRAP))
+                putString(IV, Base64.encodeToString(newIv, Base64.NO_WRAP))
+                putString(
+                    ENCRYPTED_SESSION_KEY,
+                    Base64.encodeToString(newEncryptedSessionKey, Base64.NO_WRAP)
+                )
             }
 
             // 6. Refresh database instance
@@ -181,8 +193,7 @@ class PinCryptoManager(private val context: Context) {
 
             // 7. Clear sensitive data from memory
             oldKeyBytes.fill(0)
-            newKeyBytes.fill(0)
-            storedSecret.fill(0)
+            newPinKeyBytes.fill(0)
             true
         } catch (e: Exception) {
             Log.e("PinCryptoManager", "PIN change failed", e)
@@ -217,42 +228,4 @@ class PinCryptoManager(private val context: Context) {
         return secret
     }
 
-    /**
-     * Encrypts a secret value using AES in GCM mode with the provided key.
-     *
-     * @param secret The secret value to encrypt.
-     * @param key The SecretKey to use for encryption.
-     * @return A Pair containing the encrypted data and the IV used for encryption.
-     */
-
-    private fun encryptSecret(secret: ByteArray, key: SecretKey): Pair<ByteArray, ByteArray> {
-        val cipher = Cipher.getInstance("AES/GCM/NoPadding")
-        val iv = ByteArray(12).also { SecureRandom().nextBytes(it) }
-        val spec = GCMParameterSpec(128, iv)
-        cipher.init(Cipher.ENCRYPT_MODE, key, spec)
-        val encrypted = cipher.doFinal(secret)
-        return Pair(encrypted, iv)
-    }
-
-    /**
-     * Decrypts an encrypted secret value using AES in GCM mode with the provided key and IV.
-     *
-     * @param encrypted The encrypted data to decrypt.
-     * @param iv The IV used for decryption.
-     * @param key The SecretKey to use for decryption.
-     * @return The decrypted secret as a String, or null if decryption fails.
-     */
-
-    private fun decryptSecret(encrypted: ByteArray, iv: ByteArray, key: SecretKey): String? {
-        return try {
-            val cipher = Cipher.getInstance("AES/GCM/NoPadding")
-            val spec = GCMParameterSpec(128, iv)
-            cipher.init(Cipher.DECRYPT_MODE, key, spec)
-            val decrypted = cipher.doFinal(encrypted)
-            String(decrypted)
-        } catch (e: Exception) {
-            Log.e("PinCryptoManager", "Decryption failed: ${e.message}", e)
-            null
-        }
-    }
 }
