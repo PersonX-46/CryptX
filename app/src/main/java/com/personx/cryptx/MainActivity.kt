@@ -90,7 +90,7 @@ class MainActivity : ComponentActivity() {
                                 pinCryptoManager = PinCryptoManager(LocalContext.current),
                                 windowSizeClass = windowSizeClass,
                                 onLoginSuccess = { pin ->
-                                    PinCryptoManager(context).getRawKeyIfPinValid(pin)
+                                    PinCryptoManager(context).loadSessionKeyIfPinValid(pin)
                                     currentScreen.value = "home"
                                 }
                             )
