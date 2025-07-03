@@ -145,7 +145,6 @@ class DecryptionViewModel(private val repository: DecryptionHistoryRepository) :
      * This function handles the creation of the DecryptionHistory object and calls the repository to insert it.
      * If the insertion is successful, it updates the current screen to "main".
      *
-     * @param pin The PIN used for accessing the database.
      * @param algorithm The algorithm used for decryption.
      * @param transformation The transformation applied during decryption.
      * @param key The key used for decryption.
@@ -158,7 +157,6 @@ class DecryptionViewModel(private val repository: DecryptionHistoryRepository) :
 
     suspend fun insertDecryptionHistory(
         id: Int? = 0,
-        pin: String,
         algorithm: String,
         transformation: String,
         key: String,
@@ -179,7 +177,7 @@ class DecryptionViewModel(private val repository: DecryptionHistoryRepository) :
                 isBase64,
                 decryptedOutput
             )
-            val result = repository.insertHistory(pin, decryptionHistory)
+            val result = repository.insertHistory(decryptionHistory)
             result
         } catch (e: Exception) {
             Log.d("DECRYPTION DATABASE HISTORY UPDATE ERROR", "Insertion failed: ${e.message}")
@@ -191,13 +189,12 @@ class DecryptionViewModel(private val repository: DecryptionHistoryRepository) :
      * Updates an existing decryption history record in the repository.
      * This function is called when the user wants to modify an existing record.
      *
-     * @param pin The PIN used for accessing the database.
      * @param history The DecryptionHistory object to be updated.
      */
 
-    suspend fun updateDecryptionHistory(pin: String, history: DecryptionHistory) {
+    suspend fun updateDecryptionHistory(history: DecryptionHistory) {
         try {
-            repository.updateHistory(pin, history)
+            repository.updateHistory(history)
             Log.d("DECRYPTION_DB", "History updated successfully")
         } catch (e: Exception) {
             Log.e("DECRYPTION_DB", "Error updating history: ${e.message}")
@@ -208,13 +205,12 @@ class DecryptionViewModel(private val repository: DecryptionHistoryRepository) :
      * Deletes a specific decryption history record from the repository.
      * This function is called when the user wants to remove a record from the history.
      *
-     * @param pin The PIN used for accessing the database.
      * @param history The DecryptionHistory object to be deleted.
      */
 
-    suspend fun deleteDecryptionHistory(pin: String, history: DecryptionHistory) {
+    suspend fun deleteDecryptionHistory(history: DecryptionHistory) {
         try {
-            repository.deleteHistory(pin, history)
+            repository.deleteHistory(history)
             Log.d("DECRYPTION_DB", "History deleted successfully")
         } catch (e: Exception) {
             Log.e("DECRYPTION_DB", "Error deleting history: ${e.message}")
@@ -225,12 +221,11 @@ class DecryptionViewModel(private val repository: DecryptionHistoryRepository) :
      * Fetches all decryption history records from the repository.
      * This function is called to initialize the history state when the ViewModel is created.
      *
-     * @param pin The PIN used for accessing the database.
      */
 
-    private fun getAllDecryptionHistory(pin: String){
+    private fun getAllDecryptionHistory(){
         viewModelScope.launch {
-            repository.getAllDecryptionHistory(pin)
+            repository.getAllDecryptionHistory()
                 .catch { d ->
                     Log.e("DECRYPTION_DB", "Error: ${d.message}")
                     _state.value = _state.value.copy(
@@ -247,12 +242,11 @@ class DecryptionViewModel(private val repository: DecryptionHistoryRepository) :
      * Fetches all encryption history records from the repository.
      * This function is called to initialize the encryption history state when the ViewModel is created.
      *
-     * @param pin The PIN used for accessing the database.
      */
 
-     fun getAllEncryptionHistory(pin: String) {
+     fun getAllEncryptionHistory() {
         viewModelScope.launch {
-            repository.getAllEncryptionHistory(pin)
+            repository.getAllEncryptionHistory()
                 .catch { d ->
                     Log.e("ENCRYPTION_DB", "Error: ${d.message}")
                 }
@@ -267,11 +261,10 @@ class DecryptionViewModel(private val repository: DecryptionHistoryRepository) :
      * Refreshes the decryption history by fetching all records from the repository.
      * This function is typically called when the user navigates to the history screen or after a new record is inserted.
      *
-     * @param pin The PIN used for accessing the database.
      */
 
-    fun refreshHistory(pin: String) {
-        getAllDecryptionHistory(pin)
+    fun refreshHistory() {
+        getAllDecryptionHistory()
     }
 
     fun updateAlgorithmList(context: Context) {

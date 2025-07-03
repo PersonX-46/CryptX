@@ -40,7 +40,7 @@ class PinLoginViewModel(
             }
             is PinLoginEvent.Submit -> {
                 val current = _state.value
-                if (current.enteredPin.length == 4 && pinCryptoManager.getRawKeyIfPinValid(current.enteredPin) != null) {
+                if (current.enteredPin.length == 4 && pinCryptoManager.loadSessionKeyIfPinValid(current.enteredPin) != null) {
                     if (pinCryptoManager.verifyPin(current.enteredPin)) {
                         _state.value = current.copy(error = null, isSuccess = true)
                     } else {
