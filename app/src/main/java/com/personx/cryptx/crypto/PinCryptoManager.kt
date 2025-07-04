@@ -53,7 +53,6 @@ class PinCryptoManager(private val context: Context) {
         }
 
         pinKey.encoded.fill(0)
-        SessionKeyManager.setSessionKey(sessionKey)
     }
 
     /**
