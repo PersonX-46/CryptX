@@ -45,7 +45,7 @@ class HomeScreenViewModel(
         viewModelScope.launch {
             val success =
                 if (newPin == confirmPin && newPin.length == 4 && newPin.all { it.isDigit() }) {
-                    val result = pinCryptoManager.changePinAndRekeyDatabase(oldPin, newPin)
+                    val result = pinCryptoManager.changePinAndRekeyDatabase(newPin)
 
                     if (result) {
                         // clear old database instance after rekeying
