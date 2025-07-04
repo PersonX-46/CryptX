@@ -6,7 +6,6 @@ import android.util.Log
 import androidx.core.content.edit
 import com.personx.cryptx.database.encryption.DatabaseProvider
 import net.zetetic.database.sqlcipher.SQLiteDatabase
-import net.zetetic.database.sqlcipher.SupportOpenHelperFactory
 import java.security.SecureRandom
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
@@ -139,12 +138,11 @@ class PinCryptoManager(private val context: Context) {
      * Changes the PIN and rekeys the database with the new PIN.
      * It validates the old PIN, derives a new key from the new PIN, and updates the database and SharedPreferences.
      *
-     * @param oldPin The current PIN to validate.
      * @param newPin The new PIN to set.
      * @return True if the operation was successful, false otherwise.
      */
 
-    fun changePinAndRekeyDatabase(oldPin: String, newPin: String): Boolean {
+    fun changePinAndRekeyDatabase(newPin: String): Boolean {
         val prefs = context.getSharedPreferences("secure_prefs", Context.MODE_PRIVATE)
         val dbPath = context.getDatabasePath("encrypted_history.db").absolutePath
 
