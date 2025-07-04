@@ -179,7 +179,6 @@ class EncryptionViewModel(private val repository: EncryptionViewModelRepository)
 
     suspend fun insertEncryptionHistory(
         id: Int? = 0,
-        pin: String,
         algorithm: String,
         transformation: String,
         keySize: Int,
@@ -201,7 +200,7 @@ class EncryptionViewModel(private val repository: EncryptionViewModelRepository)
                 encryptedOutput = encryptedOutput,
                 isBase64 = isBase64
             )
-            val result = repository.insertHistory(pin, encryptionHistory)
+            val result = repository.insertHistory( encryptionHistory)
             result
         } catch (e: Exception) {
             Log.d("ENCRYPTION DATABASE HISTORY UPDATE ERROR", "Insertion failed: ${e.message}")
@@ -209,27 +208,27 @@ class EncryptionViewModel(private val repository: EncryptionViewModelRepository)
         }
     }
 
-    suspend fun updateEncryptionHistory(pin: String, history: EncryptionHistory): Boolean {
+    suspend fun updateEncryptionHistory(history: EncryptionHistory): Boolean {
         return try {
-            repository.updateHistory(pin, history)
+            repository.updateHistory(history)
         } catch (e: Exception) {
             Log.e("ENCRYPTION_DB", "Update failed: ${e.message}")
             false
         }
     }
 
-    suspend fun deleteEncryptionHistory(pin: String, history: EncryptionHistory): Boolean {
+    suspend fun deleteEncryptionHistory(history: EncryptionHistory): Boolean {
         return try {
-            repository.deleteHistory(pin, history)
+            repository.deleteHistory(history)
         } catch (e: Exception) {
             Log.e("ENCRYPTION_DB", "Deletion failed: ${e.message}")
             false
         }
     }
 
-    private fun getAllEncryptionHistory(pin: String) {
+    private fun getAllEncryptionHistory() {
         viewModelScope.launch {
-            repository.getAllHistory(pin)
+            repository.getAllHistory()
                 .catch { e ->
                     Log.e("ENCRYPTION_DB", "Error: ${e.message}")
                     _state.value = _state.value.copy(
@@ -243,8 +242,8 @@ class EncryptionViewModel(private val repository: EncryptionViewModelRepository)
     }
 
     // Call this whenever you need to refresh history
-    fun refreshHistory(pin: String) {
-        getAllEncryptionHistory(pin)
+    fun refreshHistory() {
+        getAllEncryptionHistory()
     }
 
     fun encrypt(context: Context){

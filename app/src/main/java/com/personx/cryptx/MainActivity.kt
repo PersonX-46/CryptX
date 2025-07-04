@@ -1,6 +1,7 @@
 package com.personx.cryptx
 
 import android.os.Bundle
+import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -19,6 +20,7 @@ import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.LockOpen
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
@@ -26,6 +28,7 @@ import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -35,10 +38,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.personx.cryptx.components.CyberpunkNavBar
 import com.personx.cryptx.crypto.PinCryptoManager
+import com.personx.cryptx.crypto.SessionKeyManager
 import com.personx.cryptx.data.NavBarItem
 import com.personx.cryptx.screens.pinlogin.PinLoginScreen
 import com.personx.cryptx.screens.pinsetup.PinSetupScreen
@@ -49,9 +56,35 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
         setContent {
-            // Calculate window size class for responsive design
             val windowSizeClass = calculateWindowSizeClass(this)
+            val context = LocalContext.current.applicationContext
+            val lifecycleOwner = LocalLifecycleOwner.current
+
+            val currentScreen = remember { mutableStateOf("loading") }
+
+            // Re-check on resume
+            DisposableEffect(lifecycleOwner) {
+                val observer = LifecycleEventObserver { _, event ->
+                    if (event == Lifecycle.Event.ON_RESUME) {
+                        val prefs = context.getSharedPreferences("secure_prefs", MODE_PRIVATE)
+                        val hasSetup = prefs.getString("salt", null) != null &&
+                                prefs.getString("iv", null) != null &&
+                                prefs.getString("encryptedSessionKey", null) != null
+
+                        currentScreen.value = when {
+                            !hasSetup -> "pinSetup"
+                            SessionKeyManager.isSessionActive() -> "home"
+                            else -> "login"
+                        }
+                    }
+                }
+                lifecycleOwner.lifecycle.addObserver(observer)
+                onDispose {
+                    lifecycleOwner.lifecycle.removeObserver(observer)
+                }
+            }
 
             CryptXTheme(darkTheme = true) {
                 Surface(
@@ -59,49 +92,54 @@ class MainActivity : ComponentActivity() {
                         .fillMaxSize()
                         .background(MaterialTheme.colorScheme.onPrimary)
                         .padding(WindowInsets.navigationBars.asPaddingValues()),
-                color = MaterialTheme.colorScheme.background
+                    color = MaterialTheme.colorScheme.background
                 ) {
-                    // Changed to background color for better edge-to-edge experience
-                    val prefs = getSharedPreferences("secure_prefs", MODE_PRIVATE)
-                    val saltString = prefs.getString("salt", null)
-                    val ivString = prefs.getString("iv", null)
-                    val secretString = prefs.getString("secret", null)
-
-                    // Track which screen to show
-                    val currentScreen = remember { mutableStateOf(
-                        if (saltString == null || ivString == null || secretString == null)
-                            "pinSetup"
-                        else
-                            "login"
-                    )}
-
                     when (currentScreen.value) {
-                        "pinSetup" -> {
-                            PinSetupScreen(
-                                pinCryptoManager = PinCryptoManager(LocalContext.current),
-                                windowSizeClass = windowSizeClass,
-                                onSetupComplete = {
-                                    currentScreen.value = "login" // Update screen after setup
-                                }
-                            )
-                        }
-                        "login" -> {
-                            PinLoginScreen(
-                                pinCryptoManager = PinCryptoManager(LocalContext.current),
-                                windowSizeClass = windowSizeClass,
-                                onLoginSuccess = { pin ->
-                                    currentScreen.value = "home"
-                                }
-                            )
-                        }
-                        "home" -> {
-                            AppContent(windowSizeClass)                        }
+                        "loading" -> Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) { CircularProgressIndicator() }
+
+                        "pinSetup" -> PinSetupScreen(
+                            pinCryptoManager = PinCryptoManager(context),
+                            windowSizeClass = windowSizeClass,
+                            onSetupComplete = {
+                                currentScreen.value = "login"
+                            }
+                        )
+
+                        "login" -> PinLoginScreen(
+                            pinCryptoManager = PinCryptoManager(context),
+                            windowSizeClass = windowSizeClass,
+                            onLoginSuccess = { pin ->
+                                PinCryptoManager(context).loadSessionKeyIfPinValid(pin)
+                                currentScreen.value = "home"
+                            }
+                        )
+
+                        "home" -> AppContent(windowSizeClass)
                     }
                 }
             }
         }
     }
+
+    override fun onPause() {
+        super.onPause()
+        SessionKeyManager.clearSessionKey()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        SessionKeyManager.clearSessionKey()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        SessionKeyManager.clearSessionKey()
+    }
 }
+
 
 @Composable
 fun AppContent(windowSizeClass: WindowSizeClass) {

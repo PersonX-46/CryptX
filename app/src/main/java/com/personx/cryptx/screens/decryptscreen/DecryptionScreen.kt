@@ -58,8 +58,10 @@ import com.personx.cryptx.components.CyberpunkInputBox
 import com.personx.cryptx.components.CyberpunkKeySection
 import com.personx.cryptx.components.CyberpunkOutputSection
 import com.personx.cryptx.components.Header
+import com.personx.cryptx.crypto.SessionKeyManager
 import com.personx.cryptx.ui.theme.CryptXTheme
 import com.personx.cryptx.viewmodel.decryption.DecryptionViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
@@ -148,8 +150,20 @@ fun DecryptionScreen(
                             )
                             IconButton(
                                 onClick = {
-                                    viewModel.updatePinPurpose("history")
-                                    navController.navigate("decrypt_pin_handler")
+                                    val sessionKey = SessionKeyManager.getSessionKey()
+                                    if (sessionKey == null) {
+                                        viewModel.updatePinPurpose("history")
+                                        navController.navigate("decrypt_pin_handler") {
+                                            popUpTo("decrypt") { inclusive = true } // clears entire backstack
+                                            launchSingleTop = true
+                                        }
+                                    } else {
+                                        viewModel.refreshHistory()
+                                        navController.navigate("decrypt_history") {
+                                            popUpTo("decrypt") { inclusive = true } // clears entire backstack
+                                            launchSingleTop = true
+                                        }
+                                    }
                                 }
                             ) {
                                 Icon(
@@ -334,11 +348,68 @@ fun DecryptionScreen(
                                             ).show()
                                         },
                                         onSave = {
-                                            if (state.pinPurpose != "update") {
-                                                viewModel.updatePinPurpose("save")
-                                                navController.navigate("decrypt_pin_handler")
-                                            } else {
-                                                navController.navigate("decrypt_pin_handler")
+                                            val sessionKey = SessionKeyManager.getSessionKey()
+                                            if (sessionKey == null) {
+                                                if (state.pinPurpose != "update") {
+                                                    viewModel.updatePinPurpose("save")
+                                                    navController.navigate("decrypt_pin_handler")
+                                                } else {
+                                                    navController.navigate("decrypt_pin_handler")
+                                                }
+                                            }else {
+                                                if (state.pinPurpose != "update") {
+                                                    scope.launch {
+                                                        viewModel.updatePinPurpose("save")
+                                                        val success = viewModel.insertDecryptionHistory(
+                                                            id = state.id,
+                                                            state.selectedAlgorithm,
+                                                            state.selectedMode,
+                                                            state.keyText,
+                                                            state.ivText,
+                                                            state.inputText,
+                                                            state.isBase64Enabled,
+                                                            state.outputText
+                                                        )
+                                                        if (success) {
+
+                                                            viewModel.refreshHistory()
+                                                            delay(200)
+                                                            viewModel.clearOutput()
+                                                            Toast.makeText(
+                                                                context,
+                                                                "Decryption history saved!",
+                                                                Toast.LENGTH_SHORT
+                                                            ).show()
+                                                        } else {
+                                                            Toast.makeText(
+                                                                context,
+                                                                "Failed to save decryption history",
+                                                                Toast.LENGTH_SHORT
+                                                            ).show()
+                                                        }
+                                                    }
+                                                } else {
+                                                    scope.launch {
+                                                        val itemToUpdate = viewModel.createDecryptionHistory(
+                                                            id = state.id,
+                                                            algorithm = state.selectedAlgorithm,
+                                                            transformation = state.selectedMode,
+                                                            key = state.keyText,
+                                                            iv = state.ivText,
+                                                            isBase64 = state.isBase64Enabled,
+                                                            encryptedText = state.inputText,
+                                                            decryptedOutput = state.outputText
+                                                        )
+                                                        viewModel.prepareItemToUpdate(itemToUpdate)
+                                                        viewModel.itemToUpdate?.let { item ->
+                                                            viewModel.updateDecryptionHistory(item)
+                                                            viewModel.refreshHistory()
+                                                            Toast.makeText(context, "History updated!", Toast.LENGTH_SHORT)
+                                                                .show()
+                                                            viewModel.prepareItemToUpdate(null)
+                                                        }
+                                                    }
+                                                }
                                             }
                                         },
                                     )

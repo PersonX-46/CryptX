@@ -36,7 +36,6 @@ fun EncryptPinHandler(
                         try {
                             val success = viewModel.insertEncryptionHistory(
                                 id = state.id,
-                                pin = pin,
                                 algorithm = state.selectedAlgorithm,
                                 transformation = state.selectedMode,
                                 keySize = state.selectedKeySize,
@@ -47,7 +46,7 @@ fun EncryptPinHandler(
                                 encryptedOutput = state.outputText
                             )
                             if (success) {
-                                viewModel.refreshHistory(pin)
+                                viewModel.refreshHistory()
                                 delay(200)
                                 viewModel.clearOutput()
                                 Toast.makeText(context, "Encryption history saved!", Toast.LENGTH_SHORT).show()
@@ -70,7 +69,7 @@ fun EncryptPinHandler(
                     Log.d("EncryptPinHandler", state.pinPurpose)
                     scope.launch {
                         Log.d("EncryptPinHandler", "Refreshing history")
-                        viewModel.refreshHistory(pin)
+                        viewModel.refreshHistory()
                         Log.d("EncryptPinHandler", "Navigating to history")
                         navController.navigate("encrypt_history") {
                             popUpTo("encrypt_pin_handler") { inclusive = true } // clears entire backstack
@@ -84,8 +83,8 @@ fun EncryptPinHandler(
                     scope.launch {
                         if (viewModel.itemToDelete != null) {
                             viewModel.itemToDelete?.let { item ->
-                                viewModel.deleteEncryptionHistory(pin, item)
-                                viewModel.refreshHistory(pin)
+                                viewModel.deleteEncryptionHistory( item)
+                                viewModel.refreshHistory()
                                 navController.navigate("encrypt_history") {
                                     popUpTo("encrypt_pin_handler") { inclusive = true } // clears entire backstack
                                     launchSingleTop = true
@@ -112,8 +111,8 @@ fun EncryptPinHandler(
                         )
                         viewModel.prepareItemToUpdate(itemToUpdate)
                         viewModel.itemToUpdate?.let { item ->
-                            viewModel.updateEncryptionHistory(pin, item)
-                            viewModel.refreshHistory(pin)
+                            viewModel.updateEncryptionHistory( item)
+                            viewModel.refreshHistory()
                             navController.navigate("encrypt_history") {
                                 popUpTo("encrypt_pin_handler") { inclusive = true } // clears entire backstack
                                 launchSingleTop = true

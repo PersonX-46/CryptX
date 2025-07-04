@@ -30,7 +30,6 @@ fun DecryptPinHandler(
                     scope.launch {
                         val success = viewModel.insertDecryptionHistory(
                             id = state.id,
-                            pin,
                             state.selectedAlgorithm,
                             state.selectedMode,
                             state.keyText,
@@ -44,7 +43,7 @@ fun DecryptPinHandler(
                                 popUpTo("decrypt_pin_handler") { inclusive = true } // clears entire backstack
                                 launchSingleTop = true
                             }
-                            viewModel.refreshHistory(pin)
+                            viewModel.refreshHistory()
                             delay(200)
                             viewModel.clearOutput()
                             Toast.makeText(
@@ -63,7 +62,7 @@ fun DecryptPinHandler(
                 }
 
                 "history" -> {
-                    viewModel.refreshHistory(pin)
+                    viewModel.refreshHistory()
                     navController.navigate("decrypt_history") {
                         popUpTo("decrypt_pin_handler") { inclusive = true } // clears entire backstack
                         launchSingleTop = true
@@ -71,7 +70,7 @@ fun DecryptPinHandler(
                 }
 
                 "encrypted_history" -> {
-                    viewModel.getAllEncryptionHistory(pin)
+                    viewModel.getAllEncryptionHistory()
                     navController.navigate("decrypt_encrypted_history_handler") {
                         popUpTo("decrypt_pin_handler") { inclusive = true } // clears entire backstack
                         launchSingleTop = true
@@ -92,8 +91,8 @@ fun DecryptPinHandler(
                         )
                         viewModel.prepareItemToUpdate(itemToUpdate)
                         viewModel.itemToUpdate?.let { item ->
-                            viewModel.updateDecryptionHistory(pin, item)
-                            viewModel.refreshHistory(pin)
+                            viewModel.updateDecryptionHistory(item)
+                            viewModel.refreshHistory()
                             navController.navigate("decrypt_history") {
                                 popUpTo("decrypt_pin_handler") { inclusive = true } // clears entire backstack
                                 launchSingleTop = true
@@ -108,8 +107,8 @@ fun DecryptPinHandler(
                     scope.launch {
                         if (viewModel.itemToDelete != null) {
                             viewModel.itemToDelete?.let { item ->
-                                viewModel.deleteDecryptionHistory(pin, item)
-                                viewModel.refreshHistory(pin)
+                                viewModel.deleteDecryptionHistory(item)
+                                viewModel.refreshHistory()
                                 navController.navigate("decrypt_history") {
                                     popUpTo("decrypt_pin_handler") { inclusive = true } // clears entire backstack
                                     launchSingleTop = true

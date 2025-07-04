@@ -3,23 +3,24 @@ package com.personx.cryptx
 import android.annotation.SuppressLint
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.personx.cryptx.crypto.PinCryptoManager
-import com.personx.cryptx.screens.decryptscreen.DecryptionScreen
-import com.personx.cryptx.screens.encryptscreen.EncryptMainScreen
 import com.personx.cryptx.screens.HashDetector
 import com.personx.cryptx.screens.HashGeneratorScreen
 import com.personx.cryptx.screens.HomeScreen
 import com.personx.cryptx.screens.SteganographyScreen
 import com.personx.cryptx.screens.decryptscreen.DecryptHistoryScreen
 import com.personx.cryptx.screens.decryptscreen.DecryptPinHandler
+import com.personx.cryptx.screens.decryptscreen.DecryptionScreen
 import com.personx.cryptx.screens.decryptscreen.EncryptedHistoryHandler
 import com.personx.cryptx.screens.encryptscreen.EncryptHistoryScreen
+import com.personx.cryptx.screens.encryptscreen.EncryptMainScreen
 import com.personx.cryptx.screens.encryptscreen.EncryptPinHandler
+import com.personx.cryptx.screens.pinlogin.PinLoginScreen
+import com.personx.cryptx.screens.pinsetup.PinSetupScreen
 import com.personx.cryptx.viewmodel.HomeScreenViewModel
 import com.personx.cryptx.viewmodel.decryption.DecryptionHistoryRepository
 import com.personx.cryptx.viewmodel.decryption.DecryptionViewModel
@@ -44,6 +45,31 @@ fun AppNavGraph(
         repository = DecryptionHistoryRepository(context)
     )
     NavHost(navController = navController, startDestination = startDestination) {
+        composable("pin_setup") {
+            PinSetupScreen(
+                pinCryptoManager = PinCryptoManager(context),
+                windowSizeClass = windowSizeClass,
+                onSetupComplete = {
+                    navController.navigate("pin_login") {
+                        popUpTo("pin_setup") { inclusive = true } // clears entire backstack
+                        launchSingleTop = true
+                    }
+                }
+            )
+        }
+        composable("pin_login") {
+            PinLoginScreen(
+                pinCryptoManager = PinCryptoManager(context),
+                windowSizeClass = windowSizeClass,
+                onLoginSuccess = { pin ->
+                    PinCryptoManager(context).loadSessionKeyIfPinValid(pin)
+                    navController.navigate("home") {
+                        popUpTo("pin_login") { inclusive = true } // clears entire backstack
+                        launchSingleTop = true
+                    }
+                }
+            )
+        }
         composable("home") {
             HomeScreen(
                 HomeScreenViewModel(
