@@ -6,6 +6,7 @@ import android.util.Log
 import androidx.core.content.edit
 import com.personx.cryptx.database.encryption.DatabaseProvider
 import net.zetetic.database.sqlcipher.SQLiteDatabase
+import net.zetetic.database.sqlcipher.SupportOpenHelperFactory
 import java.security.SecureRandom
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
@@ -145,62 +146,52 @@ class PinCryptoManager(private val context: Context) {
 
     fun changePinAndRekeyDatabase(oldPin: String, newPin: String): Boolean {
         val prefs = context.getSharedPreferences("secure_prefs", Context.MODE_PRIVATE)
+        val dbPath = context.getDatabasePath("encrypted_history.db").absolutePath
 
-        // 1. Validate old PIN and get the current random secret
-        val pinValid = loadSessionKeyIfPinValid(oldPin)
+        // 1. Validate old PIN and get current session key
         val sessionKey = SessionKeyManager.getSessionKey() ?: return false
-
-        val oldKeyBytes = sessionKey.encoded.copyOf()
-        val oldKeyHex = oldKeyBytes.joinToString("") { "%02x".format(it) }
-
-        // 2. Derive new key from the new PIN
+        // 2. Create new key material
         val newSalt = generateSalt()
         val newPinKey = deriveKeyFromPin(newPin, newSalt)
-        val newPinKeyBytes = newPinKey.encoded
-        val newKeyHex = newPinKeyBytes.joinToString("") { "%02x".format(it) }
 
         return try {
             System.loadLibrary("sqlcipher")
-            // 3. Rekey database
-            SQLiteDatabase.openOrCreateDatabase(
-                context.getDatabasePath("encrypted_history.db").absolutePath,
-                oldKeyHex,  // Using hex format here
-                null,
-                null
-            ).use { db ->
-                db.rawQuery("PRAGMA rekey = '$newKeyHex'", null).close()
+            // 3. Rekey database using raw bytes (most reliable)
+            val db = SQLiteDatabase.openOrCreateDatabase(dbPath, sessionKey.encoded, null, null)
+            try {
+                // Convert new key to hex for PRAGMA rekey
+                db.changePassword(newPinKey.encoded)
+            } finally {
+                db.close()
             }
 
-            // 4. Re-encrypt the session key with the new Pin-derived key
+            SessionKeyManager.setSessionKey(newPinKey)
+
+            // 5. Re-encrypt the session key
             val cipher = Cipher.getInstance(TRANSFORMATION)
             val newIv = ByteArray(12).also { SecureRandom().nextBytes(it) }
             cipher.init(Cipher.ENCRYPT_MODE, newPinKey, GCMParameterSpec(128, newIv))
             val newEncryptedSessionKey = cipher.doFinal(sessionKey.encoded)
 
-
-            // 5. Re-encrypt and store the same random secret with the new key
+            // 6. Update preferences
             prefs.edit {
                 putString(SALT, Base64.encodeToString(newSalt, Base64.NO_WRAP))
                 putString(IV, Base64.encodeToString(newIv, Base64.NO_WRAP))
-                putString(
-                    ENCRYPTED_SESSION_KEY,
-                    Base64.encodeToString(newEncryptedSessionKey, Base64.NO_WRAP)
-                )
+                putString(ENCRYPTED_SESSION_KEY, Base64.encodeToString(newEncryptedSessionKey, Base64.NO_WRAP))
             }
 
-            // 6. Refresh database instance
+            // 7. Refresh database instance
             DatabaseProvider.clearDatabaseInstance()
-
-            // 7. Clear sensitive data from memory
-            oldKeyBytes.fill(0)
-            newPinKeyBytes.fill(0)
             true
         } catch (e: Exception) {
             Log.e("PinCryptoManager", "PIN change failed", e)
+            // Consider restoring from backup here
             false
+        } finally {
+            sessionKey.encoded?.fill(0)
+            newPinKey.encoded?.fill(0)
         }
     }
-
     /**
      * Derives a secret key from the provided PIN and salt using PBKDF2 with HMAC SHA-256.
      *
