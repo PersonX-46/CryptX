@@ -184,106 +184,106 @@ fun HomeScreen(
 
     // Cyberpunk-styled PIN Change Dialog
     if (state.value.showPinDialog) {
-        Dialog(
-            onDismissRequest = { viewModel.updateShowPinDialog(false)}
-        ) {
-            Column(
-                modifier = Modifier
-                    .background(
-                        color = Color.Black,
-                        shape = RoundedCornerShape(12.dp)
-                    )
-                    .border(
-                        width = 2.dp,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        shape = RoundedCornerShape(12.dp)
-                    )
-                    .padding(24.dp)
-            ) {
-                Text(
-                    "CHANGE SECURITY PIN",
-                    style = MaterialTheme.typography.headlineSmall.copy(
-                        color = cyberGreen,
-                        fontFamily = FontFamily.Monospace,
-                        fontWeight = FontWeight.Bold,
-                        textAlign = TextAlign.Center
-                    ),
-                    modifier = Modifier.padding(bottom = 16.dp)
-                )
-
-                CyberpunkPinField(
-                    value = state.value.currentPin?: "",
-                    onValueChange = { viewModel.updateCurrentPin(it) },
-                    label = "Current PIN",
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                Spacer(Modifier.height(16.dp))
-
-                CyberpunkPinField(
-                    value = state.value.newPin?: "",
-                    onValueChange = { viewModel.updateNewPin(it) },
-                    label = "New PIN",
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                Spacer(Modifier.height(16.dp))
-
-                CyberpunkPinField(
-                    value = state.value.confirmPin?: "",
-                    onValueChange = { viewModel.updateConfirmPin(it) },
-                    label = "Confirm PIN",
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                Spacer(Modifier.height(24.dp))
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End
-                ) {
-                    TextButton(
-                        onClick = { viewModel.updateShowPinDialog(false) },
-                        colors = ButtonDefaults.textButtonColors(
-                            contentColor = MaterialTheme.colorScheme.onSurface
-                        ),
-                    ) {
-                        Text("CANCEL",
-                            style = MaterialTheme.typography.labelLarge.copy(
-                                fontFamily = FontFamily.Monospace,
-                            )
-                        )
-                    }
-
-                    Spacer(Modifier.width(16.dp))
-
-                    CyberpunkButton(
-                        onClick = {
-                            try {
-                                viewModel.updatePin(
-                                    oldPin = state.value.currentPin ?: "",
-                                    newPin = state.value.newPin?: "",
-                                    confirmPin = state.value.confirmPin?: "",
-                                    onResult = { success ->
-                                        if (success) {
-                                            Toast.makeText(context, "PIN changed successfully!", Toast.LENGTH_SHORT).show()
-                                            viewModel.updateShowPinDialog(false)
-                                        } else {
-                                            Toast.makeText(context, "Failed to change PIN. Please try again.", Toast.LENGTH_SHORT).show()
-                                        }
-                                    }
-                                )
-                            } catch (e: Exception) {
-                                Toast.makeText(context, "Error changing PIN: ${e.message}", Toast.LENGTH_SHORT).show()
-                            }
-                        },
-                        icon = Icons.Default.LockReset,
-                        text = "CONFIRM",
-                        isCompact = isCompact,
-                    )
-                }
-            }
-        }
+//        Dialog(
+//            onDismissRequest = { viewModel.updateShowPinDialog(false)}
+//        ) {
+//            Column(
+//                modifier = Modifier
+//                    .background(
+//                        color = Color.Black,
+//                        shape = RoundedCornerShape(12.dp)
+//                    )
+//                    .border(
+//                        width = 2.dp,
+//                        color = MaterialTheme.colorScheme.onSurface,
+//                        shape = RoundedCornerShape(12.dp)
+//                    )
+//                    .padding(24.dp)
+//            ) {
+//                Text(
+//                    "CHANGE SECURITY PIN",
+//                    style = MaterialTheme.typography.headlineSmall.copy(
+//                        color = cyberGreen,
+//                        fontFamily = FontFamily.Monospace,
+//                        fontWeight = FontWeight.Bold,
+//                        textAlign = TextAlign.Center
+//                    ),
+//                    modifier = Modifier.padding(bottom = 16.dp)
+//                )
+//
+//                CyberpunkPinField(
+//                    value = state.value.currentPin?: "",
+//                    onValueChange = { viewModel.updateCurrentPin(it) },
+//                    label = "Current PIN",
+//                    modifier = Modifier.fillMaxWidth()
+//                )
+//
+//                Spacer(Modifier.height(16.dp))
+//
+//                CyberpunkPinField(
+//                    value = state.value.newPin?: "",
+//                    onValueChange = { viewModel.updateNewPin(it) },
+//                    label = "New PIN",
+//                    modifier = Modifier.fillMaxWidth()
+//                )
+//
+//                Spacer(Modifier.height(16.dp))
+//
+//                CyberpunkPinField(
+//                    value = state.value.confirmPin?: "",
+//                    onValueChange = { viewModel.updateConfirmPin(it) },
+//                    label = "Confirm PIN",
+//                    modifier = Modifier.fillMaxWidth()
+//                )
+//
+//                Spacer(Modifier.height(24.dp))
+//
+//                Row(
+//                    modifier = Modifier.fillMaxWidth(),
+//                    horizontalArrangement = Arrangement.End
+//                ) {
+//                    TextButton(
+//                        onClick = { viewModel.updateShowPinDialog(false) },
+//                        colors = ButtonDefaults.textButtonColors(
+//                            contentColor = MaterialTheme.colorScheme.onSurface
+//                        ),
+//                    ) {
+//                        Text("CANCEL",
+//                            style = MaterialTheme.typography.labelLarge.copy(
+//                                fontFamily = FontFamily.Monospace,
+//                            )
+//                        )
+//                    }
+//
+//                    Spacer(Modifier.width(16.dp))
+//
+//                    CyberpunkButton(
+//                        onClick = {
+//                            try {
+//                                viewModel.updatePin(
+//                                    oldPin = state.value.currentPin ?: "",
+//                                    newPin = state.value.newPin?: "",
+//                                    confirmPin = state.value.confirmPin?: "",
+//                                    onResult = { success ->
+//                                        if (success) {
+//                                            Toast.makeText(context, "PIN changed successfully!", Toast.LENGTH_SHORT).show()
+//                                            viewModel.updateShowPinDialog(false)
+//                                        } else {
+//                                            Toast.makeText(context, "Failed to change PIN. Please try again.", Toast.LENGTH_SHORT).show()
+//                                        }
+//                                    }
+//                                )
+//                            } catch (e: Exception) {
+//                                Toast.makeText(context, "Error changing PIN: ${e.message}", Toast.LENGTH_SHORT).show()
+//                            }
+//                        },
+//                        icon = Icons.Default.LockReset,
+//                        text = "CONFIRM",
+//                        isCompact = isCompact,
+//                    )
+//                }
+//            }
+//        }
     }
 }
 

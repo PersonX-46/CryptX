@@ -11,6 +11,7 @@ import com.personx.cryptx.crypto.PinCryptoManager
 import com.personx.cryptx.screens.HashDetector
 import com.personx.cryptx.screens.HashGeneratorScreen
 import com.personx.cryptx.screens.HomeScreen
+import com.personx.cryptx.screens.settingsscreen.SettingsScreen
 import com.personx.cryptx.screens.SteganographyScreen
 import com.personx.cryptx.screens.decryptscreen.DecryptHistoryScreen
 import com.personx.cryptx.screens.decryptscreen.DecryptPinHandler
@@ -139,6 +140,12 @@ fun AppNavGraph(
             SteganographyScreen(
                 SteganographyViewModelRepository(context),
                 windowSizeClass = windowSizeClass
+            )
+        }
+        composable("settings"){
+            SettingsScreen(
+                windowSizeClass,
+                navController
             )
         }
     }
