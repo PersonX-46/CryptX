@@ -126,7 +126,6 @@ class MainActivity : ComponentActivity() {
 
     override fun onPause() {
         super.onPause()
-        SessionKeyManager.clearSessionKey()
     }
 
     override fun onStop() {
