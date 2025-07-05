@@ -6,6 +6,7 @@ import android.util.Log
 import androidx.core.content.edit
 import com.personx.cryptx.database.encryption.DatabaseProvider
 import net.zetetic.database.sqlcipher.SQLiteDatabase
+import java.security.Key
 import java.security.SecureRandom
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
@@ -25,6 +26,10 @@ private const val SALT = "salt"
 private const val IV = "iv"
 private const val ENCRYPTED_SESSION_KEY = "encryptedSessionKey"
 private const val TRANSFORMATION = "AES/GCM/NoPadding"
+private const val SALT_SIZE = 16
+private const val IV_SIZE = 12
+private const val ITERATIONS = 10000
+private const val KEY_LENGTH = 256 // AES key length in bits
 class PinCryptoManager(private val context: Context) {
 
     /**
@@ -42,7 +47,7 @@ class PinCryptoManager(private val context: Context) {
         val pinKey = deriveKeyFromPin(pin,salt)
 
         val cipher = Cipher.getInstance(TRANSFORMATION)
-        val iv = ByteArray(12).also { SecureRandom().nextBytes(it) }
+        val iv = ByteArray(IV_SIZE).also { SecureRandom().nextBytes(it) }
         cipher.init(Cipher.ENCRYPT_MODE, pinKey, GCMParameterSpec(128, iv))
         val encryptedSessionKey = cipher.doFinal(sessionKey.encoded)
 
@@ -52,6 +57,7 @@ class PinCryptoManager(private val context: Context) {
             putString(ENCRYPTED_SESSION_KEY, Base64.encodeToString(encryptedSessionKey, Base64.NO_WRAP))
         }
 
+        sessionKey.encoded.fill(0)
         pinKey.encoded.fill(0)
     }
 
@@ -199,7 +205,7 @@ class PinCryptoManager(private val context: Context) {
 
     private fun deriveKeyFromPin(pin: String, salt: ByteArray): SecretKey {
         val factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256")
-        val spec = PBEKeySpec(pin.toCharArray(), salt, 10000, 256)
+        val spec = PBEKeySpec(pin.toCharArray(), salt, ITERATIONS, KEY_LENGTH)
         val tmp = factory.generateSecret(spec)
         return SecretKeySpec(tmp.encoded, "AES")
     }
@@ -211,7 +217,7 @@ class PinCryptoManager(private val context: Context) {
      */
 
     private fun generateSalt(): ByteArray {
-        val secret = ByteArray(16)
+        val secret = ByteArray(SALT_SIZE)
         SecureRandom().nextBytes(secret)
         return secret
     }
