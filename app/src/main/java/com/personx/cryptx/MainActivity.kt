@@ -130,7 +130,6 @@ class MainActivity : ComponentActivity() {
 
     override fun onStop() {
         super.onStop()
-        SessionKeyManager.clearSessionKey()
     }
 
     override fun onDestroy() {
