@@ -101,7 +101,7 @@ object BackupManager {
             val backupZip = File(context.cacheDir, backupFileName)
             ZipOutputStream(FileOutputStream(backupZip)).use { zipOutputStream ->
                 zipOutputStream.putNextEntry(
-                    java.util.zip.ZipEntry(ENCRYPTED_DB_NAME)
+                    ZipEntry(ENCRYPTED_DB_NAME)
                 )
                 Files.copy(encryptedDbFile.toPath(), zipOutputStream)
                 zipOutputStream.closeEntry()
