@@ -1,5 +1,6 @@
 package com.personx.cryptx.screens.settingsscreen
 
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -16,6 +17,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -28,6 +30,7 @@ import androidx.compose.material.icons.filled.CloudUpload
 import androidx.compose.material.icons.filled.EnhancedEncryption
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.LockReset
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
@@ -36,12 +39,15 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -54,19 +60,25 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
+import com.personx.cryptx.components.CyberpunkButton
 import com.personx.cryptx.components.Header
+import com.personx.cryptx.viewmodel.SettingsViewModel
 
 @Composable
 fun SettingsScreen(
+    viewModel: SettingsViewModel,
     windowSizeClass: WindowSizeClass,
     navController: NavController
 ) {
     val context = LocalContext.current
     val cyberGreen = Color(0xFF00FF9D)
+    val state by viewModel.state.collectAsState()
 
     val isCompact = windowSizeClass.widthSizeClass == WindowWidthSizeClass.Compact
     val padding = if (isCompact) 16.dp else 24.dp
@@ -109,7 +121,7 @@ fun SettingsScreen(
                     title = "Change Security PIN",
                     description = "Update your encryption access code",
                     accentColor = cyberGreen,
-                    onClick = {  }
+                    onClick = { viewModel.updateShowPinDialog(true) }
                 )
 
                 // Backup Card
@@ -169,24 +181,12 @@ fun SettingsScreen(
             }
 
             // Change PIN Dialog
-            if (false) {
-                CyberpunkPinChangeDialog(
-                    onDismiss = { },
-                    onConfirm = {newpin, somepin ->
-
-                    },
-                    accentColor = cyberGreen
+            if (state.showPinDialog) {
+                ChangePinDialog(
+                    viewModel = viewModel
                 )
             }
 
-            // Backup/Restore Status
-            if (false) {
-                CyberpunkStatusBanner(
-                    message = "",
-                    color = if (true) cyberGreen else cyberGreen,
-                    onDismiss = { }
-                )
-            }
         }
     }
 }
@@ -270,216 +270,156 @@ private fun CyberpunkSettingCard(
     }
 }
 
-@Composable
-private fun CyberpunkPinChangeDialog(
-    onDismiss: () -> Unit,
-    onConfirm: (String, String) -> Unit,
-    accentColor: Color
-) {
-    var currentPin = remember { mutableStateOf("") }
-    var newPin = remember { mutableStateOf("") }
-    var confirmPin = remember { mutableStateOf("") }
-
-    Dialog(onDismissRequest = onDismiss) {
-        Column(
-            modifier = Modifier
-                .background(Color.Black)
-                .border(1.dp, accentColor)
-                .padding(24.dp)
-        ) {
-            Text(
-                "SECURE PIN UPDATE",
-                style = MaterialTheme.typography.headlineSmall.copy(
-                    color = accentColor,
-                    fontFamily = FontFamily.Monospace,
-                    fontWeight = FontWeight.Bold,
-                    letterSpacing = 1.sp
-                ),
-                modifier = Modifier.padding(bottom = 16.dp)
-            )
-
-            // Current PIN
-            CyberpunkPinInput(
-                value = currentPin.value,
-                onValueChange = { if (it.length <= 6) currentPin.value = it },
-                label = "CURRENT PIN",
-                accentColor = accentColor
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // New PIN
-            CyberpunkPinInput(
-                value = newPin.value,
-                onValueChange = { if (it.length <= 6) newPin.value = it },
-                label = "NEW PIN",
-                accentColor = accentColor
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Confirm PIN
-            CyberpunkPinInput(
-                value = confirmPin.value,
-                onValueChange = { if (it.length <= 6) confirmPin.value = it },
-                label = "CONFIRM PIN",
-                accentColor = accentColor
-            )
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End
-            ) {
-                TextButton(
-                    onClick = onDismiss,
-                    colors = ButtonDefaults.textButtonColors(
-                        contentColor = Color.White
-                    )
-                ) {
-                    Text("CANCEL", style = MaterialTheme.typography.labelLarge.copy(
-                        fontFamily = FontFamily.Monospace
-                    ))
-                }
-
-                Spacer(modifier = Modifier.width(16.dp))
-
-                Button(
-                    onClick = {
-                        if (newPin == confirmPin && newPin.value.isNotEmpty()) {
-                            onConfirm(currentPin.value, newPin.value)
-                            onDismiss()
-                        }
-                    },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = accentColor,
-                        contentColor = Color.Black
-                    ),
-                    enabled = newPin.value.isNotEmpty() && newPin.value == confirmPin.value
-                ) {
-                    Text("CONFIRM", style = MaterialTheme.typography.labelLarge.copy(
-                        fontFamily = FontFamily.Monospace,
-                        fontWeight = FontWeight.Bold
-                    ))
-                }
-            }
-        }
-    }
-}
 
 @Composable
-private fun CyberpunkPinInput(
+fun CyberpunkPinField(
     value: String,
     onValueChange: (String) -> Unit,
     label: String,
-    accentColor: Color
+    modifier: Modifier = Modifier
 ) {
-    Column {
-        Text(
-            label,
-            style = MaterialTheme.typography.labelMedium.copy(
-                color = accentColor,
-                fontFamily = FontFamily.Monospace,
-                letterSpacing = 1.sp
-            )
-        )
+    val cyberGreen = Color(0xFF00FF9D)
+    val cyberDark = Color.Black.copy(0.3f)
 
-        Spacer(modifier = Modifier.height(4.dp))
+    Column(modifier = modifier) {
+        Text(
+            text = label,
+            color = cyberGreen.copy(alpha = 0.7f),
+            style = MaterialTheme.typography.labelSmall,
+            modifier = Modifier.padding(bottom = 4.dp)
+        )
 
         BasicTextField(
             value = value,
             onValueChange = onValueChange,
-            textStyle = MaterialTheme.typography.bodyLarge.copy(
-                color = Color.White,
-                fontFamily = FontFamily.Monospace,
-                letterSpacing = 8.sp
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(
+                    color = cyberDark.copy(alpha = 0.5f),
+                    shape = RoundedCornerShape(4.dp)
+                )
+                .border(
+                    width = 1.dp,
+                    color = cyberGreen.copy(alpha = 0.3f),
+                    shape = RoundedCornerShape(4.dp)
+                )
+                .padding(12.dp),
+            textStyle = LocalTextStyle.current.copy(
+                color = MaterialTheme.colorScheme.onSurface,
+                fontSize = 26.sp
             ),
+
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.NumberPassword,
                 imeAction = ImeAction.Next
             ),
-            decorationBox = { innerTextField ->
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(Color.Black)
-                        .border(1.dp, accentColor)
-                        .padding(vertical = 12.dp, horizontal = 16.dp),
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    repeat(6) { index ->
-                        Box(
-                            modifier = Modifier
-                                .size(24.dp)
-                                .background(if (index < value.length) accentColor else Color.Transparent)
-                                .border(1.dp, accentColor),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            if (index < value.length) {
-                                Text("•", color = Color.Black)
-                            }
-                        }
-                        if (index < 5) Spacer(modifier = Modifier.width(8.dp))
-                    }
-                    innerTextField() // Hidden text field for input
-                }
-            }
+            visualTransformation = PasswordVisualTransformation()
         )
     }
 }
 
 @Composable
-private fun CyberpunkStatusBanner(
-    message: String,
-    color: Color,
-    onDismiss: () -> Unit
+fun ChangePinDialog(
+    viewModel: SettingsViewModel
 ) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp)
-    ) {
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(
-                containerColor = color.copy(alpha = 0.2f)
-            ),
-            border = BorderStroke(1.dp, color)
+    val context = LocalContext.current
+    val state = viewModel.state
+    Dialog(
+            onDismissRequest = { viewModel.updateShowPinDialog(false)}
         ) {
-            Row(
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(12.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    imageVector = if (color == Color(0xFF00FF9D)) Icons.Default.Check else Icons.Default.Warning,
-                    contentDescription = null,
-                    tint = color
-                )
-
-                Spacer(modifier = Modifier.width(12.dp))
-
-                Text(
-                    text = message,
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        color = Color.White,
-                        fontFamily = FontFamily.Monospace
-                    ),
-                    modifier = Modifier.weight(1f)
-                )
-
-                IconButton(
-                    onClick = onDismiss,
-                    modifier = Modifier.size(24.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Close,
-                        contentDescription = "Dismiss",
-                        tint = color
+                    .background(
+                        color = Color.Black,
+                        shape = RoundedCornerShape(12.dp)
                     )
-                }
+                    .border(
+                        width = 2.dp,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        shape = RoundedCornerShape(12.dp)
+                    )
+                    .padding(24.dp)
+            ) {
+                Text(
+                    "CHANGE SECURITY PIN",
+                    style = MaterialTheme.typography.headlineSmall.copy(
+                        color = MaterialTheme.colorScheme.onSurface,
+                        fontFamily = FontFamily.Monospace,
+                        fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.Center
+                    ),
+                    modifier = Modifier.padding(bottom = 16.dp)
+                )
+
+                CyberpunkPinField(
+                    value = state.value.currentPin?: "",
+                    onValueChange = { viewModel.updateCurrentPin(it) },
+                    label = "Current PIN",
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(Modifier.height(16.dp))
+
+                CyberpunkPinField(
+                    value = state.value.newPin?: "",
+                    onValueChange = { viewModel.updateNewPin(it) },
+                    label = "New PIN",
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(Modifier.height(16.dp))
+
+                CyberpunkPinField(
+                    value = state.value.confirmPin?: "",
+                    onValueChange = { viewModel.updateConfirmPin(it) },
+                    label = "Confirm PIN",
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(Modifier.height(24.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    TextButton(
+                        onClick = { viewModel.updateShowPinDialog(false) },
+                        colors = ButtonDefaults.textButtonColors(
+                            contentColor = MaterialTheme.colorScheme.onSurface
+                        ),
+                    ) {
+                        Text("CANCEL",
+                            style = MaterialTheme.typography.labelLarge.copy(
+                                fontFamily = FontFamily.Monospace,
+                            )
+                        )
+                    }
+
+                Spacer(Modifier.width(16.dp))
+
+                CyberpunkButton(
+                    onClick = {
+                        try {
+                            viewModel.updatePin(
+                                oldPin = state.value.currentPin ?: "",
+                                newPin = state.value.newPin?: "",
+                                confirmPin = state.value.confirmPin?: "",
+                                onResult = { success ->
+                                    if (success) {
+                                        Toast.makeText(context, "PIN changed successfully!", Toast.LENGTH_SHORT).show()
+                                        viewModel.updateShowPinDialog(false)
+                                    } else {
+                                        Toast.makeText(context, "Failed to change PIN. Please try again.", Toast.LENGTH_SHORT).show()
+                                    }
+                                }
+                            )
+                        } catch (e: Exception) {
+                            Toast.makeText(context, "Error changing PIN: ${e.message}", Toast.LENGTH_SHORT).show()
+                        }
+                    },
+                    icon = Icons.Default.LockReset,
+                    text = "CONFIRM",
+                )
             }
         }
     }

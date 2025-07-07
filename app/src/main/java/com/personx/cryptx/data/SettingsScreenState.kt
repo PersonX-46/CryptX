@@ -1,6 +1,6 @@
 package com.personx.cryptx.data
 
-data class HomeScreenState (
+data class SettingsScreenState (
     val showPinDialog : Boolean = false,
     val currentPin: String? = null,
     val newPin: String? = null,

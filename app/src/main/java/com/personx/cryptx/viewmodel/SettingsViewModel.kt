@@ -3,21 +3,21 @@ package com.personx.cryptx.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.personx.cryptx.crypto.PinCryptoManager
-import com.personx.cryptx.data.HomeScreenState
+import com.personx.cryptx.data.SettingsScreenState
 import com.personx.cryptx.database.encryption.DatabaseProvider
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class HomeScreenViewModel(
+class SettingsViewModel(
     private val pinCryptoManager: PinCryptoManager
 ): ViewModel() {
 
-    private val _state = MutableStateFlow(HomeScreenState())
-    val state: StateFlow<HomeScreenState> = _state
+    private val _state = MutableStateFlow(SettingsScreenState())
+    val state: StateFlow<SettingsScreenState> = _state
 
     fun resetState() {
-        _state.value = HomeScreenState()
+        _state.value = SettingsScreenState()
     }
 
     fun updateShowPinDialog(show: Boolean) {
