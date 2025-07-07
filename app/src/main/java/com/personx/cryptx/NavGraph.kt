@@ -22,7 +22,7 @@ import com.personx.cryptx.screens.encryptscreen.EncryptMainScreen
 import com.personx.cryptx.screens.encryptscreen.EncryptPinHandler
 import com.personx.cryptx.screens.pinlogin.PinLoginScreen
 import com.personx.cryptx.screens.pinsetup.PinSetupScreen
-import com.personx.cryptx.viewmodel.HomeScreenViewModel
+import com.personx.cryptx.viewmodel.SettingsViewModel
 import com.personx.cryptx.viewmodel.decryption.DecryptionHistoryRepository
 import com.personx.cryptx.viewmodel.decryption.DecryptionViewModel
 import com.personx.cryptx.viewmodel.encryption.EncryptionViewModel
@@ -44,6 +44,9 @@ fun AppNavGraph(
     )
     val decryptViewModel = DecryptionViewModel(
         repository = DecryptionHistoryRepository(context)
+    )
+    val settingsViewModel = SettingsViewModel(
+        pinCryptoManager = PinCryptoManager(context)
     )
     NavHost(navController = navController, startDestination = startDestination) {
         composable("pin_setup") {
@@ -73,7 +76,7 @@ fun AppNavGraph(
         }
         composable("home") {
             HomeScreen(
-                HomeScreenViewModel(
+                SettingsViewModel(
                     PinCryptoManager(context)
                 ),
                 windowSizeClass
@@ -144,6 +147,7 @@ fun AppNavGraph(
         }
         composable("settings"){
             SettingsScreen(
+                settingsViewModel,
                 windowSizeClass,
                 navController
             )
