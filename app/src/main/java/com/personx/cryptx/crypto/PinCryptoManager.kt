@@ -67,7 +67,7 @@ class PinCryptoManager(private val context: Context) {
      */
 
     fun verifyPin(pin: String): Boolean {
-        val prefs = context.getSharedPreferences(SecurePrefs.ENCRYPTED_SESSION_KEY, Context.MODE_PRIVATE)
+        val prefs = context.getSharedPreferences(SecurePrefs.NAME, Context.MODE_PRIVATE)
         val saltString = prefs.getString(SecurePrefs.SALT, null) ?: return false
         val ivString = prefs.getString(SecurePrefs.IV, null) ?: return false
         val encryptedKeyString = prefs.getString(SecurePrefs.ENCRYPTED_SESSION_KEY, null) ?: return false
