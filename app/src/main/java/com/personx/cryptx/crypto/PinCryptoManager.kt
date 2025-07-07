@@ -7,7 +7,6 @@ import androidx.core.content.edit
 import com.personx.cryptx.SecurePrefs
 import com.personx.cryptx.database.encryption.DatabaseProvider
 import net.zetetic.database.sqlcipher.SQLiteDatabase
-import java.security.Key
 import java.security.SecureRandom
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
