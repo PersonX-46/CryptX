@@ -1,6 +1,9 @@
 package com.personx.cryptx
 
 import android.annotation.SuppressLint
+import android.app.Application
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
@@ -29,6 +32,7 @@ import com.personx.cryptx.viewmodel.encryption.EncryptionViewModel
 import com.personx.cryptx.viewmodel.encryption.EncryptionViewModelRepository
 import com.personx.cryptx.viewmodel.steganography.SteganographyViewModelRepository
 
+@RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("ViewModelConstructorInComposable")
 @Composable
 fun AppNavGraph(
@@ -46,7 +50,8 @@ fun AppNavGraph(
         repository = DecryptionHistoryRepository(context)
     )
     val settingsViewModel = SettingsViewModel(
-        pinCryptoManager = PinCryptoManager(context)
+        pinCryptoManager = PinCryptoManager(context),
+        application = context.applicationContext as Application
     )
     NavHost(navController = navController, startDestination = startDestination) {
         composable("pin_setup") {
@@ -77,7 +82,8 @@ fun AppNavGraph(
         composable("home") {
             HomeScreen(
                 SettingsViewModel(
-                    PinCryptoManager(context)
+                    PinCryptoManager(context),
+                    application = context.applicationContext as Application
                 ),
                 windowSizeClass
             )

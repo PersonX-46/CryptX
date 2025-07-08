@@ -5,9 +5,13 @@ import android.os.Build
 import android.util.Base64
 import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.core.content.edit
+import com.personx.cryptx.database.encryption.DatabaseProvider
 import org.json.JSONObject
 import java.io.File
 import java.io.FileOutputStream
+import java.io.IOException
+import java.io.RandomAccessFile
 import java.nio.file.Files
 import java.security.MessageDigest
 import java.security.SecureRandom
@@ -18,189 +22,245 @@ import java.util.zip.ZipEntry
 import java.util.zip.ZipFile
 import java.util.zip.ZipOutputStream
 import javax.crypto.Cipher
+import javax.crypto.SecretKey
 import javax.crypto.SecretKeyFactory
 import javax.crypto.spec.GCMParameterSpec
 import javax.crypto.spec.PBEKeySpec
 import javax.crypto.spec.SecretKeySpec
+import javax.security.auth.Destroyable
 
+@RequiresApi(Build.VERSION_CODES.O)
 object BackupManager {
-
-
     private const val TRANSFORMATION = "AES/GCM/NoPadding"
     private const val DB_NAME = "encrypted_history.db"
-    private const val ENCRYPTED_DB_NAME = "encrypted_encrypted_history.db"
-    private const val METADATA_JSON = "metadata.json"
+    private const val BACKUP_PREFIX = "secure_backup_"
+    private const val METADATA_FILE = "metadata.enc"
+    private const val DB_FILE = "database.enc"
     private const val PBKDF2_ITERATIONS = 310_000
-    private const val SHA256_LENGTH = 32
+    private const val SALT_LENGTH = 16
+    private const val IV_LENGTH = 12
+    private const val TAG_LENGTH = 16 // GCM tag length
 
-    private fun deriveKeyFromPassword(password: String, salt: ByteArray): SecretKeySpec {
-        val factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256")
-        val spec = PBEKeySpec(password.toCharArray(), salt, PBKDF2_ITERATIONS, 256)
-        val tmp = factory.generateSecret(spec)
-        return SecretKeySpec(tmp.encoded, "AES")
-    }
-
-    private fun sha256(bytes: ByteArray): ByteArray {
-        return MessageDigest.getInstance("SHA-256").digest(bytes)
-    }
-
-    private fun generateSecureFileName(metadata: String): String {
-        val digest = MessageDigest.getInstance("SHA-256")
-        val hashBytes = digest.digest(metadata.toByteArray())
-        val timestamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
-        return hashBytes.joinToString("") { "%02x".format(it)}.take(24) + "_$timestamp.backupx"
-    }
-
-    @RequiresApi(Build.VERSION_CODES.O)
-    fun exportSecureBackup(context: Context, userPassword: String): File? {
-        return try {
-            val dbFile = context.getDatabasePath(DB_NAME)
-            val prefs = context.getSharedPreferences("secure_prefs", Context.MODE_PRIVATE)
-
-            val saltStr = prefs.getString("salt", null) ?: return null
-            val ivStr = prefs.getString("iv", null) ?: return null
-            val encryptedSessionKeyStr = prefs.getString("encryptedSessionKey", null) ?: return null
-
-            val backupSalt = ByteArray(16).also { SecureRandom().nextBytes(it) }
-            val userKey = deriveKeyFromPassword(userPassword, backupSalt)
-
-            val cipher = Cipher.getInstance(TRANSFORMATION)
-            val backupIv = ByteArray(12).also { SecureRandom().nextBytes(it) }
-            cipher.init(Cipher.ENCRYPT_MODE, userKey, GCMParameterSpec(128, backupIv))
-
-            val metadata = JSONObject().apply {
-                put("storedSalt", saltStr)
-                put("iv", ivStr)
-                put("encryptedSessionKey", encryptedSessionKeyStr)
-                put("backupSalt", Base64.encodeToString(backupSalt, Base64.NO_WRAP))
+    private fun secureDelete(file: File) {
+        try {
+            if (file.exists()) {
+                // Overwrite with random data before deletion
+                RandomAccessFile(file, "rws").use { raf ->
+                    val buffer = ByteArray(4096)
+                    SecureRandom().nextBytes(buffer)
+                    val length = raf.length()
+                    var remaining = length
+                    while (remaining > 0) {
+                        val toWrite = minOf(remaining, buffer.size.toLong())
+                        raf.write(buffer, 0, toWrite.toInt())
+                        remaining -= toWrite
+                    }
+                }
+                file.delete()
             }
-            val rawMetadata = metadata.toString()
-            val encryptedMetadata = cipher.doFinal(rawMetadata.toByteArray())
-
-            val metadataFile = File(context.cacheDir, METADATA_JSON)
-            FileOutputStream(metadataFile).use {
-                it.write(backupIv)
-                it.write(encryptedMetadata)
-            }
-
-            val dbBytes = dbFile.readBytes()
-            val dbIv = ByteArray(12).also { SecureRandom().nextBytes(it) }
-            val dbCipher = Cipher.getInstance(TRANSFORMATION)
-            dbCipher.init(Cipher.ENCRYPT_MODE, userKey, GCMParameterSpec(128, dbIv))
-            val encryptedDbBytes = dbCipher.doFinal(dbBytes)
-            val dbHash = sha256(encryptedDbBytes)
-
-            val encryptedDbFile = File(context.cacheDir, ENCRYPTED_DB_NAME)
-            FileOutputStream(encryptedDbFile).use {
-                it.write(dbIv)
-                it.write(encryptedDbBytes)
-                it.write(dbHash)
-            }
-
-            val backupFileName = generateSecureFileName(rawMetadata)
-            val backupZip = File(context.cacheDir, backupFileName)
-            ZipOutputStream(FileOutputStream(backupZip)).use { zipOutputStream ->
-                zipOutputStream.putNextEntry(
-                    ZipEntry(ENCRYPTED_DB_NAME)
-                )
-                Files.copy(encryptedDbFile.toPath(), zipOutputStream)
-                zipOutputStream.closeEntry()
-
-                zipOutputStream.putNextEntry(ZipEntry(METADATA_JSON))
-                Files.copy(metadataFile.toPath(), zipOutputStream)
-                zipOutputStream.closeEntry()
-            }
-
-            metadataFile.delete()
-            encryptedDbFile.delete()
-
-            backupZip.setReadable(false, false)
-            backupZip.setReadable(true, true)
-
-            userKey.encoded.fill(0)
-            dbBytes.fill(0)
-            encryptedDbBytes.fill(0)
-            encryptedMetadata.fill(0)
-            backupZip
         } catch (e: Exception) {
-            Log.e("BackupManager", "Error exporting secure backup", e)
+            Log.w("SecureDelete", "Failed to securely delete file", e)
+            file.delete() // Fallback to normal delete
+        }
+    }
+
+    private fun deriveSecureKey(password: String, salt: ByteArray): SecretKey {
+        return SecretKeySpec(
+            PBEKeySpec(
+                password.toCharArray(),
+                salt,
+                PBKDF2_ITERATIONS,
+                256
+            ).let { spec ->
+                SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256")
+                    .generateSecret(spec)
+                    .encoded
+            },
+            "AES"
+        )
+    }
+
+    @Throws(IOException::class)
+    private fun createSecureBackupFile(context: Context): File {
+        return File.createTempFile(
+            BACKUP_PREFIX,
+            ".backup",
+            context.getExternalFilesDir(null) ?: context.filesDir
+        ).apply {
+            setReadable(true, true)
+            setWritable(true, true)
+        }
+    }
+
+    fun exportBackup(context: Context, password: String): File? {
+        DatabaseProvider.clearDatabaseInstance()
+        if (password.isEmpty()) return null
+
+        // 1. Prepare encryption materials
+        val backupSalt = ByteArray(SALT_LENGTH).apply { SecureRandom().nextBytes(this) }
+        val userKey = deriveSecureKey(password, backupSalt)
+
+        // 2. Create secure temp files
+        val tempDir = File(context.cacheDir, "backup_temp_${System.currentTimeMillis()}").apply {
+            mkdirs()
+        }
+
+        return try {
+            // 3. Encrypt metadata
+            val prefs = context.getSharedPreferences("secure_prefs", Context.MODE_PRIVATE)
+            val metadata = JSONObject().apply {
+                put("salt", prefs.getString("salt", "") ?: "")
+                put("iv", prefs.getString("iv", "") ?: "")
+                put("encryptedKey", prefs.getString("encryptedSessionKey", "") ?: "")
+                put("backupSalt", Base64.encodeToString(backupSalt, Base64.NO_WRAP))
+                put("version", 1)
+            }
+
+            // 4. Encrypt database
+            val dbFile = context.getDatabasePath(DB_NAME)
+            val dbIv = ByteArray(IV_LENGTH).apply { SecureRandom().nextBytes(this) }
+            val encryptedDb = Cipher.getInstance(TRANSFORMATION).run {
+                init(Cipher.ENCRYPT_MODE, userKey, GCMParameterSpec(128, dbIv))
+                doFinal(dbFile.readBytes())
+            }
+
+            // 5. Write to temp files
+            File(tempDir, METADATA_FILE).writeText(metadata.toString())
+            File(tempDir, DB_FILE).writeBytes(dbIv + encryptedDb)
+
+            // 6. Create final backup archive
+            val backupFile = createSecureBackupFile(context)
+
+            ZipOutputStream(FileOutputStream(backupFile)).use { zip ->
+                zip.putNextEntry(ZipEntry(METADATA_FILE))
+                File(tempDir, METADATA_FILE).inputStream().use { it.copyTo(zip) }
+                zip.closeEntry()
+
+                zip.putNextEntry(ZipEntry(DB_FILE))
+                File(tempDir, DB_FILE).inputStream().use { it.copyTo(zip) }
+                zip.closeEntry()
+            }
+
+            backupFile
+        } catch (e: Exception) {
+            Log.e("BackupManager", "Export failed", e)
             null
+        } finally {
+            tempDir.listFiles()?.forEach { secureDelete(it) }
+            tempDir.delete()
+            userKey.destroyKeyMaterial()
         }
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    fun importSecureBackup(context: Context, backupFile: File, userPassword: String): Boolean {
-        return try {
-            val unzipDir = File(context.cacheDir, "restore").apply {
-                mkdirs()
-            }
-            val zipInput = ZipFile(backupFile)
-            zipInput.entries().asSequence().forEach { entry ->
-                val outFile = File(unzipDir, entry.name)
-                zipInput.getInputStream(entry).use { input ->
-                    FileOutputStream(outFile).use { outputStream ->
-                    input.copyTo(outputStream)}
+    fun importBackup(context: Context, backupFile: File, password: String): Boolean {
+        if (password.isEmpty()) {
+            Log.e("BackupManager", "❌ Password is empty")
+            return false
+        }
+
+        val tempDir = File(context.cacheDir, "restore_temp_${System.currentTimeMillis()}").apply {
+            mkdirs()
+        }
+
+        try {
+            // Step 1: Unzip the backup file
+            Log.d("BackupManager", "🔍 Unzipping backup file: ${backupFile.absolutePath}")
+            ZipFile(backupFile).use { zip ->
+                zip.entries().asSequence().forEach { entry ->
+                    val outFile = File(tempDir, entry.name)
+                    outFile.outputStream().use { output ->
+                        zip.getInputStream(entry).use { input ->
+                            input.copyTo(output)
+                        }
+                    }
+                    Log.d("BackupManager", "✅ Extracted file: ${outFile.absolutePath} (${outFile.length()} bytes)")
                 }
             }
 
-            val encryptedDbFile = File(unzipDir, ENCRYPTED_DB_NAME)
-            val metadataFile = File(unzipDir, METADATA_JSON)
-            if (!encryptedDbFile.exists() || !metadataFile.exists()) return false
+            val metadataFile = File(tempDir, METADATA_FILE)
+            val dbFile = File(tempDir, DB_FILE)
 
-            val metadataBytes = Files.readAllBytes(metadataFile.toPath())
-            val backupIv = metadataBytes.sliceArray(0 until 12)
-            val encryptedMetadata = metadataBytes.sliceArray(12 until metadataBytes.size)
-
-            val parsedJson = JSONObject(String(encryptedMetadata))
-            val backupSaltStr = parsedJson.getString("backupSalt")
-            val backupSalt = Base64.decode(backupSaltStr, Base64.NO_WRAP)
-
-            val userKey = deriveKeyFromPassword(userPassword, backupSalt)
-            val cipher = Cipher.getInstance(TRANSFORMATION)
-            cipher.init(Cipher.DECRYPT_MODE, userKey, GCMParameterSpec(128, backupIv))
-            val decryptedMetadata = cipher.doFinal(encryptedMetadata)
-            val metadataJson = JSONObject(String(decryptedMetadata))
-
-            val newSalt = metadataJson.getString("storedSalt")
-            val iv = metadataJson.getString("iv")
-            val encryptedSessionKey = metadataJson.getString("encryptedSessionKey")
-
-            val dbFileBytes = Files.readAllBytes(encryptedDbFile.toPath())
-            val dbIv = dbFileBytes.sliceArray(0 until 12)
-            val dbEncryptedBytes = dbFileBytes.sliceArray(12 until dbFileBytes.size - SHA256_LENGTH)
-            val dbExpectedHash = dbFileBytes.sliceArray((dbFileBytes.size - SHA256_LENGTH until dbFileBytes.size))
-
-            val dbCipher = Cipher.getInstance(TRANSFORMATION)
-            dbCipher.init(Cipher.DECRYPT_MODE, userKey, GCMParameterSpec(128, dbIv))
-            val decryptedDbBytes = dbCipher.doFinal(dbEncryptedBytes)
-
-            val actualHash = sha256(decryptedDbBytes)
-            if (!dbExpectedHash.contentEquals(actualHash)) {
-                Log.e("BackupManager", "Database hash mismatch during import")
+            Log.d("BackupManager", "📄 Checking extracted files...")
+            if (!metadataFile.exists()) {
+                Log.e("BackupManager", "❌ Metadata file missing")
                 return false
             }
-            val dbDest = context.getDatabasePath(DB_NAME)
-            dbDest.delete()
-            FileOutputStream(dbDest).use { it.write(decryptedDbBytes) }
-
-            context.getSharedPreferences("secure_prefs", Context.MODE_PRIVATE).edit().apply {
-                putString("salt", newSalt)
-                putString("iv", iv)
-                putString("encryptedSessionKey", encryptedSessionKey)
-                apply()
+            if (!dbFile.exists()) {
+                Log.e("BackupManager", "❌ Encrypted DB file missing")
+                return false
             }
 
-            userKey.encoded.fill(0)
-            decryptedMetadata.fill(0)
-            dbEncryptedBytes.fill(0)
-            decryptedDbBytes.fill(0)
-            encryptedMetadata.fill(0)
+            val metadataJson = metadataFile.readText()
+            val metadata = JSONObject(metadataJson)
+            Log.d("BackupManager", "📦 Parsed Metadata: $metadata")
 
-            unzipDir.deleteRecursively()
-            true
+
+            val backupSalt = Base64.decode(metadata.getString("backupSalt"), Base64.NO_WRAP)
+            Log.d("BackupManager", "🔐 Deriving user key using backupSalt")
+
+            val userKey = deriveSecureKey(password, backupSalt)
+
+            try {
+                val dbBytes = dbFile.readBytes()
+                Log.d("BackupManager", "📦 Encrypted DB file size: ${dbBytes.size}")
+                if (dbBytes.size < IV_LENGTH) {
+                    Log.e("BackupManager", "❌ DB file too short")
+                    return false
+                }
+
+                val dbIv = dbBytes.copyOfRange(0, IV_LENGTH)
+                val encryptedDb = dbBytes.copyOfRange(IV_LENGTH, dbBytes.size)
+
+                Log.d("BackupManager", "🔓 Attempting DB decryption")
+                val decryptedDb = Cipher.getInstance(TRANSFORMATION).run {
+                    init(Cipher.DECRYPT_MODE, userKey, GCMParameterSpec(128, dbIv))
+                    doFinal(encryptedDb)
+                }
+                Log.d("BackupManager", "✅ DB decrypted successfully")
+
+                val targetDb = context.getDatabasePath(DB_NAME).apply {
+                    parentFile?.mkdirs()
+                    delete()
+                }
+                FileOutputStream(targetDb).use { it.write(decryptedDb) }
+                Log.d("BackupManager", "💾 Restored DB to: ${targetDb.absolutePath}")
+
+                context.getSharedPreferences("secure_prefs", Context.MODE_PRIVATE).edit {
+                    putString("salt", metadata.getString("salt"))
+                    putString("iv", metadata.getString("iv"))
+                    putString("encryptedSessionKey", metadata.getString("encryptedKey"))
+                    commit()
+                }
+                Log.d("BackupManager", "✅ Secure prefs restored")
+
+                DatabaseProvider.clearDatabaseInstance()
+                return true
+            } catch (e: Exception) {
+                Log.e("BackupManager", "❌ DB decryption failed", e)
+                return false
+            } finally {
+                userKey.destroyKeyMaterial()
+            }
+
         } catch (e: Exception) {
-            Log.e("BackupManager", "Error importing secure backup", e)
-            false
+            Log.e("BackupManager", "❌ General import failure", e)
+            return false
+        } finally {
+            tempDir.listFiles()?.forEach { secureDelete(it) }
+            tempDir.delete()
+            Log.d("BackupManager", "🧹 Temp directory cleaned up")
+        }
+    }
+
+
+    // Extension to help clear key material
+    private fun SecretKey.destroyKeyMaterial() {
+        try {
+            (this as? Destroyable)?.destroy()
+        } catch (e: Exception) {
+            // Best effort cleanup
+            (this as? SecretKeySpec)?.encoded?.fill(0)
         }
     }
 }

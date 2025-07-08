@@ -1,6 +1,11 @@
 package com.personx.cryptx.screens.settingsscreen
 
+import android.net.Uri
+import android.os.Build
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -26,10 +31,12 @@ import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.CloudDownload
 import androidx.compose.material.icons.filled.CloudUpload
 import androidx.compose.material.icons.filled.EnhancedEncryption
+import androidx.compose.material.icons.filled.FolderOpen
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.LockReset
 import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.Save
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -41,8 +48,11 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -63,6 +73,7 @@ import com.personx.cryptx.components.CyberpunkButton
 import com.personx.cryptx.components.Header
 import com.personx.cryptx.viewmodel.SettingsViewModel
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun SettingsScreen(
     viewModel: SettingsViewModel,
@@ -73,6 +84,24 @@ fun SettingsScreen(
     val cyberGreen = Color(0xFF00FF9D)
     val state by viewModel.state.collectAsState()
 
+    val selectedUri = remember { mutableStateOf<Uri?>(null) }
+
+    val importLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument(),
+        onResult = { uri ->
+            selectedUri.value = uri
+        }
+    )
+
+
+    // Optional toast for backup result
+    state.backupResult?.let { result ->
+        LaunchedEffect(result) {
+            Toast.makeText(context, result, Toast.LENGTH_LONG).show()
+            viewModel.updateBackupResult(null)
+        }
+    }
+
     val isCompact = windowSizeClass.widthSizeClass == WindowWidthSizeClass.Compact
     val padding = if (isCompact) 16.dp else 24.dp
     val spacing = if (isCompact) 16.dp else 24.dp
@@ -82,17 +111,19 @@ fun SettingsScreen(
             .fillMaxSize()
             .background(
                 Brush.verticalGradient(
-                colors = listOf(
-                    MaterialTheme.colorScheme.onSurface.copy(0.05f),
-                    MaterialTheme.colorScheme.onPrimary.copy(0.01f)
+                    colors = listOf(
+                        MaterialTheme.colorScheme.onSurface.copy(0.05f),
+                        MaterialTheme.colorScheme.onPrimary.copy(0.01f)
+                    )
                 )
-            ))
+            )
     ) {
         Column(
             modifier = Modifier
                 .verticalScroll(rememberScrollState())
         ) {
             Header("SETTINGS", windowSizeClass)
+
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -102,13 +133,13 @@ fun SettingsScreen(
                                 MaterialTheme.colorScheme.onSurface.copy(0.05f),
                                 MaterialTheme.colorScheme.onPrimary.copy(0.01f)
                             )
-                        ))
+                        )
+                    )
                     .padding(padding)
             ) {
-                // Security Section
+                // === SECURITY ===
                 CyberpunkSectionTitle("SECURITY PROTOCOLS", cyberGreen)
 
-                // Change PIN Card
                 CyberpunkSettingCard(
                     icon = Icons.Default.Lock,
                     title = "Change Security PIN",
@@ -117,53 +148,48 @@ fun SettingsScreen(
                     onClick = { viewModel.updateShowPinDialog(true) }
                 )
 
-                // Backup Card
                 CyberpunkSettingCard(
                     icon = Icons.Default.CloudUpload,
                     title = "Backup Database",
                     description = "Create secure backup of encrypted data",
                     accentColor = cyberGreen,
-                    onClick = {  }
+                    onClick = { viewModel.updateShowExportDialog(true) }
                 )
 
-                // Restore Card
                 CyberpunkSettingCard(
                     icon = Icons.Default.CloudDownload,
                     title = "Restore Database",
                     description = "Recover from previous backup",
                     accentColor = cyberGreen,
-                    onClick = {  }
+                    onClick = { viewModel.updateShowImportDialog(true) }
                 )
 
                 Spacer(modifier = Modifier.height(spacing))
 
-                // App Section
+                // === APP CONFIG ===
                 CyberpunkSectionTitle("APPLICATION CONFIG", cyberGreen)
 
-                // Theme Card
                 CyberpunkSettingCard(
                     icon = Icons.Default.EnhancedEncryption,
                     title = "Algorithm Settings",
                     description = "Set the default encryption algorithms",
                     accentColor = cyberGreen,
-                    onClick = { /* Theme selection logic */ }
+                    onClick = { /* future logic */ }
                 )
 
-                // Notifications Card
                 CyberpunkSettingCard(
                     icon = Icons.Default.Notifications,
                     title = "Base64 by Default",
                     description = "Use Base64 encoding for all data",
                     accentColor = cyberGreen,
-                    onClick = { /* Notification settings */ }
+                    onClick = { /* future logic */ }
                 )
 
                 Spacer(modifier = Modifier.height(spacing))
 
-                // Advanced Section
+                // === ADVANCED ===
                 CyberpunkSectionTitle("OTHER SETTINGS", cyberGreen)
 
-                // About Card
                 CyberpunkSettingCard(
                     icon = Icons.Default.Info,
                     title = "About CryptX",
@@ -173,13 +199,39 @@ fun SettingsScreen(
                 )
             }
 
-            // Change PIN Dialog
             if (state.showPinDialog) {
-                ChangePinDialog(
-                    viewModel = viewModel
+                ChangePinDialog(viewModel = viewModel)
+            }
+
+            if (state.showImportDialog) {
+                ImportBackupDialog(
+                    viewModel = viewModel,
+                    onDismiss = { viewModel.updateShowImportDialog(false) },
+                    onConfirm = { password ->
+                        selectedUri.value?.let {
+                            viewModel.importBackupFromUri(it, password)
+                            selectedUri.value = null // ✅ Reset after use
+                        } ?: viewModel.updateBackupResult("❌ No file selected.")
+                    },
+                    launchFilePicker = {
+                        selectedUri.value = null
+                        viewModel.updateBackupResult(null)
+                        importLauncher.launch(arrayOf("*/*"))
+                    },
+                    selectedFileName = selectedUri.value?.lastPathSegment
                 )
             }
 
+            if (state.showExportDialog) {
+                ExportBackupDialog(
+                    viewModel = viewModel,
+                    onDismiss = { viewModel.updateShowExportDialog(false) },
+                    onConfirm = { password ->
+                        viewModel.launchExportAfterPassword(password) // 🔥 Direct export to Downloads
+                        viewModel.updateShowExportDialog(false)
+                    }
+                )
+            }
         }
     }
 }
@@ -255,10 +307,10 @@ private fun CyberpunkSettingCard(
                 }
 
             Icon(
-            imageVector = Icons.Default.ChevronRight,
-    contentDescription = "Navigate",
-    tint = accentColor.copy(alpha = 0.7f)
-)
+                imageVector = Icons.Default.ChevronRight,
+                contentDescription = "Navigate",
+                tint = accentColor.copy(alpha = 0.7f)
+            )
         }
     }
 }
@@ -316,7 +368,7 @@ fun ChangePinDialog(
     viewModel: SettingsViewModel
 ) {
     val context = LocalContext.current
-    val state = viewModel.state
+    val state = viewModel.state.collectAsState()
     Dialog(
             onDismissRequest = { viewModel.updateShowPinDialog(false)}
         ) {
@@ -417,3 +469,152 @@ fun ChangePinDialog(
         }
     }
 }
+
+@Composable
+fun ExportBackupDialog(
+    viewModel: SettingsViewModel,
+    onDismiss: () -> Unit,
+    onConfirm: (String) -> Unit,
+) {
+    val state = viewModel.state.collectAsState()
+    val context = LocalContext.current
+
+    Dialog(onDismissRequest = onDismiss) {
+        Column(
+            modifier = Modifier
+                .background(Color.Black, RoundedCornerShape(12.dp))
+                .border(2.dp, MaterialTheme.colorScheme.onSurface, RoundedCornerShape(12.dp))
+                .padding(24.dp)
+        ) {
+            Text(
+                "EXPORT BACKUP",
+                style = MaterialTheme.typography.headlineSmall.copy(
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontFamily = FontFamily.Monospace,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center
+                ),
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+
+            CyberpunkPinField(
+                value = state.value.currentPin ?: "",
+                onValueChange = { viewModel.updateCurrentPin(it) },
+                label = "Enter Password to Encrypt",
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End
+            ) {
+                TextButton(
+                    onClick = onDismiss,
+                    colors = ButtonDefaults.textButtonColors(
+                        contentColor = MaterialTheme.colorScheme.onSurface
+                    )
+                ) {
+                    Text("CANCEL", style = MaterialTheme.typography.labelLarge.copy(fontFamily = FontFamily.Monospace))
+                }
+
+                Spacer(modifier = Modifier.width(16.dp))
+
+                CyberpunkButton(
+                    onClick = {
+                        val password = state.value.currentPin ?: ""
+                        if (password.isNotBlank()) {
+                            onConfirm(password)
+                        } else {
+                            Toast.makeText(context, "Password is required.", Toast.LENGTH_SHORT).show()
+                        }
+                    },
+                    icon = Icons.Default.CloudUpload,
+                    text = "EXPORT",
+                )
+            }
+        }
+    }
+}
+
+
+@Composable
+fun ImportBackupDialog(
+    viewModel: SettingsViewModel,
+    onDismiss: () -> Unit,
+    onConfirm: (String) -> Unit,
+    launchFilePicker: () -> Unit,
+    selectedFileName: String?
+) {
+    val state = viewModel.state.collectAsState()
+    val context = LocalContext.current
+
+    Dialog(onDismissRequest = onDismiss) {
+        Column(
+            modifier = Modifier
+                .background(Color.Black, RoundedCornerShape(12.dp))
+                .border(2.dp, MaterialTheme.colorScheme.onSurface, RoundedCornerShape(12.dp))
+                .padding(24.dp)
+        ) {
+            Text(
+                "IMPORT BACKUP",
+                style = MaterialTheme.typography.headlineSmall.copy(
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontFamily = FontFamily.Monospace,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center
+                ),
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+
+            CyberpunkPinField(
+                value = state.value.currentPin ?: "",
+                onValueChange = { viewModel.updateCurrentPin(it) },
+                label = "Enter Backup Password",
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            CyberpunkButton(
+                onClick = launchFilePicker,
+                icon = Icons.Default.FolderOpen,
+                text = selectedFileName ?: "Select Backup File",
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End
+            ) {
+                TextButton(
+                    onClick = onDismiss,
+                    colors = ButtonDefaults.textButtonColors(
+                        contentColor = MaterialTheme.colorScheme.onSurface
+                    )
+                ) {
+                    Text("CANCEL", style = MaterialTheme.typography.labelLarge.copy(fontFamily = FontFamily.Monospace))
+                }
+
+                Spacer(modifier = Modifier.width(16.dp))
+
+                CyberpunkButton(
+                    onClick = {
+                        val password = state.value.currentPin ?: ""
+                        if (password.isNotBlank() && selectedFileName != null) {
+                            onConfirm(password)
+                        } else {
+                            Toast.makeText(context, "Password or file not selected.", Toast.LENGTH_SHORT).show()
+                        }
+                    },
+                    icon = Icons.Default.CloudDownload,
+                    text = "IMPORT",
+                )
+            }
+        }
+    }
+}
+
+
