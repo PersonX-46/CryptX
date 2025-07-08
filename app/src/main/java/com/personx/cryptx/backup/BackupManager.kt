@@ -6,18 +6,15 @@ import android.util.Base64
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.content.edit
+import com.personx.cryptx.crypto.SessionKeyManager
 import com.personx.cryptx.database.encryption.DatabaseProvider
+import net.zetetic.database.sqlcipher.SQLiteDatabase
 import org.json.JSONObject
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 import java.io.RandomAccessFile
-import java.nio.file.Files
-import java.security.MessageDigest
 import java.security.SecureRandom
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 import java.util.zip.ZipEntry
 import java.util.zip.ZipFile
 import java.util.zip.ZipOutputStream
@@ -117,6 +114,23 @@ object BackupManager {
             }
 
             // 4. Encrypt database
+            System.loadLibrary("sqlcipher")
+            // 3. Rekey database using raw bytes (most reliable)
+            if (SessionKeyManager.getSessionKey() != null){
+                val sessionKey = SessionKeyManager.getSessionKey() ?: return null
+                val db = SQLiteDatabase.openOrCreateDatabase(context.getDatabasePath(
+                    context.getDatabasePath(DB_NAME).absolutePath),
+                    sessionKey.encoded,
+                    null,
+                    null
+                )
+                try {
+                    // Convert new key to hex for PRAGMA rekey
+                    db.rawQuery("PRAGMA wal_checkpoint(FULL)", null)
+                } finally {
+                    db.close()
+                }
+            }
             val dbFile = context.getDatabasePath(DB_NAME)
             val dbIv = ByteArray(IV_LENGTH).apply { SecureRandom().nextBytes(this) }
             val encryptedDb = Cipher.getInstance(TRANSFORMATION).run {
