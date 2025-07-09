@@ -35,6 +35,8 @@ class SettingsViewModel(
 
     fun resetState() {
         _state.value = SettingsScreenState()
+        tempExportPassword = null
+        pendingExport = false
     }
 
     fun updateShowBase64(show: Boolean) {

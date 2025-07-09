@@ -215,12 +215,17 @@ fun SettingsScreen(
             if (state.showImportDialog) {
                 ImportBackupDialog(
                     viewModel = viewModel,
-                    onDismiss = { viewModel.updateShowImportDialog(false) },
+                    onDismiss = {
+                        viewModel.updateShowImportDialog(false)
+                        viewModel.resetState()
+                    },
                     onConfirm = { password ->
                         selectedUri.value?.let {
                             viewModel.importBackupFromUri(it, password)
                             selectedUri.value = null // ✅ Reset after use
                         } ?: viewModel.updateBackupResult("❌ No file selected.")
+                        viewModel.updateShowImportDialog(false)
+                        viewModel.resetState()
                     },
                     launchFilePicker = {
                         selectedUri.value = null
@@ -234,10 +239,15 @@ fun SettingsScreen(
             if (state.showExportDialog) {
                 ExportBackupDialog(
                     viewModel = viewModel,
-                    onDismiss = { viewModel.updateShowExportDialog(false) },
+                    onDismiss = {
+                        viewModel.updateShowExportDialog(false)
+                        viewModel.resetState()
+
+                    },
                     onConfirm = { password ->
                         viewModel.launchExportAfterPassword(password) // 🔥 Direct export to Downloads
                         viewModel.updateShowExportDialog(false)
+                        viewModel.resetState()
                     }
                 )
             }
@@ -245,7 +255,10 @@ fun SettingsScreen(
             if (state.showBase64) {
                 Base64Dialog(
                     windowSizeClass,
-                    onDismiss = { viewModel.updateShowBase64(false)},
+                    onDismiss = {
+                        viewModel.updateShowBase64(false)
+                        viewModel.resetState()
+                                },
                     onConfirm = { value ->
                         sharedPreferences.edit { putBoolean(AppSettingsPrefs.BASE64_DEFAULT, value) }
                         viewModel.updateShowBase64(false) // Close dialog after showing
