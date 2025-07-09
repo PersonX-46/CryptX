@@ -9,6 +9,7 @@ import androidx.core.content.edit
 import com.personx.cryptx.crypto.SessionKeyManager
 import com.personx.cryptx.database.encryption.DatabaseProvider
 import net.zetetic.database.sqlcipher.SQLiteDatabase
+import okhttp3.internal.userAgent
 import org.json.JSONObject
 import java.io.File
 import java.io.FileOutputStream
@@ -33,6 +34,8 @@ object BackupManager {
     private const val BACKUP_PREFIX = "secure_backup_"
     private const val METADATA_FILE = "metadata.enc"
     private const val DB_FILE = "database.enc"
+
+    private const val BACKUP_SALT_FILE = "backup_salt.bin"
     private const val PBKDF2_ITERATIONS = 310_000
     private const val SALT_LENGTH = 16
     private const val IV_LENGTH = 12
@@ -109,10 +112,15 @@ object BackupManager {
                 put("salt", prefs.getString("salt", "") ?: "")
                 put("iv", prefs.getString("iv", "") ?: "")
                 put("encryptedKey", prefs.getString("encryptedSessionKey", "") ?: "")
-                put("backupSalt", Base64.encodeToString(backupSalt, Base64.NO_WRAP))
                 put("version", 1)
             }
 
+            val metadataBytes = metadata.toString().toByteArray()
+            val metadataIv = ByteArray(IV_LENGTH).apply { SecureRandom().nextBytes(this) }
+            val encryptedMetadata = Cipher.getInstance(TRANSFORMATION).run {
+                init(Cipher.ENCRYPT_MODE, userKey, GCMParameterSpec(128, metadataIv))
+                doFinal(metadataBytes)
+            }
             // 4. Encrypt database
             System.loadLibrary("sqlcipher")
             // 3. Rekey database using raw bytes (most reliable)
@@ -139,7 +147,8 @@ object BackupManager {
             }
 
             // 5. Write to temp files
-            File(tempDir, METADATA_FILE).writeText(metadata.toString())
+            File(tempDir, BACKUP_SALT_FILE).writeBytes(backupSalt)
+            File(tempDir, METADATA_FILE).writeBytes(metadataIv + encryptedMetadata)
             File(tempDir, DB_FILE).writeBytes(dbIv + encryptedDb)
 
             // 6. Create final backup archive
@@ -152,6 +161,10 @@ object BackupManager {
 
                 zip.putNextEntry(ZipEntry(DB_FILE))
                 File(tempDir, DB_FILE).inputStream().use { it.copyTo(zip) }
+                zip.closeEntry()
+
+                zip.putNextEntry(ZipEntry(BACKUP_SALT_FILE))
+                File(tempDir, BACKUP_SALT_FILE).inputStream().use { it.copyTo(zip) }
                 zip.closeEntry()
             }
 
@@ -205,17 +218,28 @@ object BackupManager {
                 return false
             }
 
-            val metadataJson = metadataFile.readText()
-            val metadata = JSONObject(metadataJson)
-            Log.d("BackupManager", "📦 Parsed Metadata: $metadata")
-
-
-            val backupSalt = Base64.decode(metadata.getString("backupSalt"), Base64.NO_WRAP)
+            val backupSaltFile = File(tempDir, BACKUP_SALT_FILE)
+            val backupSalt = backupSaltFile.readBytes()
             Log.d("BackupManager", "🔐 Deriving user key using backupSalt")
 
             val userKey = deriveSecureKey(password, backupSalt)
 
             try {
+                val metadataBytes = metadataFile.readBytes()
+                if (metadataBytes.size < IV_LENGTH) {
+                    Log.e("BackupManager", "Metadata file too short")
+                    return false
+                }
+
+                val metadataIV = metadataBytes.copyOfRange(0, IV_LENGTH)
+                val encryptedMetadata = metadataBytes.copyOfRange(IV_LENGTH, metadataBytes.size)
+                val decryptedMetadataBytes = Cipher.getInstance(TRANSFORMATION).run {
+                    init(Cipher.DECRYPT_MODE, userKey, GCMParameterSpec(128, metadataIV))
+                    doFinal(encryptedMetadata)
+                }
+                val metadataJson = String(decryptedMetadataBytes)
+                val metadata = JSONObject(metadataJson)
+
                 val dbBytes = dbFile.readBytes()
                 Log.d("BackupManager", "📦 Encrypted DB file size: ${dbBytes.size}")
                 if (dbBytes.size < IV_LENGTH) {
