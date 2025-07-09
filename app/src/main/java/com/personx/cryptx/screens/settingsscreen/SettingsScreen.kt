@@ -71,13 +71,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.core.content.edit
 import androidx.navigation.NavController
 import com.personx.cryptx.AppSettingsPrefs
 import com.personx.cryptx.components.CyberpunkButton
 import com.personx.cryptx.components.Header
 import com.personx.cryptx.viewmodel.SettingsViewModel
-import androidx.core.content.edit
-import androidx.room.util.TableInfo
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable

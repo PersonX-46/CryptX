@@ -1,7 +1,5 @@
 package com.personx.cryptx.data
 
-import kotlin.io.encoding.Base64
-
 data class SettingsScreenState (
     val showPinDialog : Boolean = false,
     val showImportDialog: Boolean = false,
