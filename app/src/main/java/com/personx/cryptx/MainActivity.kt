@@ -20,6 +20,7 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.LockOpen
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -183,7 +184,12 @@ fun AppContent(windowSizeClass: WindowSizeClass) {
         NavBarItem(Icons.Filled.VisibilityOff, "steganography") {
             navController.navigate("steganography") {
             }
-        }
+        },
+        NavBarItem(Icons.Filled.Settings, "settings") {
+            navController.navigate("settings") {
+            }
+        },
+
     )
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()

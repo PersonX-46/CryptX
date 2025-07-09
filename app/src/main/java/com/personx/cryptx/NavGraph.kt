@@ -11,6 +11,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.personx.cryptx.crypto.PinCryptoManager
+import com.personx.cryptx.screens.AboutCryptXScreen
 import com.personx.cryptx.screens.HashDetector
 import com.personx.cryptx.screens.HashGeneratorScreen
 import com.personx.cryptx.screens.HomeScreen
@@ -157,6 +158,9 @@ fun AppNavGraph(
                 windowSizeClass,
                 navController
             )
+        }
+        composable("about") {
+            AboutCryptXScreen(windowSizeClass)
         }
     }
 }
