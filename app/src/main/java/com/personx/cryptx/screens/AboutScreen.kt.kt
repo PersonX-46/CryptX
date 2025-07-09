@@ -25,6 +25,7 @@ import androidx.compose.material.icons.filled.Security
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -181,12 +182,12 @@ fun FeatureItem(icon: ImageVector, text: String, color: Color) {
 
 @Composable
 fun DividerLine(color: Color) {
-    Divider(
-        thickness = 1.dp,
-        color = color.copy(alpha = 0.4f),
+    HorizontalDivider(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 16.dp)
+            .padding(vertical = 16.dp),
+        thickness = 1.dp,
+        color = color.copy(alpha = 0.4f)
     )
 }
 @Composable
