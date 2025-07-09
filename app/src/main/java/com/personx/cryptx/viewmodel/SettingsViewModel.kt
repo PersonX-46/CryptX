@@ -171,11 +171,11 @@ class SettingsViewModel(
                 val backupFile = BackupManager.exportBackup(application, password)
 
                 if (backupFile != null && backupFile.exists()) {
-                    Log.d("SettingsViewModel", "✅ Backup file created: ${backupFile.absolutePath}")
+                    Log.d("SettingsViewModel", "Backup file created: ${backupFile.absolutePath}")
                     val success = saveZipToDownloads(backupFile, "cryptx.backupx")
                     if (success) {
-                        Log.d("SettingsViewModel", "✅ Backup successfully saved to Downloads")
-                        updateBackupResult("✅ Backup exported to Downloads/cryptx/")
+                        Log.d("SettingsViewModel", "Backup successfully saved to Downloads")
+                        updateBackupResult("Backup exported to Downloads/cryptx/")
                     } else {
                         Log.e("SettingsViewModel", "❌ Failed to write backup to Downloads")
                         updateBackupResult("❌ Failed to write backup to Downloads.")
@@ -189,7 +189,7 @@ class SettingsViewModel(
                 Log.e("SettingsViewModel", "❌ Exception during export: ${e.message}", e)
                 updateBackupResult("❌ Error exporting backup: ${e.message}")
             } finally {
-                Log.d("SettingsViewModel", "🧹 Clearing temporary export state")
+                Log.d("SettingsViewModel", "Clearing temporary export state")
                 tempExportPassword = null
                 pendingExport = false
             }
@@ -200,7 +200,7 @@ class SettingsViewModel(
     fun importBackupFromUri(uri: Uri, password: String) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                Log.d("SettingsViewModel", "📥 Importing backup from URI: $uri")
+                Log.d("SettingsViewModel", "Importing backup from URI: $uri")
                 val tempBackupFile = File(application.cacheDir, "import.backupx")
                 application.contentResolver.openInputStream(uri)?.use { input ->
                     FileOutputStream(tempBackupFile).use { output ->
@@ -209,20 +209,20 @@ class SettingsViewModel(
                 }
                 Log.d(
                     "SettingsViewModel",
-                    "📁 Backup file copied to: ${tempBackupFile.absolutePath}"
+                    "Backup file copied to: ${tempBackupFile.absolutePath}"
                 )
 
                 val success = BackupManager.importBackup(application, tempBackupFile, password)
                 val message = if (success) {
-                    Log.d("SettingsViewModel", "✅ Backup restored successfully")
-                    "✅ Backup restored successfully!"
+                    Log.d("SettingsViewModel", "Backup restored successfully")
+                    "Backup restored successfully!"
                 } else {
                     Log.e("SettingsViewModel", "❌ Failed to restore backup")
                     "❌ Failed to restore backup."
                 }
 
                 updateBackupResult(message)
-                Log.d("SettingsViewModel", "🧹 Deleting temp backup file")
+                Log.d("SettingsViewModel", "Deleting temp backup file")
                 tempBackupFile.delete()
 
             } catch (e: Exception) {

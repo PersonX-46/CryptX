@@ -20,6 +20,7 @@ import androidx.compose.material.icons.filled.Code
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Fingerprint
+import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material3.Card
@@ -83,19 +84,30 @@ fun AboutCryptXScreen(windowSizeClass: WindowSizeClass) {
                 elevation = CardDefaults.cardElevation(6.dp)
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
-                    Text("Version $versionName", color = neonGreen, fontFamily = FontFamily.Monospace, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+                    Text(
+                        "Version $versionName",
+                        color = neonGreen,
+                        fontFamily = FontFamily.Monospace,
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 14.sp
+                    )
                     Spacer(modifier = Modifier.height(6.dp))
-                    Text("Secure vault for your sensitive data.", color = neonGreen, fontFamily = FontFamily.Monospace, fontSize = 13.sp)
+                    Text(
+                        "Lightweight vault for encrypted notes, hidden files, and hash tools.",
+                        color = neonGreen,
+                        fontFamily = FontFamily.Monospace,
+                        fontSize = 13.sp
+                    )
                 }
             }
 
-            // Features
+// Features
             SectionTitle("> FEATURES", neonGreen)
             Column {
-                FeatureItem(Icons.Default.Lock, "End-to-End Encryption", neonGreen)
-                FeatureItem(Icons.Default.Security, "Zero-Knowledge Architecture", neonGreen)
-                FeatureItem(Icons.Default.Fingerprint, "Biometric Protection", neonGreen)
-                FeatureItem(Icons.Default.Code, "Open Source Components", neonGreen)
+                FeatureItem(Icons.Default.Lock, "AES Text Encryption", neonGreen)
+                FeatureItem(Icons.Default.Image, "LSB Image Steganography", neonGreen)
+                FeatureItem(Icons.Default.Fingerprint, "Hash Generator & Detector", neonGreen)
+                FeatureItem(Icons.Default.Security, "100% Offline, No Cloud", neonGreen)
             }
 
             DividerLine(neonGreen)

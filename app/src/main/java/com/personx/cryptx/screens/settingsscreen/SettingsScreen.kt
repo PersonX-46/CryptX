@@ -99,7 +99,9 @@ fun SettingsScreen(
     val cyberGreen = Color(0xFF00FF9D)
     val state by viewModel.state.collectAsState()
     val sharedPreferences = LocalContext.current.getSharedPreferences(AppSettingsPrefs.NAME, Context.MODE_PRIVATE)
-
+    val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
+    val versionName = packageInfo.versionName ?: "N/A"
+    val versionCode = packageInfo.versionCode
 
     val selectedUri = remember { mutableStateOf<Uri?>(null) }
 
@@ -202,7 +204,7 @@ fun SettingsScreen(
                 CyberpunkSettingCard(
                     icon = Icons.Default.Info,
                     title = "About CryptX",
-                    description = "Version 2.3.1 | Build 4729",
+                    description = "Version $versionName | Build $versionCode",
                     accentColor = cyberGreen,
                     onClick = { navController.navigate("about") }
                 )
@@ -222,7 +224,7 @@ fun SettingsScreen(
                     onConfirm = { password ->
                         selectedUri.value?.let {
                             viewModel.importBackupFromUri(it, password)
-                            selectedUri.value = null // ✅ Reset after use
+                            selectedUri.value = null // Reset after use
                         } ?: viewModel.updateBackupResult("❌ No file selected.")
                         viewModel.updateShowImportDialog(false)
                         viewModel.resetState()
