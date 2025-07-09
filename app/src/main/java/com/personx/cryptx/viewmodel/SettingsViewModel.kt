@@ -37,6 +37,9 @@ class SettingsViewModel(
         _state.value = SettingsScreenState()
     }
 
+    fun updateShowBase64(show: Boolean) {
+        _state.value = _state.value.copy(showBase64 = show)
+    }
     fun updateShowPinDialog(show: Boolean) {
         _state.value = _state.value.copy(showPinDialog = show)
     }

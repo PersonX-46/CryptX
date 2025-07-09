@@ -1,5 +1,6 @@
 package com.personx.cryptx.screens.settingsscreen
 
+import android.content.Context
 import android.net.Uri
 import android.os.Build
 import android.widget.Toast
@@ -42,6 +43,8 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
@@ -54,6 +57,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -68,9 +72,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
+import com.personx.cryptx.AppSettingsPrefs
 import com.personx.cryptx.components.CyberpunkButton
 import com.personx.cryptx.components.Header
 import com.personx.cryptx.viewmodel.SettingsViewModel
+import androidx.core.content.edit
+import androidx.room.util.TableInfo
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -82,6 +89,8 @@ fun SettingsScreen(
     val context = LocalContext.current
     val cyberGreen = Color(0xFF00FF9D)
     val state by viewModel.state.collectAsState()
+    val sharedPreferences = LocalContext.current.getSharedPreferences(AppSettingsPrefs.NAME, Context.MODE_PRIVATE)
+
 
     val selectedUri = remember { mutableStateOf<Uri?>(null) }
 
@@ -181,7 +190,7 @@ fun SettingsScreen(
                     title = "Base64 by Default",
                     description = "Use Base64 encoding for all data",
                     accentColor = cyberGreen,
-                    onClick = { /* future logic */ }
+                    onClick = { viewModel.updateShowBase64(true) }
                 )
 
                 Spacer(modifier = Modifier.height(spacing))
@@ -228,6 +237,17 @@ fun SettingsScreen(
                     onConfirm = { password ->
                         viewModel.launchExportAfterPassword(password) // 🔥 Direct export to Downloads
                         viewModel.updateShowExportDialog(false)
+                    }
+                )
+            }
+
+            if (state.showBase64) {
+                Base64Dialog(
+                    windowSizeClass,
+                    onDismiss = { viewModel.updateShowBase64(false)},
+                    onConfirm = { value ->
+                        sharedPreferences.edit { putBoolean(AppSettingsPrefs.BASE64_DEFAULT, value) }
+                        viewModel.updateShowBase64(false) // Close dialog after showing
                     }
                 )
             }
@@ -531,6 +551,93 @@ fun ExportBackupDialog(
                     },
                     icon = Icons.Default.CloudUpload,
                     text = "EXPORT",
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun Base64Dialog(
+    windowSizeClass: WindowSizeClass,
+    onDismiss: () -> Unit,
+    onConfirm: (Boolean) -> Unit,
+){
+    val context = LocalContext.current
+    val prefs = context.getSharedPreferences(AppSettingsPrefs.NAME, Context.MODE_PRIVATE)
+    val savedValue = prefs.getBoolean(AppSettingsPrefs.BASE64_DEFAULT, false)
+
+    // Initialize with saved value
+    val isChecked = remember { mutableStateOf(savedValue) }
+    val isCompact = windowSizeClass.widthSizeClass == WindowWidthSizeClass.Compact
+    val cyberpunkGreen = MaterialTheme.colorScheme.onSurface
+
+    Dialog(onDismissRequest = onDismiss) {
+        Column(
+            modifier = Modifier
+                .background(Color.Black, RoundedCornerShape(12.dp))
+                .border(2.dp, MaterialTheme.colorScheme.onSurface, RoundedCornerShape(12.dp))
+                .padding(24.dp)
+        ) {
+            Text(
+                "USE BASE64 BY DEFAULT",
+                style = MaterialTheme.typography.headlineSmall.copy(
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontFamily = FontFamily.Monospace,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center
+                ),
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = "Base64 Encoding",
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        fontSize = if (isCompact) MaterialTheme.typography.bodyMedium.fontSize
+                        else MaterialTheme.typography.bodyLarge.fontSize
+                    )
+                )
+                Switch(
+                    checked = isChecked.value,
+                    onCheckedChange = { value ->
+                        isChecked.value = value
+                    },
+                    colors = SwitchDefaults.colors(
+                        checkedBorderColor = cyberpunkGreen,
+                        checkedThumbColor = cyberpunkGreen,
+                        checkedTrackColor = Color.Transparent,
+                        uncheckedTrackColor = Color.Transparent,
+                        uncheckedThumbColor = cyberpunkGreen,
+                        uncheckedBorderColor = cyberpunkGreen
+                    ),
+                    modifier = Modifier.scale(if (isCompact) 1f else 1.1f)
+                )
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End
+            ) {
+                TextButton(
+                    onClick = onDismiss,
+                    colors = ButtonDefaults.textButtonColors(
+                        contentColor = MaterialTheme.colorScheme.onSurface
+                    )
+                ) {
+                    Text("CANCEL", style = MaterialTheme.typography.labelLarge.copy(fontFamily = FontFamily.Monospace))
+                }
+
+                Spacer(modifier = Modifier.width(16.dp))
+
+                CyberpunkButton(
+                    onClick = {
+                        onConfirm(isChecked.value)
+                    },
+                    icon = Icons.Default.CloudDownload,
+                    text = "IMPORT",
                 )
             }
         }

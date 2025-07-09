@@ -39,6 +39,8 @@ import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -47,12 +49,14 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringArrayResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.personx.cryptx.AppSettingsPrefs
 import com.personx.cryptx.ClipboardManagerHelper
 import com.personx.cryptx.R
 import com.personx.cryptx.components.CyberpunkButton
@@ -94,6 +98,10 @@ fun EncryptMainScreen(
     }
     val cardPadding = if (isCompact) 8.dp else 12.dp
     val spacing = if (isCompact) 8.dp else 12.dp
+
+    val prefs = context.getSharedPreferences(AppSettingsPrefs.NAME, Context.MODE_PRIVATE)
+    val savedValue = prefs.getBoolean(AppSettingsPrefs.BASE64_DEFAULT, false)
+    viewModel.updateBase64Enabled(savedValue)
 
     LaunchedEffect(state.selectedAlgorithm) {
         viewModel.updateAlgorithmAndModeLists(context)
@@ -352,19 +360,9 @@ fun EncryptMainScreen(
                                 )
                             ) {
                                 Column(modifier = Modifier.padding(cardPadding)) {
-                                    Text(
-                                        text = "Decrypted Output",
-                                        style = MaterialTheme.typography.labelMedium.copy(
-                                            color = cyberpunkGreen.copy(alpha = 0.8f),
-                                            fontFamily = FontFamily.Monospace,
-                                            fontSize = if (isCompact) MaterialTheme.typography.labelLarge.fontSize
-                                            else MaterialTheme.typography.titleSmall.fontSize
-                                        )
-                                    )
-
-                                    Spacer(modifier = Modifier.height(spacing))
 
                                     CyberpunkOutputSection(
+                                        title = stringResource(R.string.encrypted_output),
                                         output = state.outputText,
                                         onCopy = {
                                             scope.launch {
