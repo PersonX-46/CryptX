@@ -1,11 +1,8 @@
 package com.personx.cryptx.screens
 
 import android.content.Intent
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -16,7 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
@@ -24,7 +20,6 @@ import androidx.compose.material.icons.filled.Code
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Fingerprint
-import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material3.Card
@@ -42,16 +37,12 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
-import com.personx.cryptx.components.CyberpunkButton
 import com.personx.cryptx.components.Header
 import java.util.Calendar
 
@@ -60,6 +51,8 @@ fun AboutCryptXScreen(windowSizeClass: WindowSizeClass) {
     val context = LocalContext.current
     val neonGreen = Color(0xFF00FFAA)
     val fadedGreen = Color(0xFF88FFCC)
+    val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
+    val versionName = packageInfo.versionName ?: "N/A"
 
     Column(modifier = Modifier.fillMaxSize()) {
         // HEADER
@@ -68,7 +61,7 @@ fun AboutCryptXScreen(windowSizeClass: WindowSizeClass) {
         // CONTENT
         Column(
             modifier = Modifier
-                .verticalScroll(rememberScrollState())
+                .fillMaxSize()
                 .background(
                     Brush.verticalGradient(
                         colors = listOf(
@@ -77,6 +70,7 @@ fun AboutCryptXScreen(windowSizeClass: WindowSizeClass) {
                         )
                     )
                 )
+                .verticalScroll(rememberScrollState())
                 .padding(20.dp)
         ) {
             // Version Card
@@ -88,7 +82,7 @@ fun AboutCryptXScreen(windowSizeClass: WindowSizeClass) {
                 elevation = CardDefaults.cardElevation(6.dp)
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
-                    Text("Version 1.3.0", color = neonGreen, fontFamily = FontFamily.Monospace, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+                    Text("Version $versionName", color = neonGreen, fontFamily = FontFamily.Monospace, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
                     Spacer(modifier = Modifier.height(6.dp))
                     Text("Secure vault for your sensitive data.", color = neonGreen, fontFamily = FontFamily.Monospace, fontSize = 13.sp)
                 }
