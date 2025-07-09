@@ -37,16 +37,24 @@ import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.LockReset
 import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.Save
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextFieldColors
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
@@ -55,6 +63,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
@@ -67,6 +76,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -175,14 +185,6 @@ fun SettingsScreen(
 
                 // === APP CONFIG ===
                 CyberpunkSectionTitle("APPLICATION CONFIG", cyberGreen)
-
-                CyberpunkSettingCard(
-                    icon = Icons.Default.EnhancedEncryption,
-                    title = "Algorithm Settings",
-                    description = "Set the default encryption algorithms",
-                    accentColor = cyberGreen,
-                    onClick = { /* future logic */ }
-                )
 
                 CyberpunkSettingCard(
                     icon = Icons.Default.Notifications,
@@ -336,50 +338,59 @@ private fun CyberpunkSettingCard(
 
 @Composable
 fun CyberpunkPinField(
+    isPin: Boolean,
     value: String,
     onValueChange: (String) -> Unit,
-    label: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    label: String = if (isPin) "Enter PIN" else "Enter Passphrase"
 ) {
-    val cyberGreen = Color(0xFF00FF9D)
-    val cyberDark = Color.Black.copy(0.3f)
+    val cybergreen = MaterialTheme.colorScheme.onSurface
+    var isPasswordVisible by remember { mutableStateOf(false) }
 
-    Column(modifier = modifier) {
-        Text(
-            text = label,
-            color = cyberGreen.copy(alpha = 0.7f),
-            style = MaterialTheme.typography.labelSmall,
-            modifier = Modifier.padding(bottom = 4.dp)
-        )
-
-        BasicTextField(
-            value = value,
-            onValueChange = onValueChange,
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(
-                    color = cyberDark.copy(alpha = 0.5f),
-                    shape = RoundedCornerShape(4.dp)
-                )
-                .border(
-                    width = 1.dp,
-                    color = cyberGreen.copy(alpha = 0.3f),
-                    shape = RoundedCornerShape(4.dp)
-                )
-                .padding(12.dp),
-            textStyle = LocalTextStyle.current.copy(
-                color = MaterialTheme.colorScheme.onSurface,
-                fontSize = 26.sp
-            ),
-
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.NumberPassword,
-                imeAction = ImeAction.Next
-            ),
-            visualTransformation = PasswordVisualTransformation()
-        )
+    val visualTransformation = if (isPasswordVisible) {
+        VisualTransformation.None
+    } else {
+        PasswordVisualTransformation()
     }
+
+    val maxLength = if (isPin) 4 else 128
+
+
+    OutlinedTextField(
+        value = value,
+        onValueChange = {
+            val filtered = if (isPin) it.filter { c -> c.isDigit() } else it
+            if (filtered.length <= maxLength) onValueChange(filtered)
+        },
+        label = { Text(label) },
+        visualTransformation = visualTransformation,
+        singleLine = true,
+        keyboardOptions = KeyboardOptions(
+            keyboardType = if (isPin) KeyboardType.Number else KeyboardType.Password
+        ),
+        trailingIcon = {
+            val image = if (isPasswordVisible)
+                Icons.Default.Visibility
+            else Icons.Default.VisibilityOff
+
+            IconButton(onClick = { isPasswordVisible = !isPasswordVisible }) {
+                Icon(tint = cybergreen , imageVector = image, contentDescription = if (isPasswordVisible) "Hide" else "Show")
+            }
+        },
+        modifier = modifier,
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedBorderColor = cybergreen,
+            unfocusedBorderColor = cybergreen,
+            focusedLabelColor = cybergreen,
+            cursorColor = cybergreen,
+            unfocusedLabelColor = cybergreen,
+            focusedTextColor = cybergreen,
+            unfocusedTextColor = cybergreen,
+            disabledTextColor = cybergreen
+        )
+    )
 }
+
 
 @Composable
 fun ChangePinDialog(
@@ -415,6 +426,7 @@ fun ChangePinDialog(
                 )
 
                 CyberpunkPinField(
+                    isPin = true,
                     value = state.value.currentPin?: "",
                     onValueChange = { viewModel.updateCurrentPin(it) },
                     label = "Current PIN",
@@ -424,6 +436,7 @@ fun ChangePinDialog(
                 Spacer(Modifier.height(16.dp))
 
                 CyberpunkPinField(
+                    isPin = true,
                     value = state.value.newPin?: "",
                     onValueChange = { viewModel.updateNewPin(it) },
                     label = "New PIN",
@@ -433,6 +446,7 @@ fun ChangePinDialog(
                 Spacer(Modifier.height(16.dp))
 
                 CyberpunkPinField(
+                    isPin = true,
                     value = state.value.confirmPin?: "",
                     onValueChange = { viewModel.updateConfirmPin(it) },
                     label = "Confirm PIN",
@@ -516,6 +530,7 @@ fun ExportBackupDialog(
             )
 
             CyberpunkPinField(
+                isPin = false,
                 value = state.value.currentPin ?: "",
                 onValueChange = { viewModel.updateCurrentPin(it) },
                 label = "Enter Password to Encrypt",
@@ -576,10 +591,11 @@ fun Base64Dialog(
             modifier = Modifier
                 .background(Color.Black, RoundedCornerShape(12.dp))
                 .border(2.dp, MaterialTheme.colorScheme.onSurface, RoundedCornerShape(12.dp))
-                .padding(24.dp)
+                .padding(24.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             Text(
-                "USE BASE64 BY DEFAULT",
+                "BASE64 BY DEFAULT",
                 style = MaterialTheme.typography.headlineSmall.copy(
                     color = MaterialTheme.colorScheme.onSurface,
                     fontFamily = FontFamily.Monospace,
@@ -598,7 +614,8 @@ fun Base64Dialog(
                     style = MaterialTheme.typography.bodyMedium.copy(
                         fontSize = if (isCompact) MaterialTheme.typography.bodyMedium.fontSize
                         else MaterialTheme.typography.bodyLarge.fontSize
-                    )
+                    ),
+                    fontFamily = FontFamily.Monospace
                 )
                 Switch(
                     checked = isChecked.value,
@@ -616,6 +633,7 @@ fun Base64Dialog(
                     modifier = Modifier.scale(if (isCompact) 1f else 1.1f)
                 )
             }
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.End
@@ -635,8 +653,8 @@ fun Base64Dialog(
                     onClick = {
                         onConfirm(isChecked.value)
                     },
-                    icon = Icons.Default.CloudDownload,
-                    text = "IMPORT",
+                    icon = Icons.Default.Save,
+                    text = "SAVE",
                 )
             }
         }
@@ -674,6 +692,7 @@ fun ImportBackupDialog(
             )
 
             CyberpunkPinField(
+                isPin = false,
                 value = state.value.currentPin ?: "",
                 onValueChange = { viewModel.updateCurrentPin(it) },
                 label = "Enter Backup Password",
