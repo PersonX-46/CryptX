@@ -1,6 +1,9 @@
 package com.personx.cryptx
 
 import android.annotation.SuppressLint
+import android.app.Application
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
@@ -8,9 +11,11 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.personx.cryptx.crypto.PinCryptoManager
+import com.personx.cryptx.screens.AboutCryptXScreen
 import com.personx.cryptx.screens.HashDetector
 import com.personx.cryptx.screens.HashGeneratorScreen
 import com.personx.cryptx.screens.HomeScreen
+import com.personx.cryptx.screens.settingsscreen.SettingsScreen
 import com.personx.cryptx.screens.SteganographyScreen
 import com.personx.cryptx.screens.decryptscreen.DecryptHistoryScreen
 import com.personx.cryptx.screens.decryptscreen.DecryptPinHandler
@@ -21,13 +26,14 @@ import com.personx.cryptx.screens.encryptscreen.EncryptMainScreen
 import com.personx.cryptx.screens.encryptscreen.EncryptPinHandler
 import com.personx.cryptx.screens.pinlogin.PinLoginScreen
 import com.personx.cryptx.screens.pinsetup.PinSetupScreen
-import com.personx.cryptx.viewmodel.HomeScreenViewModel
+import com.personx.cryptx.viewmodel.SettingsViewModel
 import com.personx.cryptx.viewmodel.decryption.DecryptionHistoryRepository
 import com.personx.cryptx.viewmodel.decryption.DecryptionViewModel
 import com.personx.cryptx.viewmodel.encryption.EncryptionViewModel
 import com.personx.cryptx.viewmodel.encryption.EncryptionViewModelRepository
 import com.personx.cryptx.viewmodel.steganography.SteganographyViewModelRepository
 
+@RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("ViewModelConstructorInComposable")
 @Composable
 fun AppNavGraph(
@@ -43,6 +49,10 @@ fun AppNavGraph(
     )
     val decryptViewModel = DecryptionViewModel(
         repository = DecryptionHistoryRepository(context)
+    )
+    val settingsViewModel = SettingsViewModel(
+        pinCryptoManager = PinCryptoManager(context),
+        application = context.applicationContext as Application
     )
     NavHost(navController = navController, startDestination = startDestination) {
         composable("pin_setup") {
@@ -72,8 +82,9 @@ fun AppNavGraph(
         }
         composable("home") {
             HomeScreen(
-                HomeScreenViewModel(
-                    PinCryptoManager(context)
+                SettingsViewModel(
+                    PinCryptoManager(context),
+                    application = context.applicationContext as Application
                 ),
                 windowSizeClass
             )
@@ -140,6 +151,16 @@ fun AppNavGraph(
                 SteganographyViewModelRepository(context),
                 windowSizeClass = windowSizeClass
             )
+        }
+        composable("settings"){
+            SettingsScreen(
+                settingsViewModel,
+                windowSizeClass,
+                navController
+            )
+        }
+        composable("about") {
+            AboutCryptXScreen(windowSizeClass)
         }
     }
 }

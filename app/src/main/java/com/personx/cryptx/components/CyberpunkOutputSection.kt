@@ -33,6 +33,7 @@ import com.personx.cryptx.R
 
 @Composable
 fun CyberpunkOutputSection(
+    title: String,
     output: String,
     onCopy: () -> Unit,
     onSave: () -> Unit,
@@ -59,7 +60,7 @@ fun CyberpunkOutputSection(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                text = stringResource(R.string.encrypted_output),
+                text = title,
                 style = MaterialTheme.typography.run {
                     if (isCompact) titleMedium else titleLarge
                 }.copy(

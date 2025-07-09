@@ -1,10 +1,11 @@
 package com.personx.cryptx
 
+import android.os.Build
 import android.os.Bundle
-import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,6 +20,7 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.LockOpen
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -52,6 +54,7 @@ import com.personx.cryptx.screens.pinsetup.PinSetupScreen
 import com.personx.cryptx.ui.theme.CryptXTheme
 
 class MainActivity : ComponentActivity() {
+    @RequiresApi(Build.VERSION_CODES.O)
     @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -139,6 +142,7 @@ class MainActivity : ComponentActivity() {
 }
 
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun AppContent(windowSizeClass: WindowSizeClass) {
     val screen = remember { mutableStateOf("home") }
@@ -180,7 +184,12 @@ fun AppContent(windowSizeClass: WindowSizeClass) {
         NavBarItem(Icons.Filled.VisibilityOff, "steganography") {
             navController.navigate("steganography") {
             }
-        }
+        },
+        NavBarItem(Icons.Filled.Settings, "settings") {
+            navController.navigate("settings") {
+            }
+        },
+
     )
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()

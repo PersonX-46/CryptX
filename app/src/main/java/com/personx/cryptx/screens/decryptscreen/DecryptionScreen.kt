@@ -323,19 +323,9 @@ fun DecryptionScreen(
                                 )
                             ) {
                                 Column(modifier = Modifier.padding(cardPadding)) {
-                                    Text(
-                                        text = "Decrypted Output",
-                                        style = MaterialTheme.typography.labelMedium.copy(
-                                            color = cyberpunkGreen.copy(alpha = 0.8f),
-                                            fontFamily = FontFamily.Monospace,
-                                            fontSize = if (isCompact) MaterialTheme.typography.labelLarge.fontSize
-                                            else MaterialTheme.typography.titleSmall.fontSize
-                                        )
-                                    )
-
-                                    Spacer(modifier = Modifier.height(spacing))
 
                                     CyberpunkOutputSection(
+                                        title = "DECRYPTED OUTPUT",
                                         output = state.outputText,
                                         onCopy = {
                                             scope.launch {

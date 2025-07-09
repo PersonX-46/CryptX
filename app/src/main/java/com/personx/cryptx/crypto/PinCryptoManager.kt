@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.Base64
 import android.util.Log
 import androidx.core.content.edit
+import com.personx.cryptx.SecurePrefs
 import com.personx.cryptx.database.encryption.DatabaseProvider
 import net.zetetic.database.sqlcipher.SQLiteDatabase
 import java.security.SecureRandom
@@ -21,10 +22,11 @@ import javax.crypto.spec.SecretKeySpec
  * It allows setting up a PIN, verifying the PIN, and retrieving the raw key if the PIN is valid.
  */
 
-private const val SALT = "salt"
-private const val IV = "iv"
-private const val ENCRYPTED_SESSION_KEY = "encryptedSessionKey"
 private const val TRANSFORMATION = "AES/GCM/NoPadding"
+private const val SALT_SIZE = 16
+private const val IV_SIZE = 12
+private const val ITERATIONS = 10000
+private const val KEY_LENGTH = 256 // AES key length in bits
 class PinCryptoManager(private val context: Context) {
 
     /**
@@ -35,23 +37,24 @@ class PinCryptoManager(private val context: Context) {
      */
 
     fun setupPin(pin: String) {
-        val prefs = context.getSharedPreferences("secure_prefs", Context.MODE_PRIVATE)
+        val prefs = context.getSharedPreferences(SecurePrefs.NAME, Context.MODE_PRIVATE)
         val sessionKey = KeyGenerator.getInstance("AES").apply { init(256) }
             .generateKey()
         val salt = generateSalt()
         val pinKey = deriveKeyFromPin(pin,salt)
 
         val cipher = Cipher.getInstance(TRANSFORMATION)
-        val iv = ByteArray(12).also { SecureRandom().nextBytes(it) }
+        val iv = ByteArray(IV_SIZE).also { SecureRandom().nextBytes(it) }
         cipher.init(Cipher.ENCRYPT_MODE, pinKey, GCMParameterSpec(128, iv))
         val encryptedSessionKey = cipher.doFinal(sessionKey.encoded)
 
         prefs.edit {
-            putString(SALT, Base64.encodeToString(salt, Base64.NO_WRAP))
-            putString(IV, Base64.encodeToString(iv, Base64.NO_WRAP))
-            putString(ENCRYPTED_SESSION_KEY, Base64.encodeToString(encryptedSessionKey, Base64.NO_WRAP))
+            putString(SecurePrefs.SALT, Base64.encodeToString(salt, Base64.NO_WRAP))
+            putString(SecurePrefs.IV, Base64.encodeToString(iv, Base64.NO_WRAP))
+            putString(SecurePrefs.ENCRYPTED_SESSION_KEY, Base64.encodeToString(encryptedSessionKey, Base64.NO_WRAP))
         }
 
+        sessionKey.encoded.fill(0)
         pinKey.encoded.fill(0)
     }
 
@@ -63,10 +66,10 @@ class PinCryptoManager(private val context: Context) {
      */
 
     fun verifyPin(pin: String): Boolean {
-        val prefs = context.getSharedPreferences("secure_prefs", Context.MODE_PRIVATE)
-        val saltString = prefs.getString(SALT, null) ?: return false
-        val ivString = prefs.getString(IV, null) ?: return false
-        val encryptedKeyString = prefs.getString(ENCRYPTED_SESSION_KEY, null) ?: return false
+        val prefs = context.getSharedPreferences(SecurePrefs.NAME, Context.MODE_PRIVATE)
+        val saltString = prefs.getString(SecurePrefs.SALT, null) ?: return false
+        val ivString = prefs.getString(SecurePrefs.IV, null) ?: return false
+        val encryptedKeyString = prefs.getString(SecurePrefs.ENCRYPTED_SESSION_KEY, null) ?: return false
 
         val salt = Base64.decode(saltString, Base64.NO_WRAP)
         val iv = Base64.decode(ivString, Base64.NO_WRAP)
@@ -102,12 +105,12 @@ class PinCryptoManager(private val context: Context) {
 
     fun loadSessionKeyIfPinValid(pin: String): Boolean {
         val prefs = context.getSharedPreferences(
-            "secure_prefs", Context.MODE_PRIVATE
+            SecurePrefs.NAME, Context.MODE_PRIVATE
         )
-        val saltString = prefs.getString(SALT, null) ?: return false
-        val ivString = prefs.getString(IV, null) ?: return false
+        val saltString = prefs.getString(SecurePrefs.SALT, null) ?: return false
+        val ivString = prefs.getString(SecurePrefs.IV, null) ?: return false
         val encryptedSessionKeyString = prefs.getString(
-            ENCRYPTED_SESSION_KEY, null
+            SecurePrefs.ENCRYPTED_SESSION_KEY, null
         ) ?: return false
 
         val salt = Base64.decode(saltString, Base64.NO_WRAP)
@@ -142,7 +145,7 @@ class PinCryptoManager(private val context: Context) {
      */
 
     fun changePinAndRekeyDatabase(newPin: String): Boolean {
-        val prefs = context.getSharedPreferences("secure_prefs", Context.MODE_PRIVATE)
+        val prefs = context.getSharedPreferences(SecurePrefs.NAME, Context.MODE_PRIVATE)
         val dbPath = context.getDatabasePath("encrypted_history.db").absolutePath
 
         // 1. Validate old PIN and get current session key
@@ -172,9 +175,9 @@ class PinCryptoManager(private val context: Context) {
 
             // 6. Update preferences
             prefs.edit {
-                putString(SALT, Base64.encodeToString(newSalt, Base64.NO_WRAP))
-                putString(IV, Base64.encodeToString(newIv, Base64.NO_WRAP))
-                putString(ENCRYPTED_SESSION_KEY, Base64.encodeToString(newEncryptedSessionKey, Base64.NO_WRAP))
+                putString(SecurePrefs.SALT, Base64.encodeToString(newSalt, Base64.NO_WRAP))
+                putString(SecurePrefs.IV, Base64.encodeToString(newIv, Base64.NO_WRAP))
+                putString(SecurePrefs.ENCRYPTED_SESSION_KEY, Base64.encodeToString(newEncryptedSessionKey, Base64.NO_WRAP))
             }
 
             // 7. Refresh database instance
@@ -199,7 +202,7 @@ class PinCryptoManager(private val context: Context) {
 
     private fun deriveKeyFromPin(pin: String, salt: ByteArray): SecretKey {
         val factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256")
-        val spec = PBEKeySpec(pin.toCharArray(), salt, 10000, 256)
+        val spec = PBEKeySpec(pin.toCharArray(), salt, ITERATIONS, KEY_LENGTH)
         val tmp = factory.generateSecret(spec)
         return SecretKeySpec(tmp.encoded, "AES")
     }
@@ -211,7 +214,7 @@ class PinCryptoManager(private val context: Context) {
      */
 
     private fun generateSalt(): ByteArray {
-        val secret = ByteArray(16)
+        val secret = ByteArray(SALT_SIZE)
         SecureRandom().nextBytes(secret)
         return secret
     }
