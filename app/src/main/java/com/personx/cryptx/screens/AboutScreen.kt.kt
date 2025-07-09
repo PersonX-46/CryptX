@@ -4,6 +4,7 @@ import android.content.Intent
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -15,10 +16,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Code
 import androidx.compose.material.icons.filled.Description
+import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Fingerprint
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Lock
@@ -38,8 +42,12 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
@@ -86,91 +94,72 @@ fun AboutCryptXScreen(windowSizeClass: WindowSizeClass) {
                 }
             }
 
-            DividerLine(neonGreen)
-
             // Features
             SectionTitle("> FEATURES", neonGreen)
             Column {
-                FeatureItem(icon = Icons.Default.Lock, text = "End-to-End Encryption", color = neonGreen)
-                FeatureItem(icon = Icons.Default.Security, text = "Zero-Knowledge Architecture", color = neonGreen)
-                FeatureItem(icon = Icons.Default.Fingerprint, text = "Biometric Protection", color = neonGreen)
-                FeatureItem(icon = Icons.Default.Code, text = "Open Source Components", color = neonGreen)
+                FeatureItem(Icons.Default.Lock, "End-to-End Encryption", neonGreen)
+                FeatureItem(Icons.Default.Security, "Zero-Knowledge Architecture", neonGreen)
+                FeatureItem(Icons.Default.Fingerprint, "Biometric Protection", neonGreen)
+                FeatureItem(Icons.Default.Code, "Open Source Components", neonGreen)
             }
 
             DividerLine(neonGreen)
 
-            // Changelog Summary
+            // Changelog
             SectionTitle("> CHANGELOG", neonGreen)
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(Color(0xFF0B1815))
-                    .border(BorderStroke(1.dp, neonGreen.copy(alpha = 0.5f)))
-                    .padding(12.dp)
-            ) {
-                Column {
-                    Text("- Encrypted backup and restore", color = fadedGreen, fontFamily = FontFamily.Monospace)
-                    Text("- Improved biometric fallback", color = fadedGreen, fontFamily = FontFamily.Monospace)
-                    Text("- UI polish and stability fixes", color = fadedGreen, fontFamily = FontFamily.Monospace)
-                }
-            }
+            ClickableLink(
+                label = "View Full Changelog",
+                url = "https://github.com/PersonX-46/CryptX/releases",
+                color = neonGreen,
+                icon = Icons.AutoMirrored.Filled.List
+            )
 
             DividerLine(neonGreen)
 
             // Legal
             SectionTitle("> LEGAL", neonGreen)
             Text("© ${Calendar.getInstance().get(Calendar.YEAR)} CryptX", color = fadedGreen, fontFamily = FontFamily.Monospace, fontSize = 13.sp, modifier = Modifier.padding(bottom = 16.dp))
-
-            CyberpunkButton(
-                onClick = {
-                    context.startActivity(Intent(Intent.ACTION_VIEW).apply {
-                        data = "https://opensource.org/licenses".toUri()
-                    })
-                },
-                icon = Icons.Default.Description,
-                text = "View Licenses"
+            ClickableLink(
+                label = "View Licenses",
+                url = "https://opensource.org/licenses",
+                color = neonGreen,
+                icon = Icons.Default.Description
             )
 
-
-            Spacer(modifier = Modifier.height(24.dp))
             DividerLine(neonGreen)
 
-            // Developer Info
+            // Developer
             SectionTitle("> DEVELOPER", neonGreen)
-            Text("Built with care by personx", color = fadedGreen, fontSize = 13.sp, fontFamily = FontFamily.Monospace, modifier = Modifier.padding(bottom = 8.dp))
+            Text("Built with care by personx", color = fadedGreen, fontSize = 13.sp, fontFamily = FontFamily.Monospace)
 
-            // GitHub Repo
+            DividerLine(neonGreen)
+
+            // Source Code
             SectionTitle("> SOURCE CODE", neonGreen)
-            CyberpunkButton(
-                onClick = {
-                    context.startActivity(Intent(Intent.ACTION_VIEW).apply {
-                        data = "https://github.com/PersonX-46/CryptX".toUri()
-                    })
-                },
-                icon = Icons.Default.Code,
-                text = "GitHub Repository"
+            ClickableLink(
+                label = "GitHub Repository",
+                url = "https://github.com/PersonX-46/CryptX",
+                color = neonGreen,
+                icon = Icons.Default.Code
             )
 
-            // Full Changelog Button
-            CyberpunkButton(
-                onClick = {
-                    context.startActivity(Intent(Intent.ACTION_VIEW).apply {
-                        data = "https://github.com/PersonX-46/CryptX/releases".toUri()
-                    })
-                },
-                icon = Icons.Default.List,
-                text = "View Full Changelog"
-            )
+            DividerLine(neonGreen)
+
             // Contact
-            Spacer(modifier = Modifier.height(20.dp))
             SectionTitle("> CONTACT", neonGreen)
-            Text("Email: personx.dev@protonmail.com", color = fadedGreen, fontSize = 13.sp, fontFamily = FontFamily.Monospace)
+            ClickableLink(
+                label = "thelonewolf06@proton.me",
+                url = "mailto:thelonewolf06@proton.me",
+                color = neonGreen,
+                icon = Icons.Default.Email
+            )
 
             Spacer(modifier = Modifier.height(24.dp))
             DividerLine(neonGreen)
         }
     }
 }
+
 
 
 
@@ -189,7 +178,7 @@ fun FeatureItem(icon: ImageVector, text: String, color: Color) {
         Spacer(modifier = Modifier.width(12.dp))
         Text(
             text = text,
-            color = Color.White,
+            color = color,
             fontFamily = FontFamily.Monospace,
             fontSize = 14.sp
         )
@@ -206,6 +195,41 @@ fun DividerLine(color: Color) {
             .padding(vertical = 16.dp)
     )
 }
+@Composable
+fun ClickableLink(
+    label: String,
+    url: String,
+    color: Color,
+    icon: ImageVector? = null
+) {
+    val context = LocalContext.current
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .clickable {
+                context.startActivity(Intent(Intent.ACTION_VIEW, url.toUri()))
+            }
+            .padding(vertical = 4.dp)
+    ) {
+        if (icon != null) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = color,
+                modifier = Modifier.size(18.dp)
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+        }
+        Text(
+            text = label,
+            color = color,
+            fontSize = 14.sp,
+            fontFamily = FontFamily.Monospace,
+            textDecoration = TextDecoration.Underline
+        )
+    }
+}
+
 
 @Composable
 fun SectionTitle(title: String, color: Color) {
