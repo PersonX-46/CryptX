@@ -41,10 +41,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
 import com.personx.cryptx.components.CyberpunkButton
 import com.personx.cryptx.components.Header
-import com.personx.cryptx.components.Toast
 import com.personx.cryptx.screens.settingsscreen.ImportBackupDialog
 import com.personx.cryptx.viewmodel.SettingsViewModel
 

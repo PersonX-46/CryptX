@@ -1,7 +1,6 @@
 package com.personx.cryptx
 
 import android.Manifest
-import android.annotation.SuppressLint
 import android.app.AlarmManager
 import android.app.Application
 import android.app.PendingIntent
@@ -62,7 +61,6 @@ import com.personx.cryptx.screens.pinlogin.PinLoginScreen
 import com.personx.cryptx.screens.pinsetup.PinSetupScreen
 import com.personx.cryptx.ui.theme.CryptXTheme
 import com.personx.cryptx.viewmodel.SettingsViewModel
-import java.io.File
 import kotlin.system.exitProcess
 
 class MainActivity : ComponentActivity() {

@@ -12,11 +12,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.personx.cryptx.crypto.PinCryptoManager
 import com.personx.cryptx.screens.AboutCryptXScreen
-import com.personx.cryptx.screens.BackupDecisionScreen
 import com.personx.cryptx.screens.HashDetector
 import com.personx.cryptx.screens.HashGeneratorScreen
 import com.personx.cryptx.screens.HomeScreen
-import com.personx.cryptx.screens.settingsscreen.SettingsScreen
 import com.personx.cryptx.screens.SteganographyScreen
 import com.personx.cryptx.screens.decryptscreen.DecryptHistoryScreen
 import com.personx.cryptx.screens.decryptscreen.DecryptPinHandler
@@ -27,6 +25,7 @@ import com.personx.cryptx.screens.encryptscreen.EncryptMainScreen
 import com.personx.cryptx.screens.encryptscreen.EncryptPinHandler
 import com.personx.cryptx.screens.pinlogin.PinLoginScreen
 import com.personx.cryptx.screens.pinsetup.PinSetupScreen
+import com.personx.cryptx.screens.settingsscreen.SettingsScreen
 import com.personx.cryptx.viewmodel.SettingsViewModel
 import com.personx.cryptx.viewmodel.decryption.DecryptionHistoryRepository
 import com.personx.cryptx.viewmodel.decryption.DecryptionViewModel
