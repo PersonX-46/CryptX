@@ -41,6 +41,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 import com.personx.cryptx.components.CyberpunkButton
 import com.personx.cryptx.components.Header
 import com.personx.cryptx.screens.settingsscreen.ImportBackupDialog
@@ -175,7 +176,8 @@ fun BackupDecisionScreen(
 
                     if (state.isLoading) {
                         Box(
-
+                            modifier = Modifier.zIndex(2f),
+                            contentAlignment = Alignment.Center
                         ) {
                             CircularProgressIndicator(
                                 color = lightGreen,
