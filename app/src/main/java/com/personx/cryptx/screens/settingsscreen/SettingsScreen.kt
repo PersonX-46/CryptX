@@ -362,7 +362,7 @@ fun CyberpunkPinField(
         PasswordVisualTransformation()
     }
 
-    val maxLength = if (isPin) 4 else 128
+    val maxLength = if (isPin) 6 else 128
 
 
     OutlinedTextField(

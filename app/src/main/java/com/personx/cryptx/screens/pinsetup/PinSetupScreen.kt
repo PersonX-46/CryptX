@@ -122,7 +122,7 @@ fun PinSetupScreen(
 
             Text(
                 text = if (state.step == 1)
-                    "Enter a 4-digit PIN for security"
+                    "Enter a 6-digit PIN for security"
                 else
                     "Re-enter your PIN to confirm",
                 style = MaterialTheme.typography.run {
@@ -144,7 +144,7 @@ fun PinSetupScreen(
                 horizontalArrangement = Arrangement.Center,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                repeat(4) { index ->
+                repeat(6) { index ->
                     Box(
                         modifier = Modifier
                             .size(pinDotSize)
@@ -257,8 +257,8 @@ fun PinSetupScreen(
                 .fillMaxWidth()
                 .padding(horizontal = buttonPadding),
             isActive = when (state.step) {
-                1 -> state.pin.length == 4
-                2 -> state.confirmPin.length == 4
+                1 -> state.pin.length == 6
+                2 -> state.confirmPin.length == 6
                 else -> false
             } && !state.isLoading,
             isCompact = isCompact

@@ -37,13 +37,13 @@ class PinLoginViewModel(
         when (event) {
             is PinLoginEvent.EnterPin -> {
                 val newPin = event.pin
-                if (newPin.length <= 4 && newPin.all { it.isDigit() }) {
+                if (newPin.length <= 6 && newPin.all { it.isDigit() }) {
                     _state.value = _state.value.copy(enteredPin = newPin, error = null)
                 }
             }
             is PinLoginEvent.Submit -> {
                 val current = _state.value
-                if (current.enteredPin.length == 4) {
+                if (current.enteredPin.length == 6) {
                     _state.value = _state.value.copy(isLoading = true)
 
                     viewModelScope.launch(Dispatchers.IO) {

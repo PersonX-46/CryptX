@@ -87,7 +87,7 @@ fun PinLoginScreen(
     }
 
     LaunchedEffect(state.isSuccess, state.enteredPin) {
-        if (state.isSuccess && state.enteredPin.length == 4) {
+        if (state.isSuccess && state.enteredPin.length == 6) {
             onLoginSuccess(state.enteredPin)
             viewModel.resetState()
         }
@@ -159,7 +159,7 @@ fun PinLoginScreen(
                 horizontalArrangement = Arrangement.Center,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                repeat(4) { index ->
+                repeat(6) { index ->
                     Box(
                         modifier = Modifier
                             .size(if (isCompact) 24.dp else 32.dp)
@@ -261,7 +261,7 @@ fun PinLoginScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = if (isCompact) 32.dp else 64.dp),
-            isActive = state.enteredPin.length == 4 && !state.isLoading,
+            isActive = state.enteredPin.length == 6 && !state.isLoading,
             isCompact = isCompact
         )
 

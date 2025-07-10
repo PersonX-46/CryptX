@@ -25,22 +25,22 @@ class PinSetupViewModel(
     fun event(event: PinSetupEvent){
         when (event) {
             is PinSetupEvent.EnterPin -> {
-                if (event.value.length <= 4 && event.value.all { it.isDigit() }) {
+                if (event.value.length <= 6 && event.value.all { it.isDigit() }) {
                     _state.value = _state.value.copy(pin = event.value)
                 }
             }
             is PinSetupEvent.EnterConfirmPin -> {
-                if (event.value.length <= 4 && event.value.all { it.isDigit() }) {
+                if (event.value.length <= 6 && event.value.all { it.isDigit() }) {
                     _state.value = _state.value.copy(confirmPin = event.value)
                 }
             }
             is PinSetupEvent.Continue -> {
                 val current = _state.value
                 if ( current.step == 1 ) {
-                    if (current.pin.length == 4) {
+                    if (current.pin.length == 6) {
                         _state.value = current.copy(step = 2, error = null)
                     } else {
-                        _state.value = current.copy(error = "Pin must be 4 digits")
+                        _state.value = current.copy(error = "Pin must be 6 digits")
                     }
                 } else {
                     if ( current.pin == current.confirmPin) {
@@ -48,7 +48,7 @@ class PinSetupViewModel(
                         _state.value = _state.value.copy(isLoading = true)
                         viewModelScope.launch(Dispatchers.IO) {
                             try {
-                                pinCryptoManager.setupPin(current.pin) // ✅ Store encrypted PIN data
+                                pinCryptoManager.setupPin(current.pin) // Store encrypted PIN data
                                 _state.value = current.copy(error = null, isCompleted = true, isLoading = false)
                             } catch (e: Exception) {
                                 _state.value = current.copy(error = "Failed to store PIN", pin = "", confirmPin = "", isCompleted = false, isLoading = false)
