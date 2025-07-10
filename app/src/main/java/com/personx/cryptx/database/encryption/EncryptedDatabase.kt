@@ -7,7 +7,7 @@ import androidx.room.RoomDatabase
  * It defines the entities and provides an abstract method to access the DAO.
  */
 
-@Database(entities = [EncryptionHistory::class, DecryptionHistory::class], version = 1, exportSchema = true)
+@Database(entities = [EncryptionHistory::class, DecryptionHistory::class], version = 1, exportSchema = false)
 abstract class EncryptedDatabase : RoomDatabase() {
     abstract fun historyDao(): EncryptionHistoryDao
 }
