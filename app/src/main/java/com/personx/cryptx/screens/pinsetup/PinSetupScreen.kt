@@ -19,6 +19,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.automirrored.filled.Backspace
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -166,6 +167,17 @@ fun PinSetupScreen(
             }
         }
 
+        if (state.isLoading) {
+            Box(
+
+            ) {
+                CircularProgressIndicator(
+                    color = cyberpunkGreen,
+                    strokeWidth = 4.dp
+                )
+            }
+        }
+
         // Error Message
         state.error?.let { error ->
             Text(
@@ -236,7 +248,9 @@ fun PinSetupScreen(
 
         // Continue Button
         CyberpunkButton(
-            onClick = { viewModel.event(PinSetupEvent.Continue) },
+            onClick = {
+                viewModel.event(PinSetupEvent.Continue)
+            },
             text = if (state.step == 1) "CONTINUE" else "CONFIRM",
             icon = if (state.step == 1) Icons.AutoMirrored.Filled.ArrowForward else Icons.Default.Check,
             modifier = Modifier
@@ -246,7 +260,7 @@ fun PinSetupScreen(
                 1 -> state.pin.length == 4
                 2 -> state.confirmPin.length == 4
                 else -> false
-            },
+            } && !state.isLoading,
             isCompact = isCompact
         )
     }

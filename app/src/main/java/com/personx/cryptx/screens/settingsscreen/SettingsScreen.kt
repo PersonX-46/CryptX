@@ -377,7 +377,7 @@ fun CyberpunkPinField(
             val filtered = if (isPin) it.filter { c -> c.isDigit() } else it
             if (filtered.length <= maxLength) onValueChange(filtered)
         },
-        label = { Text(label) },
+        label = { Text(text = label, fontFamily = FontFamily.Monospace) },
         visualTransformation = visualTransformation,
         singleLine = true,
         keyboardOptions = KeyboardOptions(
@@ -548,7 +548,7 @@ fun ExportBackupDialog(
                 isPin = false,
                 value = state.value.currentPin ?: "",
                 onValueChange = { viewModel.updateCurrentPin(it) },
-                label = "Enter Password to Encrypt",
+                label = "Password",
                 modifier = Modifier.fillMaxWidth()
             )
 
@@ -710,7 +710,7 @@ fun ImportBackupDialog(
                 isPin = false,
                 value = state.value.currentPin ?: "",
                 onValueChange = { viewModel.updateCurrentPin(it) },
-                label = "Enter Backup Password",
+                label = "Password",
                 modifier = Modifier.fillMaxWidth()
             )
 

@@ -1,11 +1,14 @@
 package com.personx.cryptx.viewmodel
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.personx.cryptx.crypto.PinCryptoManager
 import com.personx.cryptx.data.PinLoginState
 import com.personx.cryptx.screens.pinlogin.PinLoginEvent
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 
 /* * PinLoginViewModel is responsible for managing the state of the PIN login feature.
  * It handles events related to entering and submitting a PIN, and interacts with the PinCryptoManager
@@ -40,11 +43,21 @@ class PinLoginViewModel(
             }
             is PinLoginEvent.Submit -> {
                 val current = _state.value
-                if (current.enteredPin.length == 4 && pinCryptoManager.loadSessionKeyIfPinValid(current.enteredPin) != null) {
-                    if (pinCryptoManager.verifyPin(current.enteredPin)) {
-                        _state.value = current.copy(error = null, isSuccess = true)
-                    } else {
-                        _state.value = current.copy(error = "Incorrect PIN", enteredPin = "", isSuccess = false)
+                if (current.enteredPin.length == 4) {
+                    _state.value = _state.value.copy(isLoading = true)
+
+                    viewModelScope.launch(Dispatchers.IO) {
+                        val success = try {
+                            pinCryptoManager.verifyPin(current.enteredPin)
+                        } catch (e: Exception) {
+                            false
+                        }
+
+                        _state.value = if (success) {
+                            current.copy(error = null, isSuccess = true, isLoading = false)
+                        } else {
+                            current.copy(error = "Incorrect PIN", enteredPin = "", isSuccess = false, isLoading = false)
+                        }
                     }
                 } else {
                     _state.value = current.copy(error = "Invalid PIN", enteredPin = "", isSuccess = false)
@@ -52,5 +65,4 @@ class PinLoginViewModel(
             }
         }
     }
-
 }

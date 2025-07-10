@@ -1,11 +1,15 @@
 package com.personx.cryptx.viewmodel
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.personx.cryptx.crypto.PinCryptoManager
 import com.personx.cryptx.data.PinSetupState
 import com.personx.cryptx.screens.pinsetup.PinSetupEvent
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
+import okhttp3.Dispatcher
 
 /**
  * PinSetupViewModel is responsible for managing the state of the PIN setup process.
@@ -42,11 +46,14 @@ class PinSetupViewModel(
                 } else {
                     if ( current.pin == current.confirmPin) {
                         // Pin confirmed, can now securely store it
-                        try {
-                            pinCryptoManager.setupPin(current.pin) // ✅ Store encrypted PIN data
-                            _state.value = current.copy(error = null, isCompleted = true)
-                        } catch (e: Exception) {
-                            _state.value = current.copy(error = "Failed to store PIN", pin = "", confirmPin = "", isCompleted = false)
+                        _state.value = _state.value.copy(isLoading = true)
+                        viewModelScope.launch(Dispatchers.IO) {
+                            try {
+                                pinCryptoManager.setupPin(current.pin) // ✅ Store encrypted PIN data
+                                _state.value = current.copy(error = null, isCompleted = true, isLoading = false)
+                            } catch (e: Exception) {
+                                _state.value = current.copy(error = "Failed to store PIN", pin = "", confirmPin = "", isCompleted = false, isLoading = false)
+                            }
                         }
                     } else {
                         _state.value = current.copy(error = "Pins do not match", pin = "", confirmPin = "", isCompleted = false)

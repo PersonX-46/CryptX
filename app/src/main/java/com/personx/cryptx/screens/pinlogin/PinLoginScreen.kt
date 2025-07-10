@@ -17,6 +17,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Backspace
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Security
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -35,6 +36,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
+import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.personx.cryptx.components.CyberpunkButton
 import com.personx.cryptx.components.CyberpunkKeypadButton
@@ -178,6 +180,17 @@ fun PinLoginScreen(
             }
         }
 
+        if (state.isLoading) {
+            Box(
+
+            ) {
+                CircularProgressIndicator(
+                    color = cyberpunkGreen,
+                    strokeWidth = 4.dp
+                )
+            }
+        }
+
         // Error Message
         state.error?.let { error ->
             Text(
@@ -241,14 +254,15 @@ fun PinLoginScreen(
         // Login Button
         CyberpunkButton(
             onClick = {
-                viewModel.event(PinLoginEvent.Submit)
+                if (!state.isLoading)
+                    viewModel.event(PinLoginEvent.Submit)
             },
             text = "AUTHENTICATE",
             icon = Icons.Default.Lock,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = if (isCompact) 32.dp else 64.dp),
-            isActive = state.enteredPin.length == 4,
+            isActive = state.enteredPin.length == 4 && !state.isLoading,
             isCompact = isCompact
         )
 

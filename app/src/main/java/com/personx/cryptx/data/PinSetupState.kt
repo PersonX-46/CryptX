@@ -5,5 +5,6 @@ data class PinSetupState(
     val confirmPin: String = "",
     val step: Int = 1,
     val error: String? = null,
-    val isCompleted: Boolean = false
+    val isCompleted: Boolean = false,
+    val isLoading: Boolean = false,
 )
