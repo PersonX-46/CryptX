@@ -1,11 +1,19 @@
 package com.personx.cryptx
 
+import android.Manifest
+import android.annotation.SuppressLint
+import android.app.AlarmManager
+import android.app.Application
+import android.app.PendingIntent
+import android.content.Context
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.RequiresApi
+import androidx.annotation.RequiresPermission
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -49,9 +57,13 @@ import com.personx.cryptx.components.CyberpunkNavBar
 import com.personx.cryptx.crypto.PinCryptoManager
 import com.personx.cryptx.crypto.SessionKeyManager
 import com.personx.cryptx.data.NavBarItem
+import com.personx.cryptx.screens.BackupDecisionScreen
 import com.personx.cryptx.screens.pinlogin.PinLoginScreen
 import com.personx.cryptx.screens.pinsetup.PinSetupScreen
 import com.personx.cryptx.ui.theme.CryptXTheme
+import com.personx.cryptx.viewmodel.SettingsViewModel
+import java.io.File
+import kotlin.system.exitProcess
 
 class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
@@ -59,15 +71,19 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-
+        val settingsViewModel = SettingsViewModel(
+            pinCryptoManager = PinCryptoManager(this),
+            application = this.applicationContext as Application
+        )
         setContent {
             val windowSizeClass = calculateWindowSizeClass(this)
             val context = LocalContext.current.applicationContext
             val lifecycleOwner = LocalLifecycleOwner.current
-
             val currentScreen = remember { mutableStateOf("loading") }
 
-            // Re-check on resume
+
+            val navController = rememberNavController()
+
             DisposableEffect(lifecycleOwner) {
                 val observer = LifecycleEventObserver { _, event ->
                     if (event == Lifecycle.Event.ON_RESUME) {
@@ -76,8 +92,9 @@ class MainActivity : ComponentActivity() {
                                 prefs.getString("iv", null) != null &&
                                 prefs.getString("encryptedSessionKey", null) != null
 
+
                         currentScreen.value = when {
-                            !hasSetup -> "pinSetup"
+                            !hasSetup -> "backupDecision"
                             SessionKeyManager.isSessionActive() -> "home"
                             else -> "login"
                         }
@@ -102,6 +119,17 @@ class MainActivity : ComponentActivity() {
                             modifier = Modifier.fillMaxSize(),
                             contentAlignment = Alignment.Center
                         ) { CircularProgressIndicator() }
+
+                        "backupDecision" -> BackupDecisionScreen(
+                            viewModel = settingsViewModel,
+                            windowSizeClass = windowSizeClass,
+                            onSkip = {
+                                currentScreen.value = "pinSetup"
+                            },
+                            onRestoreDone = {
+                                currentScreen.value = "login"
+                            }
+                        )
 
                         "pinSetup" -> PinSetupScreen(
                             pinCryptoManager = PinCryptoManager(context),
@@ -139,6 +167,29 @@ class MainActivity : ComponentActivity() {
         super.onDestroy()
         SessionKeyManager.clearSessionKey()
     }
+}
+
+@RequiresPermission(Manifest.permission.SCHEDULE_EXACT_ALARM)
+fun restartApp(context: Context) {
+    val intent = context.packageManager.getLaunchIntentForPackage(context.packageName)
+    intent?.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+
+    val pendingIntent = PendingIntent.getActivity(
+        context,
+        0,
+        intent,
+        PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE
+    )
+
+    val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+    alarmManager.setExact(
+        AlarmManager.RTC,
+        System.currentTimeMillis() + 100,
+        pendingIntent
+    )
+
+    // Kill current process
+    exitProcess(0)
 }
 
 

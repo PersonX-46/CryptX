@@ -209,6 +209,7 @@ fun SettingsScreen(
             }
 
             if (state.showImportDialog) {
+
                 ImportBackupDialog(
                     viewModel = viewModel,
                     onDismiss = {
@@ -216,12 +217,18 @@ fun SettingsScreen(
                         viewModel.resetState()
                     },
                     onConfirm = { password ->
-                        selectedUri.value?.let {
-                            viewModel.importBackupFromUri(it, password)
-                            selectedUri.value = null // Reset after use
-                        } ?: viewModel.updateBackupResult("❌ No file selected.")
-                        viewModel.updateShowImportDialog(false)
-                        viewModel.resetState()
+                        val uri = selectedUri.value
+                        if (uri == null) {
+                            Toast.makeText(context, "❌ No file selected.", Toast.LENGTH_SHORT).show()
+                            return@ImportBackupDialog
+                        }
+
+                        viewModel.importBackupFromUri(uri, password) { success ->
+                            val message = if (success) "✅ Import successful!" else "❌ Import failed."
+                            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+                            selectedUri.value = null
+                            viewModel.updateShowImportDialog(false)
+                        }
                     },
                     launchFilePicker = {
                         selectedUri.value = null
@@ -238,12 +245,10 @@ fun SettingsScreen(
                     onDismiss = {
                         viewModel.updateShowExportDialog(false)
                         viewModel.resetState()
-
                     },
                     onConfirm = { password ->
                         viewModel.launchExportAfterPassword(password) // 🔥 Direct export to Downloads
                         viewModel.updateShowExportDialog(false)
-                        viewModel.resetState()
                     }
                 )
             }
@@ -308,32 +313,32 @@ private fun CyberpunkSettingCard(
                 modifier = Modifier
                     .size(40.dp)
                     .background(accentColor.copy(alpha = 0.2f)),
-                    contentAlignment = Alignment.Center
-                    ) {
+                contentAlignment = Alignment.Center
+            ) {
                 Icon(
                     imageVector = icon,
                     contentDescription = null,
                     tint = accentColor,
                     modifier = Modifier.size(24.dp)
                 )
-                    }
+            }
 
-                        Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = title,
-                        style = MaterialTheme.typography.bodyLarge.copy(
-                            color = MaterialTheme.colorScheme.onSurface,
-                            fontFamily = FontFamily.Monospace
-                        )
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.bodyLarge.copy(
+                        color = MaterialTheme.colorScheme.onSurface,
+                        fontFamily = FontFamily.Monospace
                     )
-                    Text(
-                        text = description,
-                        style = MaterialTheme.typography.bodySmall.copy(
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
-                            fontFamily = FontFamily.Monospace
-                        )
+                )
+                Text(
+                    text = description,
+                    style = MaterialTheme.typography.bodySmall.copy(
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
+                        fontFamily = FontFamily.Monospace
                     )
-                }
+                )
+            }
 
             Icon(
                 imageVector = Icons.Default.ChevronRight,
@@ -343,63 +348,6 @@ private fun CyberpunkSettingCard(
         }
     }
 }
-
-
-@Composable
-fun CyberpunkPinField(
-    isPin: Boolean,
-    value: String,
-    onValueChange: (String) -> Unit,
-    modifier: Modifier = Modifier,
-    label: String = if (isPin) "Enter PIN" else "Enter Passphrase"
-) {
-    val cybergreen = MaterialTheme.colorScheme.onSurface
-    var isPasswordVisible by remember { mutableStateOf(false) }
-
-    val visualTransformation = if (isPasswordVisible) {
-        VisualTransformation.None
-    } else {
-        PasswordVisualTransformation()
-    }
-
-    val maxLength = if (isPin) 6 else 128
-
-
-    OutlinedTextField(
-        value = value,
-        onValueChange = {
-            val filtered = if (isPin) it.filter { c -> c.isDigit() } else it
-            if (filtered.length <= maxLength) onValueChange(filtered)
-        },
-        label = { Text(text = label, fontFamily = FontFamily.Monospace) },
-        visualTransformation = visualTransformation,
-        singleLine = true,
-        keyboardOptions = KeyboardOptions(
-            keyboardType = if (isPin) KeyboardType.Number else KeyboardType.Password
-        ),
-        trailingIcon = {
-            val image = if (isPasswordVisible)
-                Icons.Default.Visibility
-            else Icons.Default.VisibilityOff
-
-            IconButton(onClick = { isPasswordVisible = !isPasswordVisible }) {
-                Icon(tint = cybergreen , imageVector = image, contentDescription = if (isPasswordVisible) "Hide" else "Show")
-            }
-        },
-        modifier = modifier,
-        colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = cybergreen,
-            unfocusedBorderColor = cybergreen,
-            focusedLabelColor = cybergreen,
-            cursorColor = cybergreen,
-            unfocusedLabelColor = cybergreen,
-            focusedTextColor = cybergreen,
-            unfocusedTextColor = cybergreen,
-            disabledTextColor = cybergreen
-        )
-    )
-}
-
 
 @Composable
 fun ChangePinDialog(
@@ -512,75 +460,6 @@ fun ChangePinDialog(
 }
 
 @Composable
-fun ExportBackupDialog(
-    viewModel: SettingsViewModel,
-    onDismiss: () -> Unit,
-    onConfirm: (String) -> Unit,
-) {
-    val state = viewModel.state.collectAsState()
-    val context = LocalContext.current
-
-    Dialog(onDismissRequest = onDismiss) {
-        Column(
-            modifier = Modifier
-                .background(Color.Black, RoundedCornerShape(12.dp))
-                .border(2.dp, MaterialTheme.colorScheme.onSurface, RoundedCornerShape(12.dp))
-                .padding(24.dp)
-        ) {
-            Text(
-                "EXPORT BACKUP",
-                style = MaterialTheme.typography.headlineSmall.copy(
-                    color = MaterialTheme.colorScheme.onSurface,
-                    fontFamily = FontFamily.Monospace,
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center
-                ),
-                modifier = Modifier.padding(bottom = 16.dp)
-            )
-
-            CyberpunkPinField(
-                isPin = false,
-                value = state.value.currentPin ?: "",
-                onValueChange = { viewModel.updateCurrentPin(it) },
-                label = "Passphrase",
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End
-            ) {
-                TextButton(
-                    onClick = onDismiss,
-                    colors = ButtonDefaults.textButtonColors(
-                        contentColor = MaterialTheme.colorScheme.onSurface
-                    )
-                ) {
-                    Text("CANCEL", style = MaterialTheme.typography.labelLarge.copy(fontFamily = FontFamily.Monospace))
-                }
-
-                Spacer(modifier = Modifier.width(16.dp))
-
-                CyberpunkButton(
-                    onClick = {
-                        val password = state.value.currentPin ?: ""
-                        if (password.isNotBlank()) {
-                            onConfirm(password)
-                        } else {
-                            Toast.makeText(context, "Password is required.", Toast.LENGTH_SHORT).show()
-                        }
-                    },
-                    icon = Icons.Default.CloudUpload,
-                    text = "EXPORT",
-                )
-            }
-        }
-    }
-}
-
-@Composable
 fun Base64Dialog(
     windowSizeClass: WindowSizeClass,
     onDismiss: () -> Unit,
@@ -670,6 +549,130 @@ fun Base64Dialog(
     }
 }
 
+@Composable
+fun CyberpunkPinField(
+    isPin: Boolean,
+    value: String,
+    onValueChange: (String) -> Unit,
+    modifier: Modifier = Modifier,
+    label: String = if (isPin) "Enter PIN" else "Enter Passphrase"
+) {
+    val cybergreen = MaterialTheme.colorScheme.onSurface
+    var isPasswordVisible by remember { mutableStateOf(false) }
+
+    val visualTransformation = if (isPasswordVisible) {
+        VisualTransformation.None
+    } else {
+        PasswordVisualTransformation()
+    }
+
+    val maxLength = if (isPin) 6 else 128
+
+
+    OutlinedTextField(
+        value = value,
+        onValueChange = {
+            val filtered = if (isPin) it.filter { c -> c.isDigit() } else it
+            if (filtered.length <= maxLength) onValueChange(filtered)
+        },
+        label = { Text(text = label, fontFamily = FontFamily.Monospace) },
+        visualTransformation = visualTransformation,
+        singleLine = true,
+        keyboardOptions = KeyboardOptions(
+            keyboardType = if (isPin) KeyboardType.Number else KeyboardType.Password
+        ),
+        trailingIcon = {
+            val image = if (isPasswordVisible)
+                Icons.Default.Visibility
+            else Icons.Default.VisibilityOff
+
+            IconButton(onClick = { isPasswordVisible = !isPasswordVisible }) {
+                Icon(tint = cybergreen , imageVector = image, contentDescription = if (isPasswordVisible) "Hide" else "Show")
+            }
+        },
+        modifier = modifier,
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedBorderColor = cybergreen,
+            unfocusedBorderColor = cybergreen,
+            focusedLabelColor = cybergreen,
+            cursorColor = cybergreen,
+            unfocusedLabelColor = cybergreen,
+            focusedTextColor = cybergreen,
+            unfocusedTextColor = cybergreen,
+            disabledTextColor = cybergreen
+        )
+    )
+}
+@Composable
+fun ExportBackupDialog(
+    viewModel: SettingsViewModel,
+    onDismiss: () -> Unit,
+    onConfirm: (String) -> Unit,
+) {
+    val state = viewModel.state.collectAsState()
+    val context = LocalContext.current
+    val passwordInput = remember { mutableStateOf("") }
+
+    Dialog(onDismissRequest = onDismiss) {
+        Column(
+            modifier = Modifier
+                .background(Color.Black, RoundedCornerShape(12.dp))
+                .border(2.dp, MaterialTheme.colorScheme.onSurface, RoundedCornerShape(12.dp))
+                .padding(24.dp)
+        ) {
+            Text(
+                "EXPORT BACKUP",
+                style = MaterialTheme.typography.headlineSmall.copy(
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontFamily = FontFamily.Monospace,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center
+                ),
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+
+            CyberpunkPinField(
+                isPin = false,
+                value = passwordInput.value,
+                onValueChange = { passwordInput.value = it },
+                label = "Passphrase",
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End
+            ) {
+                TextButton(
+                    onClick = onDismiss,
+                    colors = ButtonDefaults.textButtonColors(
+                        contentColor = MaterialTheme.colorScheme.onSurface
+                    )
+                ) {
+                    Text("CANCEL", style = MaterialTheme.typography.labelLarge.copy(fontFamily = FontFamily.Monospace))
+                }
+
+                Spacer(modifier = Modifier.width(16.dp))
+
+                CyberpunkButton(
+                    onClick = {
+                        val password = passwordInput.value
+                        if (password.isNotBlank()) {
+                            onConfirm(password)
+                        } else {
+                            Toast.makeText(context, "Password is required.", Toast.LENGTH_SHORT).show()
+                        }
+                    },
+                    icon = Icons.Default.CloudUpload,
+                    text = "EXPORT",
+                )
+            }
+        }
+    }
+}
+
 
 @Composable
 fun ImportBackupDialog(
@@ -681,6 +684,7 @@ fun ImportBackupDialog(
 ) {
     val state = viewModel.state.collectAsState()
     val context = LocalContext.current
+    val passwordInput = remember { mutableStateOf("") }
 
     Dialog(onDismissRequest = onDismiss) {
         Column(
@@ -702,8 +706,8 @@ fun ImportBackupDialog(
 
             CyberpunkPinField(
                 isPin = false,
-                value = state.value.currentPin ?: "",
-                onValueChange = { viewModel.updateCurrentPin(it) },
+                value = passwordInput.value,
+                onValueChange = { passwordInput.value = it },
                 label = "Passphrase",
                 modifier = Modifier.fillMaxWidth()
             )
@@ -735,7 +739,7 @@ fun ImportBackupDialog(
 
                 CyberpunkButton(
                     onClick = {
-                        val password = state.value.currentPin ?: ""
+                        val password = passwordInput.value
                         if (password.isNotBlank() && selectedFileName != null) {
                             onConfirm(password)
                         } else {

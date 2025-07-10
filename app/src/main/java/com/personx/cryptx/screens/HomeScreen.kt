@@ -146,7 +146,7 @@ fun HomeScreen(
                 Spacer(Modifier.height(8.dp))
 
                 Text(
-                    "Change PIN",
+                    "Settings",
                     color = MaterialTheme.colorScheme.onSurface,
                     style = MaterialTheme.typography.labelLarge.copy(
                         fontFamily = FontFamily.Monospace
@@ -154,7 +154,7 @@ fun HomeScreen(
                 )
 
                 Text(
-                    "Update your security PIN",
+                    "Configure app settings",
                     color = MaterialTheme.colorScheme.onSurface,
                     style = MaterialTheme.typography.bodySmall.copy(
                         fontFamily = FontFamily.Monospace,

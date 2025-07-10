@@ -9,4 +9,5 @@ data class SettingsScreenState (
     val newPin: String? = null,
     val confirmPin: String? = null,
     val backupResult: String? = null,
+    val isLoading: Boolean = false
 )

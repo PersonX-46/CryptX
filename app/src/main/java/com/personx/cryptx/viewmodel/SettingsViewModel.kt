@@ -19,6 +19,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
 
@@ -42,6 +43,7 @@ class SettingsViewModel(
     fun updateShowBase64(show: Boolean) {
         _state.value = _state.value.copy(showBase64 = show)
     }
+
     fun updateShowPinDialog(show: Boolean) {
         _state.value = _state.value.copy(showPinDialog = show)
     }
@@ -130,14 +132,20 @@ class SettingsViewModel(
                 contentValues.put(MediaStore.Downloads.IS_PENDING, 0)
                 application.contentResolver.update(uri, contentValues, null, null)
             } else {
-                val downloads = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+                val downloads =
+                    Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
                 val cryptxDir = File(downloads, "cryptx")
                 if (!cryptxDir.exists()) cryptxDir.mkdirs()
 
                 val destFile = File(cryptxDir, fileName)
                 zipFile.copyTo(destFile, overwrite = true)
 
-                MediaScannerConnection.scanFile(application, arrayOf(destFile.absolutePath), null, null)
+                MediaScannerConnection.scanFile(
+                    application,
+                    arrayOf(destFile.absolutePath),
+                    null,
+                    null
+                )
             }
 
             true
@@ -158,6 +166,7 @@ class SettingsViewModel(
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun exportBackupToDownloads() {
+        _state.value = _state.value.copy(isLoading = true)
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val password = tempExportPassword
@@ -192,14 +201,20 @@ class SettingsViewModel(
                 Log.d("SettingsViewModel", "Clearing temporary export state")
                 tempExportPassword = null
                 pendingExport = false
+                _state.value = _state.value.copy(isLoading = false)
             }
         }
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    fun importBackupFromUri(uri: Uri, password: String) {
+    fun importBackupFromUri(
+        uri: Uri,
+        password: String,
+        onResult: (Boolean) -> Unit
+    ) {
+        _state.value = _state.value.copy(isLoading = true)
         viewModelScope.launch(Dispatchers.IO) {
-            try {
+            val result = try {
                 Log.d("SettingsViewModel", "Importing backup from URI: $uri")
                 val tempBackupFile = File(application.cacheDir, "import.backupx")
                 application.contentResolver.openInputStream(uri)?.use { input ->
@@ -207,10 +222,6 @@ class SettingsViewModel(
                         input.copyTo(output)
                     }
                 }
-                Log.d(
-                    "SettingsViewModel",
-                    "Backup file copied to: ${tempBackupFile.absolutePath}"
-                )
 
                 val success = BackupManager.importBackup(application, tempBackupFile, password)
                 val message = if (success) {
@@ -222,12 +233,18 @@ class SettingsViewModel(
                 }
 
                 updateBackupResult(message)
-                Log.d("SettingsViewModel", "Deleting temp backup file")
                 tempBackupFile.delete()
-
+                success
             } catch (e: Exception) {
                 Log.e("SettingsViewModel", "❌ Error importing backup: ${e.message}", e)
                 updateBackupResult("❌ Error importing backup: ${e.message}")
+                false
+            } finally {
+                resetState()
+            }
+
+            withContext(Dispatchers.Main) {
+                onResult(result)
             }
         }
     }
