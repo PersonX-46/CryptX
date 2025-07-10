@@ -25,7 +25,7 @@ import javax.crypto.spec.SecretKeySpec
 private const val TRANSFORMATION = "AES/GCM/NoPadding"
 private const val SALT_SIZE = 16
 private const val IV_SIZE = 12
-private const val ITERATIONS = 10000
+private const val ITERATIONS = 310_000
 private const val KEY_LENGTH = 256 // AES key length in bits
 class PinCryptoManager(private val context: Context) {
 
