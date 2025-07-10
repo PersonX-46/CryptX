@@ -314,7 +314,8 @@ fun EncryptMainScreen(
                                     text = "Base64 Encoding",
                                     style = MaterialTheme.typography.bodyMedium.copy(
                                         fontSize = if (isCompact) MaterialTheme.typography.bodyMedium.fontSize
-                                        else MaterialTheme.typography.bodyLarge.fontSize
+                                        else MaterialTheme.typography.bodyLarge.fontSize,
+                                        fontFamily = FontFamily.Monospace,
                                     )
                                 )
                                 Switch(

@@ -548,7 +548,7 @@ fun ExportBackupDialog(
                 isPin = false,
                 value = state.value.currentPin ?: "",
                 onValueChange = { viewModel.updateCurrentPin(it) },
-                label = "Password",
+                label = "Passphrase",
                 modifier = Modifier.fillMaxWidth()
             )
 
@@ -710,7 +710,7 @@ fun ImportBackupDialog(
                 isPin = false,
                 value = state.value.currentPin ?: "",
                 onValueChange = { viewModel.updateCurrentPin(it) },
-                label = "Password",
+                label = "Passphrase",
                 modifier = Modifier.fillMaxWidth()
             )
 
