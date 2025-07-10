@@ -2,7 +2,6 @@ package com.personx.cryptx.backup
 
 import android.content.Context
 import android.os.Build
-import android.util.Base64
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.content.edit
@@ -10,7 +9,6 @@ import com.personx.cryptx.crypto.SessionKeyManager
 import com.personx.cryptx.database.encryption.DatabaseProvider
 import kotlinx.coroutines.delay
 import net.zetetic.database.sqlcipher.SQLiteDatabase
-import okhttp3.internal.userAgent
 import org.json.JSONObject
 import java.io.File
 import java.io.FileOutputStream
@@ -40,7 +38,6 @@ object BackupManager {
     private const val PBKDF2_ITERATIONS = 310_000
     private const val SALT_LENGTH = 16
     private const val IV_LENGTH = 12
-    private const val TAG_LENGTH = 16 // GCM tag length
 
     private fun secureDelete(file: File) {
         try {
