@@ -51,8 +51,7 @@ import java.util.Calendar
 @Composable
 fun AboutCryptXScreen(windowSizeClass: WindowSizeClass) {
     val context = LocalContext.current
-    val neonGreen = Color(0xFF00FFAA)
-    val fadedGreen = Color(0xFF88FFCC)
+    val cybergreen = MaterialTheme.colorScheme.onSurface
     val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
     val versionName = packageInfo.versionName ?: "N/A"
 
@@ -86,7 +85,7 @@ fun AboutCryptXScreen(windowSizeClass: WindowSizeClass) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(
                         "Version $versionName",
-                        color = neonGreen,
+                        color = cybergreen,
                         fontFamily = FontFamily.Monospace,
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 14.sp
@@ -94,7 +93,7 @@ fun AboutCryptXScreen(windowSizeClass: WindowSizeClass) {
                     Spacer(modifier = Modifier.height(6.dp))
                     Text(
                         "Lightweight vault for encrypted notes, hidden files, and hash tools.",
-                        color = neonGreen,
+                        color = cybergreen,
                         fontFamily = FontFamily.Monospace,
                         fontSize = 13.sp
                     )
@@ -102,67 +101,67 @@ fun AboutCryptXScreen(windowSizeClass: WindowSizeClass) {
             }
 
 // Features
-            SectionTitle("> FEATURES", neonGreen)
+            SectionTitle("> FEATURES", cybergreen)
             Column {
-                FeatureItem(Icons.Default.Lock, "AES Text Encryption", neonGreen)
-                FeatureItem(Icons.Default.Image, "LSB Image Steganography", neonGreen)
-                FeatureItem(Icons.Default.Fingerprint, "Hash Generator & Detector", neonGreen)
-                FeatureItem(Icons.Default.Security, "100% Offline, No Cloud", neonGreen)
+                FeatureItem(Icons.Default.Lock, "AES Text Encryption", cybergreen)
+                FeatureItem(Icons.Default.Image, "LSB Image Steganography", cybergreen)
+                FeatureItem(Icons.Default.Fingerprint, "Hash Generator & Detector", cybergreen)
+                FeatureItem(Icons.Default.Security, "100% Offline, No Cloud", cybergreen)
             }
 
-            DividerLine(neonGreen)
+            DividerLine(cybergreen)
 
             // Changelog
-            SectionTitle("> CHANGELOG", neonGreen)
+            SectionTitle("> CHANGELOG", cybergreen)
             ClickableLink(
                 label = "View Full Changelog",
                 url = "https://github.com/PersonX-46/CryptX/releases",
-                color = neonGreen,
+                color = cybergreen,
                 icon = Icons.AutoMirrored.Filled.List
             )
 
-            DividerLine(neonGreen)
+            DividerLine(cybergreen)
 
             // Legal
-            SectionTitle("> LEGAL", neonGreen)
-            Text("© ${Calendar.getInstance().get(Calendar.YEAR)} CryptX", color = fadedGreen, fontFamily = FontFamily.Monospace, fontSize = 13.sp, modifier = Modifier.padding(bottom = 16.dp))
+            SectionTitle("> LEGAL", cybergreen)
+            Text("© ${Calendar.getInstance().get(Calendar.YEAR)} CryptX", color = cybergreen, fontFamily = FontFamily.Monospace, fontSize = 13.sp, modifier = Modifier.padding(bottom = 16.dp))
             ClickableLink(
                 label = "View Licenses",
                 url = "https://opensource.org/licenses",
-                color = neonGreen,
+                color = cybergreen,
                 icon = Icons.Default.Description
             )
 
-            DividerLine(neonGreen)
+            DividerLine(cybergreen)
 
             // Developer
-            SectionTitle("> DEVELOPER", neonGreen)
-            Text("Built with care by personx", color = fadedGreen, fontSize = 13.sp, fontFamily = FontFamily.Monospace)
+            SectionTitle("> DEVELOPER", cybergreen)
+            Text("Built with care by personx", color = cybergreen, fontSize = 13.sp, fontFamily = FontFamily.Monospace)
 
-            DividerLine(neonGreen)
+            DividerLine(cybergreen)
 
             // Source Code
-            SectionTitle("> SOURCE CODE", neonGreen)
+            SectionTitle("> SOURCE CODE", cybergreen)
             ClickableLink(
                 label = "GitHub Repository",
                 url = "https://github.com/PersonX-46/CryptX",
-                color = neonGreen,
+                color = cybergreen,
                 icon = Icons.Default.Code
             )
 
-            DividerLine(neonGreen)
+            DividerLine(cybergreen)
 
             // Contact
-            SectionTitle("> CONTACT", neonGreen)
+            SectionTitle("> CONTACT", cybergreen)
             ClickableLink(
                 label = "thelonewolf06@proton.me",
                 url = "mailto:thelonewolf06@proton.me",
-                color = neonGreen,
+                color = cybergreen,
                 icon = Icons.Default.Email
             )
 
             Spacer(modifier = Modifier.height(24.dp))
-            DividerLine(neonGreen)
+            DividerLine(cybergreen)
         }
     }
 }
