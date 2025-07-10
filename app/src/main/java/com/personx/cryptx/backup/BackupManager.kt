@@ -8,6 +8,7 @@ import androidx.annotation.RequiresApi
 import androidx.core.content.edit
 import com.personx.cryptx.crypto.SessionKeyManager
 import com.personx.cryptx.database.encryption.DatabaseProvider
+import kotlinx.coroutines.delay
 import net.zetetic.database.sqlcipher.SQLiteDatabase
 import okhttp3.internal.userAgent
 import org.json.JSONObject
@@ -92,10 +93,10 @@ object BackupManager {
         }
     }
 
-    fun exportBackup(context: Context, password: String): File? {
+    suspend fun exportBackup(context: Context, password: String): File? {
         DatabaseProvider.clearDatabaseInstance()
         if (password.isEmpty()) return null
-
+        System.loadLibrary("sqlcipher")
         // 1. Prepare encryption materials
         val backupSalt = ByteArray(SALT_LENGTH).apply { SecureRandom().nextBytes(this) }
         val userKey = deriveSecureKey(password, backupSalt)
@@ -122,9 +123,9 @@ object BackupManager {
                 doFinal(metadataBytes)
             }
             // 4. Encrypt database
-            System.loadLibrary("sqlcipher")
             // 3. Rekey database using raw bytes (most reliable)
             if (SessionKeyManager.getSessionKey() != null){
+
                 val sessionKey = SessionKeyManager.getSessionKey() ?: return null
                 val db = SQLiteDatabase.openOrCreateDatabase(context.getDatabasePath(
                     context.getDatabasePath(DB_NAME).absolutePath),
@@ -134,11 +135,16 @@ object BackupManager {
                 )
                 try {
                     // Convert new key to hex for PRAGMA rekey
-                    db.rawQuery("PRAGMA wal_checkpoint(FULL)", null)
+                    // Flush and merge WAL changes into main DB
+                    db.rawExecSQL("PRAGMA wal_checkpoint(FULL);")
+                    db.rawExecSQL("PRAGMA journal_mode=DELETE;")
+                    db.rawExecSQL("VACUUM;")
+
                 } finally {
                     db.close()
                 }
             }
+            delay(4000L)
             val dbFile = context.getDatabasePath(DB_NAME)
             val dbIv = ByteArray(IV_LENGTH).apply { SecureRandom().nextBytes(this) }
             val encryptedDb = Cipher.getInstance(TRANSFORMATION).run {
@@ -182,7 +188,7 @@ object BackupManager {
     @RequiresApi(Build.VERSION_CODES.O)
     fun importBackup(context: Context, backupFile: File, password: String): Boolean {
         if (password.isEmpty()) {
-            Log.e("BackupManager", "❌ Password is empty")
+            Log.e("BackupManager", "Password is empty")
             return false
         }
 
@@ -192,7 +198,7 @@ object BackupManager {
 
         try {
             // Step 1: Unzip the backup file
-            Log.d("BackupManager", "🔍 Unzipping backup file: ${backupFile.absolutePath}")
+            Log.d("BackupManager", "Unzipping backup file: ${backupFile.absolutePath}")
             ZipFile(backupFile).use { zip ->
                 zip.entries().asSequence().forEach { entry ->
                     val outFile = File(tempDir, entry.name)
@@ -201,26 +207,26 @@ object BackupManager {
                             input.copyTo(output)
                         }
                     }
-                    Log.d("BackupManager", "✅ Extracted file: ${outFile.absolutePath} (${outFile.length()} bytes)")
+                    Log.d("BackupManager", "Extracted file: ${outFile.absolutePath} (${outFile.length()} bytes)")
                 }
             }
 
             val metadataFile = File(tempDir, METADATA_FILE)
             val dbFile = File(tempDir, DB_FILE)
 
-            Log.d("BackupManager", "📄 Checking extracted files...")
+            Log.d("BackupManager", "Checking extracted files...")
             if (!metadataFile.exists()) {
-                Log.e("BackupManager", "❌ Metadata file missing")
+                Log.e("BackupManager", "Metadata file missing")
                 return false
             }
             if (!dbFile.exists()) {
-                Log.e("BackupManager", "❌ Encrypted DB file missing")
+                Log.e("BackupManager", "Encrypted DB file missing")
                 return false
             }
 
             val backupSaltFile = File(tempDir, BACKUP_SALT_FILE)
             val backupSalt = backupSaltFile.readBytes()
-            Log.d("BackupManager", "🔐 Deriving user key using backupSalt")
+            Log.d("BackupManager", "Deriving user key using backupSalt")
 
             val userKey = deriveSecureKey(password, backupSalt)
 
@@ -241,28 +247,28 @@ object BackupManager {
                 val metadata = JSONObject(metadataJson)
 
                 val dbBytes = dbFile.readBytes()
-                Log.d("BackupManager", "📦 Encrypted DB file size: ${dbBytes.size}")
+                Log.d("BackupManager", "Encrypted DB file size: ${dbBytes.size}")
                 if (dbBytes.size < IV_LENGTH) {
-                    Log.e("BackupManager", "❌ DB file too short")
+                    Log.e("BackupManager", "DB file too short")
                     return false
                 }
 
                 val dbIv = dbBytes.copyOfRange(0, IV_LENGTH)
                 val encryptedDb = dbBytes.copyOfRange(IV_LENGTH, dbBytes.size)
 
-                Log.d("BackupManager", "🔓 Attempting DB decryption")
+                Log.d("BackupManager", "Attempting DB decryption")
                 val decryptedDb = Cipher.getInstance(TRANSFORMATION).run {
                     init(Cipher.DECRYPT_MODE, userKey, GCMParameterSpec(128, dbIv))
                     doFinal(encryptedDb)
                 }
-                Log.d("BackupManager", "✅ DB decrypted successfully")
+                Log.d("BackupManager", "DB decrypted successfully")
 
                 val targetDb = context.getDatabasePath(DB_NAME).apply {
                     parentFile?.mkdirs()
                     delete()
                 }
                 FileOutputStream(targetDb).use { it.write(decryptedDb) }
-                Log.d("BackupManager", "💾 Restored DB to: ${targetDb.absolutePath}")
+                Log.d("BackupManager", "Restored DB to: ${targetDb.absolutePath}")
 
                 context.getSharedPreferences("secure_prefs", Context.MODE_PRIVATE).edit {
                     putString("salt", metadata.getString("salt"))
@@ -270,24 +276,24 @@ object BackupManager {
                     putString("encryptedSessionKey", metadata.getString("encryptedKey"))
                     commit()
                 }
-                Log.d("BackupManager", "✅ Secure prefs restored")
+                Log.d("BackupManager", "Secure prefs restored")
 
                 DatabaseProvider.clearDatabaseInstance()
                 return true
             } catch (e: Exception) {
-                Log.e("BackupManager", "❌ DB decryption failed", e)
+                Log.e("BackupManager", "DB decryption failed", e)
                 return false
             } finally {
                 userKey.destroyKeyMaterial()
             }
 
         } catch (e: Exception) {
-            Log.e("BackupManager", "❌ General import failure", e)
+            Log.e("BackupManager", "General import failure", e)
             return false
         } finally {
             tempDir.listFiles()?.forEach { secureDelete(it) }
             tempDir.delete()
-            Log.d("BackupManager", "🧹 Temp directory cleaned up")
+            Log.d("BackupManager", "Temp directory cleaned up")
         }
     }
 

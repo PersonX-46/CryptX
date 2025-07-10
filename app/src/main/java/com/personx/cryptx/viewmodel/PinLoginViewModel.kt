@@ -51,10 +51,12 @@ class PinLoginViewModel(
                             pinCryptoManager.verifyPin(current.enteredPin)
                         } catch (e: Exception) {
                             false
+                        } finally {
+                           current.copy(isLoading = false)
                         }
 
                         _state.value = if (success) {
-                            current.copy(error = null, isSuccess = true, isLoading = false)
+                            current.copy(error = null, isSuccess = true)
                         } else {
                             current.copy(error = "Incorrect PIN", enteredPin = "", isSuccess = false, isLoading = false)
                         }
