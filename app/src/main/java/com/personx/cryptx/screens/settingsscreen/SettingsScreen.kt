@@ -367,6 +367,7 @@ fun ChangePinDialog(
 ) {
     val context = LocalContext.current
     val state = viewModel.state.collectAsState()
+
     Dialog(
             onDismissRequest = { viewModel.updateShowPinDialog(false)}
         ) {
@@ -451,9 +452,10 @@ fun ChangePinDialog(
                                 newPin = state.value.newPin?: "",
                                 confirmPin = state.value.confirmPin?: "",
                                 onResult = { success ->
+                                    viewModel.updateShowPinDialog(false)
+
                                     if (success) {
                                         Toast.makeText(context, "PIN changed successfully!", Toast.LENGTH_SHORT).show()
-                                        viewModel.updateShowPinDialog(false)
                                     } else {
                                         Toast.makeText(context, "Failed to change PIN. Please try again.", Toast.LENGTH_SHORT).show()
                                     }

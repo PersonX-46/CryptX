@@ -82,30 +82,36 @@ class SettingsViewModel(
         confirmPin: String,
         onResult: (Boolean) -> Unit
     ) {
-        viewModelScope.launch {
-            val success =
-                if (newPin == confirmPin && newPin.length == 4 && newPin.all { it.isDigit() }) {
-                    val result = pinCryptoManager.changePinAndRekeyDatabase(newPin)
-                    if (result) DatabaseProvider.clearDatabaseInstance()
-                    _state.value = _state.value.copy(
-                        showPinDialog = false,
-                        currentPin = null,
-                        newPin = null,
-                        confirmPin = null
-                    )
-                    result
-                } else {
-                    _state.value = _state.value.copy(
-                        showPinDialog = true,
-                        currentPin = oldPin,
-                        newPin = newPin,
-                        confirmPin = confirmPin
-                    )
-                    false
+        _state.value = _state.value.copy(isLoading = true)
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val success =
+                    if (newPin == confirmPin && newPin.length == 6 && newPin.all { it.isDigit() }) {
+                        val result = pinCryptoManager.changePinAndRekeyDatabase(newPin)
+                        if (result) DatabaseProvider.clearDatabaseInstance()
+                        _state.value = _state.value.copy(
+                            showPinDialog = false,
+                            currentPin = null,
+                            newPin = null,
+                            confirmPin = null
+                        )
+                        result
+                    } else {
+                        _state.value = _state.value.copy(
+                            showPinDialog = true,
+                            currentPin = oldPin,
+                            newPin = newPin,
+                            confirmPin = confirmPin
+                        )
+                        false
+                    }
+                viewModelScope.launch(Dispatchers.Main) {
+                    onResult(success)
                 }
-            onResult(success)
 
-
+            } finally {
+                resetState()
+            }
         }
     }
 
