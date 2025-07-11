@@ -5,7 +5,6 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import java.security.PublicKey
 import java.security.Signature
-import kotlin.math.sign
 
 object Verifier {
     private const val ALGORITHM = "SHA256withRSA"

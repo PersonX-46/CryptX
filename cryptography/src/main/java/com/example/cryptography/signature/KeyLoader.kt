@@ -14,6 +14,7 @@ import java.util.Base64
 
 object KeyLoader {
 
+    @RequiresApi(Build.VERSION_CODES.O)
     fun generateKeyPair(): Pair<String, String> {
         val keyGen = KeyPairGenerator.getInstance("RSA")
         keyGen.initialize(4096)
