@@ -15,6 +15,7 @@ import com.personx.cryptx.screens.AboutCryptXScreen
 import com.personx.cryptx.screens.HashDetector
 import com.personx.cryptx.screens.HashGeneratorScreen
 import com.personx.cryptx.screens.HomeScreen
+import com.personx.cryptx.screens.SignatureToolScreen
 import com.personx.cryptx.screens.SteganographyScreen
 import com.personx.cryptx.screens.decryptscreen.DecryptHistoryScreen
 import com.personx.cryptx.screens.decryptscreen.DecryptPinHandler
@@ -161,6 +162,11 @@ fun AppNavGraph(
         }
         composable("about") {
             AboutCryptXScreen(windowSizeClass)
+        }
+        composable("signature") {
+            SignatureToolScreen(
+                windowSizeClass = windowSizeClass
+            )
         }
     }
 }

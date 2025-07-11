@@ -70,6 +70,7 @@ fun HomeScreen(
         FeatureItem(Icons.Default.Search, "Hash Detector") { navController.navigate("hashDetector") },
         FeatureItem(Icons.Default.VisibilityOff, "Steganography") { navController.navigate("steganography") },
         FeatureItem(Icons.Default.MoreHoriz, "Coming Soon") {
+            navController.navigate("signature")
             Toast.makeText(context, "Feature coming soon!", Toast.LENGTH_SHORT).show()
         }
     )

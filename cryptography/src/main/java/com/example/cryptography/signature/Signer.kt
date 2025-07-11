@@ -1,0 +1,25 @@
+package com.example.cryptography.signature
+
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import java.io.File
+import java.security.PrivateKey
+import java.security.Signature
+
+object Signer {
+    private const val ALGORITHM = "SHA256withRSA"
+
+    suspend fun signFile(file: File, privateKey: PrivateKey) : ByteArray = withContext(Dispatchers.IO) {
+        val sig = Signature.getInstance(ALGORITHM)
+        sig.initSign(privateKey)
+
+        file.inputStream().use { inputStream ->
+            val buffer = ByteArray(8192)
+            var read: Int
+            while (inputStream.read(buffer).also { read = it } != -1) {
+                sig.update(buffer, 0, read)
+            }
+        }
+        sig.sign()
+    }
+}
