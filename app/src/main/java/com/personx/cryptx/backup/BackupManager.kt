@@ -19,6 +19,7 @@ import java.util.zip.ZipEntry
 import java.util.zip.ZipFile
 import java.util.zip.ZipOutputStream
 import javax.crypto.Cipher
+import javax.crypto.Mac
 import javax.crypto.SecretKey
 import javax.crypto.SecretKeyFactory
 import javax.crypto.spec.GCMParameterSpec
@@ -35,6 +36,9 @@ object BackupManager {
     private const val DB_FILE = "database.enc"
 
     private const val BACKUP_SALT_FILE = "backup_salt.bin"
+
+    private const val HMAC_FILE = "hmac.sig"
+    private const val HMAC_ALGO = "HmacSHA256"
     private const val PBKDF2_ITERATIONS = 310_000
     private const val SALT_LENGTH = 16
     private const val IV_LENGTH = 12
@@ -60,6 +64,22 @@ object BackupManager {
             Log.w("SecureDelete", "Failed to securely delete file", e)
             file.delete() // Fallback to normal delete
         }
+    }
+
+    private fun generateHmac(files: List<File>, key: SecretKey): ByteArray {
+        val mac = Mac.getInstance(HMAC_ALGO).apply {
+            init(key)
+        }
+        val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
+        files.forEach { file ->
+            file.inputStream().use { input ->
+                var bytesRead: Int
+                while (input.read(buffer).also { bytesRead = it } != -1) {
+                    mac.update(buffer, 0, bytesRead)
+                }
+            }
+        }
+        return mac.doFinal()
     }
 
     private fun deriveSecureKey(password: String, salt: ByteArray): SecretKey {
@@ -119,7 +139,6 @@ object BackupManager {
                 init(Cipher.ENCRYPT_MODE, userKey, GCMParameterSpec(128, metadataIv))
                 doFinal(metadataBytes)
             }
-            // 4. Encrypt database
             // 3. Rekey database using raw bytes (most reliable)
             if (SessionKeyManager.getSessionKey() != null){
 
@@ -154,6 +173,15 @@ object BackupManager {
             File(tempDir, METADATA_FILE).writeBytes(metadataIv + encryptedMetadata)
             File(tempDir, DB_FILE).writeBytes(dbIv + encryptedDb)
 
+            val hmac = generateHmac(
+                listOf(
+                    File(tempDir, METADATA_FILE),
+                    File(tempDir, DB_FILE),
+                    File (tempDir, BACKUP_SALT_FILE)
+                ),
+                key = userKey
+            )
+            File(tempDir, HMAC_FILE).writeBytes(hmac)
             // 6. Create final backup archive
             val backupFile = createSecureBackupFile(context)
 
@@ -169,6 +197,11 @@ object BackupManager {
                 zip.putNextEntry(ZipEntry(BACKUP_SALT_FILE))
                 File(tempDir, BACKUP_SALT_FILE).inputStream().use { it.copyTo(zip) }
                 zip.closeEntry()
+
+                zip.putNextEntry(ZipEntry(HMAC_FILE))
+                File(tempDir, HMAC_FILE).inputStream().use { it.copyTo(zip) }
+                zip.closeEntry()
+
             }
 
             backupFile
@@ -208,6 +241,29 @@ object BackupManager {
                 }
             }
 
+            val backupSaltFile = File(tempDir, BACKUP_SALT_FILE)
+            val backupSalt = backupSaltFile.readBytes()
+            Log.d("BackupManager", "Deriving user key using backupSalt")
+
+            val userKey = deriveSecureKey(password, backupSalt)
+
+            val hmacFile = File(tempDir, HMAC_FILE)
+            if (!hmacFile.exists()) {
+                return false
+            }
+            val expectedHmac = hmacFile.readBytes()
+            val computedHmac = generateHmac(
+                listOf(
+                    File(tempDir, METADATA_FILE),
+                    File(tempDir, DB_FILE),
+                    File (tempDir, BACKUP_SALT_FILE)
+                ),
+                key = userKey
+            )
+            if (!expectedHmac.contentEquals(computedHmac)) {
+                return false
+            }
+
             val metadataFile = File(tempDir, METADATA_FILE)
             val dbFile = File(tempDir, DB_FILE)
 
@@ -220,12 +276,6 @@ object BackupManager {
                 Log.e("BackupManager", "Encrypted DB file missing")
                 return false
             }
-
-            val backupSaltFile = File(tempDir, BACKUP_SALT_FILE)
-            val backupSalt = backupSaltFile.readBytes()
-            Log.d("BackupManager", "Deriving user key using backupSalt")
-
-            val userKey = deriveSecureKey(password, backupSalt)
 
             try {
                 val metadataBytes = metadataFile.readBytes()
