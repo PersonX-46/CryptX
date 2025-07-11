@@ -37,7 +37,8 @@ object BackupManager {
 
     private const val BACKUP_SALT_FILE = "backup_salt.bin"
 
-    private const val HMAC_FILE = "hmac.sig"
+    private const val HMAC_FILE = "hmac.sig" +
+            ""
     private const val HMAC_ALGO = "HmacSHA256"
     private const val PBKDF2_ITERATIONS = 310_000
     private const val SALT_LENGTH = 16
