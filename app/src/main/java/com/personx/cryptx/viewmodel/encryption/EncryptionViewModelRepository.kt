@@ -108,16 +108,4 @@ class EncryptionViewModelRepository(private val context: Context) {
             DatabaseProvider.clearDatabaseInstance()
         }
     }
-
-    /**
-     * Debug function to check the database count.
-     * This is for internal use and should not be exposed in production code.
-     *
-     */
-
-    // Debug function
-    suspend fun debugDatabase() {
-        val db = ensureDatabase() ?: return
-        val count = db.historyDao().getCount()
-    }
 }
