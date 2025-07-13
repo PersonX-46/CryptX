@@ -99,17 +99,19 @@ class SignatureToolViewModel(
                 loading = true,
                 resultMessage = null,
             )
-            val result = when (state.mode) {
-                "Sign" -> try {
+            val result = when (state.mode.lowercase()) {
+                "sign" -> try {
                     val priv = KeyLoader.loadPrivateKeyFromPKCS8Pem(state.keyFile!!)
                     val signature = Signer.signFile(state.targetFile!!, priv)
                     state.targetFile.resolveSibling("${state.targetFile.name}.sig").writeBytes(signature)
+                    Log.d("SignaturePath", "Saved at: ${state.targetFile.resolveSibling("${state.targetFile.name}.sig").absolutePath}")
+
                     "File signed!"
                 } catch (e: Exception) {
                     "Sign failed: ${e.message}"
                 }
 
-                "Verify" -> try {
+                "verify" -> try {
                     val pub = KeyLoader.loadPublicKeyFromx509Pem(state.keyFile!!)
                     val signatureFile = state.targetFile!!.resolveSibling("${state.targetFile.name}.sig")
                     val isValid = Verifier.verifyFile(state.targetFile, pub, signatureFile.readBytes())

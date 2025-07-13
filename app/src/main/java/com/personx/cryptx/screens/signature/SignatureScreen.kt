@@ -10,9 +10,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -181,16 +179,15 @@ fun SignatureToolScreen(
 
                 Spacer(Modifier.height(8.dp))
 
-                AnimatedVisibility(visible = state.resultMessage != null) {
                     Text(
-                        ">> ${state.resultMessage!!}",
+                        if (state.resultMessage != null) ">> ${state.resultMessage!!}" else "N/A",
                         color = if (state.success) cyberGreen else Color(0xFFFF3864),
                         fontFamily = FontFamily.Monospace,
                         fontWeight = FontWeight.Bold,
                         fontSize = 14.sp,
                         modifier = Modifier.padding(vertical = 8.dp)
                     )
-                }
+
             }
 
             if (state.mode.lowercase() == "generate") {
