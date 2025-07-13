@@ -37,7 +37,6 @@ import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -47,17 +46,13 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.personx.cryptx.components.CyberpunkButton
 import com.personx.cryptx.components.CyberpunkDropdown
 import com.personx.cryptx.components.Header
 import com.personx.cryptx.components.SubTitleBar
-import com.personx.cryptx.database.encryption.KeyPairHistory
 import com.personx.cryptx.screens.ReusableOutputBox
 import com.personx.cryptx.viewmodel.signature.SignatureToolViewModel
-import com.personx.cryptx.viewmodel.signature.SignatureToolViewModelFactory
-import kotlinx.coroutines.launch
 import java.io.File
 import java.io.IOException
 

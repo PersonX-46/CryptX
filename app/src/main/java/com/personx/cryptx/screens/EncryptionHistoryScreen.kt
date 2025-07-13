@@ -32,7 +32,6 @@ import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.personx.cryptx.LocalNavController
 import com.personx.cryptx.components.CyberpunkButton
@@ -43,7 +42,6 @@ import com.personx.cryptx.components.KeyPairHistoryItem
 import com.personx.cryptx.database.encryption.DecryptionHistory
 import com.personx.cryptx.database.encryption.EncryptionHistory
 import com.personx.cryptx.database.encryption.KeyPairHistory
-import com.personx.cryptx.ui.theme.CryptXTheme
 
 @Composable
 fun HistoryScreen(

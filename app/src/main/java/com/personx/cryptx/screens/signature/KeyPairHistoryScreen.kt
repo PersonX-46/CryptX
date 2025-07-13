@@ -8,7 +8,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavController
-import com.personx.cryptx.database.encryption.KeyPairHistory
 import com.personx.cryptx.screens.KeyPairHistoryScreen
 import com.personx.cryptx.viewmodel.signature.SignatureToolViewModel
 import kotlinx.coroutines.launch

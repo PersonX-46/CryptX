@@ -16,7 +16,6 @@ import com.personx.cryptx.screens.AboutCryptXScreen
 import com.personx.cryptx.screens.HashDetector
 import com.personx.cryptx.screens.HashGeneratorScreen
 import com.personx.cryptx.screens.HomeScreen
-import com.personx.cryptx.screens.signature.SignatureToolScreen
 import com.personx.cryptx.screens.SteganographyScreen
 import com.personx.cryptx.screens.decryptscreen.DecryptHistoryScreen
 import com.personx.cryptx.screens.decryptscreen.DecryptPinHandler
@@ -29,6 +28,7 @@ import com.personx.cryptx.screens.pinlogin.PinLoginScreen
 import com.personx.cryptx.screens.pinsetup.PinSetupScreen
 import com.personx.cryptx.screens.settingsscreen.SettingsScreen
 import com.personx.cryptx.screens.signature.KeyPairHistoryScreen
+import com.personx.cryptx.screens.signature.SignatureToolScreen
 import com.personx.cryptx.viewmodel.SettingsViewModel
 import com.personx.cryptx.viewmodel.decryption.DecryptionHistoryRepository
 import com.personx.cryptx.viewmodel.decryption.DecryptionViewModel
@@ -37,7 +37,6 @@ import com.personx.cryptx.viewmodel.encryption.EncryptionViewModelRepository
 import com.personx.cryptx.viewmodel.signature.SignatureToolViewModel
 import com.personx.cryptx.viewmodel.signature.SignatureToolViewModelFactory
 import com.personx.cryptx.viewmodel.steganography.SteganographyViewModelRepository
-import kotlin.math.sign
 
 @RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("ViewModelConstructorInComposable")
