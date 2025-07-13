@@ -63,6 +63,7 @@ import com.personx.cryptx.components.CyberpunkInputBox
 import com.personx.cryptx.components.CyberpunkKeySection
 import com.personx.cryptx.components.CyberpunkOutputSection
 import com.personx.cryptx.components.Header
+import com.personx.cryptx.components.SubTitleBar
 import com.personx.cryptx.crypto.SessionKeyManager
 import com.personx.cryptx.ui.theme.CryptXTheme
 import com.personx.cryptx.viewmodel.encryption.EncryptionViewModel
@@ -78,7 +79,7 @@ fun EncryptMainScreen(
 
     val context = LocalContext.current
     val state = viewModel.state.value
-    val cyberpunkGreen = Color(0xFF00FFAA)
+    val cyberpunkGreen = MaterialTheme.colorScheme.onSurface
     val clipboard = ClipboardManagerHelper(LocalContext.current)
     val scope = rememberCoroutineScope()
 
@@ -145,56 +146,28 @@ fun EncryptMainScreen(
                         modifier = Modifier
                             .padding(12.dp)
                     ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceEvenly,
-                            modifier = Modifier.fillMaxWidth()
-                                .border(0.5.dp, cyberpunkGreen, shape = RoundedCornerShape(15.dp))
-                                .padding(horizontal = 5.dp),
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Lock,
-                                contentDescription = "History",
-                                tint = cyberpunkGreen,
-                                modifier = Modifier.size(if (isCompact) 24.dp else 28.dp)
-                            )
-                            Text(
-                                modifier = Modifier.padding(start = 3.dp),
-                                text = "Encryption Algorithm",
-                                textAlign = TextAlign.Center,
-                                style = MaterialTheme.typography.labelMedium.copy(
-                                    color = cyberpunkGreen.copy(alpha = 0.8f),
-                                    fontFamily = FontFamily.Monospace,
-                                    fontSize = if (isCompact) MaterialTheme.typography.labelLarge.fontSize
-                                    else MaterialTheme.typography.titleSmall.fontSize
-                                )
-                            )
-                            IconButton(
-                                onClick = {
-                                    val sessionKey = SessionKeyManager.getSessionKey()
-                                    if (sessionKey == null) {
-                                        viewModel.updatePinPurpose("history")
-                                        navController.navigate("encrypt_pin_handler") {
-                                            popUpTo("encrypt") { inclusive = true } // clears entire backstack
-                                            launchSingleTop = true
-                                        }
-                                    } else {
-                                        viewModel.refreshHistory()
-                                        navController.navigate("encrypt_history") {
-                                            popUpTo("encrypt") { inclusive = true } // clears entire backstack
-                                            launchSingleTop = true
-                                        }
+                        SubTitleBar(
+                            onClick = {
+                                val sessionKey = SessionKeyManager.getSessionKey()
+                                if (sessionKey == null) {
+                                    viewModel.updatePinPurpose("history")
+                                    navController.navigate("encrypt_pin_handler") {
+                                        popUpTo("encrypt") { inclusive = true } // clears entire backstack
+                                        launchSingleTop = true
+                                    }
+                                } else {
+                                    viewModel.refreshHistory()
+                                    navController.navigate("encrypt_history") {
+                                        popUpTo("encrypt") { inclusive = true } // clears entire backstack
+                                        launchSingleTop = true
                                     }
                                 }
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.History,
-                                    contentDescription = "History",
-                                    tint = cyberpunkGreen,
-                                    modifier = Modifier.size(if (isCompact) 24.dp else 28.dp)
-                                )
-                            }
-                        }
+                            },
+                            windowSizeClass = windowSizeClass,
+                            titleIcon = Icons.Default.Lock,
+                            clickableIcon = Icons.Default.History,
+                            title = "Encryption Algorithm"
+                        )
 
                         Spacer(modifier = Modifier.height(8.dp))
 

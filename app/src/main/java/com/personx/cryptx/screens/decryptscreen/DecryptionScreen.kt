@@ -58,6 +58,7 @@ import com.personx.cryptx.components.CyberpunkInputBox
 import com.personx.cryptx.components.CyberpunkKeySection
 import com.personx.cryptx.components.CyberpunkOutputSection
 import com.personx.cryptx.components.Header
+import com.personx.cryptx.components.SubTitleBar
 import com.personx.cryptx.crypto.SessionKeyManager
 import com.personx.cryptx.ui.theme.CryptXTheme
 import com.personx.cryptx.viewmodel.decryption.DecryptionViewModel
@@ -126,54 +127,28 @@ fun DecryptionScreen(
                         modifier = Modifier
                             .padding(12.dp)
                     ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceAround,
-                            modifier = Modifier.fillMaxWidth()
-                                .border(0.5.dp, cyberpunkGreen, shape = RoundedCornerShape(15.dp))
-                                .padding(horizontal = 5.dp),
-                        ) {
-                            Icon(
-                                imageVector = Icons.Filled.LockOpen,
-                                contentDescription = "History",
-                                tint = cyberpunkGreen,
-                                modifier = Modifier.size(if (isCompact) 24.dp else 28.dp)
-                            )
-                            Text(
-                                text = "Decryption Algorithm",
-                                style = MaterialTheme.typography.labelMedium.copy(
-                                    color = cyberpunkGreen.copy(alpha = 0.8f),
-                                    fontFamily = FontFamily.Monospace,
-                                    fontSize = if (isCompact) MaterialTheme.typography.labelLarge.fontSize
-                                    else MaterialTheme.typography.titleSmall.fontSize
-                                )
-                            )
-                            IconButton(
-                                onClick = {
-                                    val sessionKey = SessionKeyManager.getSessionKey()
-                                    if (sessionKey == null) {
-                                        viewModel.updatePinPurpose("history")
-                                        navController.navigate("decrypt_pin_handler") {
-                                            popUpTo("decrypt") { inclusive = true } // clears entire backstack
-                                            launchSingleTop = true
-                                        }
-                                    } else {
-                                        viewModel.refreshHistory()
-                                        navController.navigate("decrypt_history") {
-                                            popUpTo("decrypt") { inclusive = true } // clears entire backstack
-                                            launchSingleTop = true
-                                        }
+                        SubTitleBar(
+                            onClick = {
+                                val sessionKey = SessionKeyManager.getSessionKey()
+                                if (sessionKey == null) {
+                                    viewModel.updatePinPurpose("history")
+                                    navController.navigate("decrypt_pin_handler") {
+                                        popUpTo("decrypt") { inclusive = true } // clears entire backstack
+                                        launchSingleTop = true
+                                    }
+                                } else {
+                                    viewModel.refreshHistory()
+                                    navController.navigate("decrypt_history") {
+                                        popUpTo("decrypt") { inclusive = true } // clears entire backstack
+                                        launchSingleTop = true
                                     }
                                 }
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.History,
-                                    contentDescription = "History",
-                                    tint = cyberpunkGreen,
-                                    modifier = Modifier.size(if (isCompact) 24.dp else 28.dp)
-                                )
-                            }
-                        }
+                            },
+                            windowSizeClass = windowSizeClass,
+                            titleIcon = Icons.Filled.LockOpen,
+                            clickableIcon = Icons.Filled.History,
+                            title = "Decryption Algorithm"
+                        )
 
                         Spacer(modifier = Modifier.height(spacing))
 

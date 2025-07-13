@@ -11,8 +11,10 @@ import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -24,6 +26,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AttachFile
 import androidx.compose.material.icons.filled.FileCopy
 import androidx.compose.material.icons.filled.FlashOn
+import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.RestartAlt
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.filled.VpnKey
 import androidx.compose.material3.LinearProgressIndicator
@@ -48,6 +52,7 @@ import androidx.navigation.NavController
 import com.personx.cryptx.components.CyberpunkButton
 import com.personx.cryptx.components.CyberpunkDropdown
 import com.personx.cryptx.components.Header
+import com.personx.cryptx.components.SubTitleBar
 import com.personx.cryptx.database.encryption.KeyPairHistory
 import com.personx.cryptx.screens.ReusableOutputBox
 import com.personx.cryptx.viewmodel.signature.SignatureToolViewModel
@@ -208,16 +213,18 @@ fun SignatureToolScreen(
             if (state.mode.lowercase() == "generate") {
                 // --- KEY GENERATOR SECTION ---
                 Spacer(Modifier.height(32.dp))
-                Text("KEY PAIR GENERATOR", color = cyberGreen, fontSize = 14.sp, fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold)
-                Spacer(Modifier.height(8.dp))
-
-                CyberpunkButton(
-                    text = "GENERATE KEY PAIR",
-                    onClick = { viewModel.generateKeyPair() },
-                    modifier = Modifier.fillMaxWidth(),
-                    icon = Icons.Default.VpnKey,
-                    isActive = !state.loading
+                SubTitleBar(
+                    onClick = {
+                        //TODO: Implement Session Key Timeout Check
+                        viewModel.refreshKeyPairHistory()
+                        navController.navigate("keypair_history")
+                    },
+                    windowSizeClass = windowSizeClass,
+                    titleIcon = Icons.Filled.VpnKey,
+                    clickableIcon = Icons.Filled.History,
+                    title = "KeyPair Generator"
                 )
+                Spacer(Modifier.height(8.dp))
 
                 Spacer(Modifier.height(16.dp))
 
@@ -237,26 +244,28 @@ fun SignatureToolScreen(
                     windowSizeClass = windowSizeClass,
                 )
                 Spacer(Modifier.height(32.dp))
-                CyberpunkButton(
-                    text = "SAVE",
-                    onClick = {
-                        viewModel.saveGeneratedKeyPair()
-                        Toast.makeText(context, state.resultMessage, Toast.LENGTH_SHORT).show()
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    icon = Icons.Default.Save,
-                    isActive = !state.loading
-                )
-                CyberpunkButton(
-                    text = "HISTORY SCREEN",
-                    onClick = {
-                        viewModel.refreshKeyPairHistory()
-                        navController.navigate("keypair_history")
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    icon = Icons.Default.Save,
-                    isActive = !state.loading
-                )
+                Row (
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    CyberpunkButton(
+                        text = "GENERATE",
+                        onClick = { viewModel.generateKeyPair() },
+                        modifier = Modifier.fillMaxWidth().weight(1f),
+                        icon = Icons.Default.RestartAlt,
+                        isActive = !state.loading
+                    )
+                    CyberpunkButton(
+                        text = "SAVE",
+                        onClick = {
+                            viewModel.saveGeneratedKeyPair()
+                            Toast.makeText(context, state.resultMessage, Toast.LENGTH_SHORT).show()
+                        },
+                        modifier = Modifier.fillMaxWidth().weight(1f),
+                        icon = Icons.Default.Save,
+                        isActive = !state.loading
+                    )
+                }
+
             }
         }
     }

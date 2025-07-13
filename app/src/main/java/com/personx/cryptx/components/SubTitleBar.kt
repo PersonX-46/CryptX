@@ -64,7 +64,7 @@ fun SubTitleBar(
             )
         )
         IconButton(
-            onClick = {onClick}
+            onClick = onClick
         ) {
             Icon(
                 imageVector = clickableIcon,
