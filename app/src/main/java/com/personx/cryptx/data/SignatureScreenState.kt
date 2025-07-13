@@ -1,9 +1,10 @@
 package com.personx.cryptx.data
 
+import androidx.compose.ui.text.toLowerCase
 import java.io.File
 
 data class SignatureScreenState(
-    val mode: String = "Sign",
+    val mode: String = "SIGN",
     val keyFile: File? = null,
     val targetFile: File? = null,
     val keyPreview: String = "",
@@ -12,7 +13,8 @@ data class SignatureScreenState(
     val success: Boolean = false,
     val generatedPrivateKey: String = "",
     val generatedPublicKey: String = "",
+
 ) {
     val canStart get() = keyFile != null && targetFile != null
-    val keyLabel get() = if (mode == "Sign") "Private" else "Public"
+    val keyLabel get() = if (mode == "SIGN") "Private" else "Public"
 }
