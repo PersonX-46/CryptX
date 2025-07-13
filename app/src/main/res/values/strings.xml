@@ -121,6 +121,7 @@
     <string name="encrypted_output">ENCRYPTED OUTPUT</string>
     <string name="copy_output">COPY</string>
     <string name="save_output">SAVE</string>
+    <string name="copy">COPY</string>
 
 
 </resources>

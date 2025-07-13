@@ -13,8 +13,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.LockOpen
 import androidx.compose.material.icons.outlined.History
+import androidx.compose.material.icons.outlined.VpnKey
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -37,8 +39,10 @@ import com.personx.cryptx.components.CyberpunkButton
 import com.personx.cryptx.components.DecryptionHistoryItem
 import com.personx.cryptx.components.EncryptionHistoryItem
 import com.personx.cryptx.components.Header
+import com.personx.cryptx.components.KeyPairHistoryItem
 import com.personx.cryptx.database.encryption.DecryptionHistory
 import com.personx.cryptx.database.encryption.EncryptionHistory
+import com.personx.cryptx.database.encryption.KeyPairHistory
 import com.personx.cryptx.ui.theme.CryptXTheme
 
 @Composable
@@ -350,29 +354,123 @@ fun HistoryScreen(
     }
 }
 
-@Preview
 @Composable
-fun PreviewEncryptionHistoryItem() {
-    CryptXTheme {
-//        HistoryScreen(
-//            history = listOf(
-//                EncryptionHistory(
-//                    id = 1,
-//                    algorithm = "AES",
-//                    transformation = "CBC/PKCS5Padding",
-//                    timestamp = System.currentTimeMillis(),
-//                    secretText = "Hello World",
-//                    encryptedOutput = "Encrypted Text",
-//                    keySize = 256,
-//                    key = "wefbouebfqoebfwouebf",
-//                    iv = "jkbwuifbwioefbwobvob",
-//                    isBase64 = true,
-//                )
-//            ),
-//            onItemClick = {  },
-//            onEditClick = {  },
-//        ) {
-//
-//        }
+fun KeyPairHistoryScreen(
+    history: List<KeyPairHistory>,
+    onItemClick: (KeyPairHistory) -> Unit,
+    onEditClick: (KeyPairHistory) -> Unit,
+    onDeleteClick: (KeyPairHistory) -> Unit,
+    enableEditing: Boolean = true,
+    enableDeleting: Boolean = true,
+    windowSizeClass: WindowSizeClass
+) {
+    val cyberpunkGreen = Color(0xFF00FFAA)
+    val isCompact = windowSizeClass.widthSizeClass == WindowWidthSizeClass.Compact
+    val itemSpacing = if (isCompact) 5.dp else 8.dp
+    val padding = if (isCompact) 16.dp else 24.dp
+    val emptyStateIconSize = if (isCompact) 64.dp else 96.dp
+    val navController = LocalNavController.current
+
+    Column {
+        Header("KEY PAIR HISTORY", windowSizeClass)
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    Brush.verticalGradient(
+                        colors = listOf(
+                            MaterialTheme.colorScheme.onSurface.copy(0.05f),
+                            MaterialTheme.colorScheme.onPrimary.copy(0.01f)
+                        )
+                    )
+                )
+        ) {
+            if (history.isEmpty()) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(padding),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.VpnKey,
+                        contentDescription = "No Key Pair History",
+                        tint = cyberpunkGreen.copy(alpha = 0.5f),
+                        modifier = Modifier
+                            .size(emptyStateIconSize)
+                            .graphicsLayer {
+                                rotationZ = if (isCompact) 0f else 5f
+                                shadowElevation = 8.dp.toPx()
+                            }
+                    )
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    Text(
+                        text = "No Key Pairs Saved",
+                        style = MaterialTheme.typography.headlineSmall.copy(
+                            color = cyberpunkGreen,
+                            fontFamily = FontFamily.Monospace,
+                            shadow = Shadow(
+                                color = cyberpunkGreen.copy(alpha = 0.3f),
+                                offset = Offset(0f, 0f),
+                                blurRadius = 8f
+                            )
+                        )
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Text(
+                        text = "Generated key pairs will appear here",
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
+                            fontFamily = FontFamily.Monospace,
+                            textAlign = TextAlign.Center
+                        ),
+                        modifier = Modifier.padding(horizontal = padding)
+                    )
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    CyberpunkButton(
+                        onClick = { navController.navigate("signature_tool") },
+                        icon = Icons.Default.Add,
+                        text = "GENERATE KEY PAIR",
+                        modifier = Modifier
+                            .padding(horizontal = 48.dp)
+                            .height(48.dp),
+                        isCompact = isCompact
+                    )
+                }
+            } else {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = padding),
+                    verticalArrangement = Arrangement.spacedBy(itemSpacing)
+                ) {
+                    items(history) { item ->
+                        KeyPairHistoryItem(
+                            entry = item,
+                            cyberpunkGreen = cyberpunkGreen,
+                            modifier = Modifier.fillMaxWidth(),
+                            onItemClick = onItemClick,
+                            onEditClick = onEditClick,
+                            onDeleteClick = onDeleteClick,
+                            windowSizeClass = windowSizeClass,
+                            enableEditing = enableEditing,
+                            enableDeleting = enableDeleting
+                        )
+                    }
+
+                    item {
+                        Spacer(modifier = Modifier.height(if (isCompact) 16.dp else 24.dp))
+                    }
+                }
+            }
+        }
     }
 }

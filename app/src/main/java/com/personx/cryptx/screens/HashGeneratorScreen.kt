@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -139,16 +141,16 @@ fun HashGeneratorScreen(
 
                 // Hash Output Section or Placeholder
                 if (state.inputText.isNotEmpty()) {
-                    HashOutputSection(
-                        hash = state.generatedHash,
-                        algorithm = state.selectedAlgorithm,
+                    ReusableOutputBox(
+                        content = state.generatedHash,
                         onCopy = {
                             scope.launch {
                                 clipboardManager.copyTextWithTimeout(state.generatedHash)
                             }
                         },
                         windowSizeClass = windowSizeClass,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
+                        title = "GENERATED HASH"
                     )
                 } else {
                     PlaceholderInfo(
@@ -164,109 +166,89 @@ fun HashGeneratorScreen(
 }
 
 @Composable
-private fun HashOutputSection(
-    hash: String,
-    algorithm: String,
-    onCopy: () -> Unit,
+fun ReusableOutputBox(
+    content: String,
+    onCopy: (() -> Unit)? = null,
     windowSizeClass: WindowSizeClass,
-    modifier: Modifier = Modifier
+    showTitle: Boolean = false,
+    title: String = "",
+    showLength: Boolean = false,
+    modifier: Modifier = Modifier,
+    maxHeight: Dp = 120.dp // roughly fits SHA-512 size (128 hex chars)
 ) {
     val isCompact = windowSizeClass.widthSizeClass == WindowWidthSizeClass.Compact
+    val cyberpunkGreen = Color(0xFF00FFAA)
 
     Column(modifier = modifier) {
-        // Section Title
-        Text(
-            text = stringResource(R.string.generated_hash),
-            style = MaterialTheme.typography.run {
-                if (isCompact) titleLarge else titleMedium
-            }.copy(
-                fontFamily = FontFamily.Monospace,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-            ),
-            modifier = Modifier.padding(vertical = 8.dp)
-        )
-
-        // Algorithm Info
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(bottom = 8.dp)
-        ) {
+        if (showTitle) {
             Text(
-                text = "Algorithm:",
-                style = MaterialTheme.typography.bodyLarge.copy(
+                text = title,
+                style = MaterialTheme.typography.titleMedium.copy(
                     fontFamily = FontFamily.Monospace,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-                )
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                text = algorithm,
-                style = MaterialTheme.typography.bodyLarge.copy(
-                    fontFamily = FontFamily.Monospace,
-                    color = Color(0xFF00FFAA)
-                )
+                ),
+                modifier = Modifier.padding(bottom = 8.dp)
             )
         }
 
-        // Hash Output Box
         Box(
             modifier = Modifier
                 .fillMaxWidth()
+                .heightIn(max = maxHeight)
+                .verticalScroll(rememberScrollState())
                 .background(
                     MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.2f),
                     shape = RoundedCornerShape(8.dp)
                 )
-                .border(
-                    1.dp,
-                    Color(0xFF00FFAA).copy(alpha = 0.5f),
-                    shape = RoundedCornerShape(8.dp)
-                )
+                .border(1.dp, cyberpunkGreen.copy(alpha = 0.5f), shape = RoundedCornerShape(8.dp))
                 .padding(12.dp)
+
         ) {
             Text(
-                text = hash,
-                style = MaterialTheme.typography.bodyMedium.copy(
+                text = content.ifBlank { "(No output)" },
+                style = MaterialTheme.typography.bodySmall.copy(
                     fontFamily = FontFamily.Monospace,
                     color = MaterialTheme.colorScheme.onSurface
-                ),
-                modifier = Modifier.fillMaxWidth()
+                )
             )
         }
 
-        // Action Row
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 16.dp)
-        ) {
-            // Copy Button
-            CyberpunkButton(
-                onClick = onCopy,
-                icon = Icons.Default.ContentCopy,
-                text = stringResource(R.string.copy_hash),
-                modifier = Modifier.weight(if (isCompact) 1f else 0.5f)
-            )
+        if (onCopy != null || showLength) {
+            Spacer(modifier = Modifier.height(12.dp))
 
-            if (!isCompact) {
-                Spacer(modifier = Modifier.width(16.dp))
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                if (onCopy != null) {
+                    CyberpunkButton(
+                        onClick = onCopy,
+                        icon = Icons.Default.ContentCopy,
+                        text = stringResource(R.string.copy),
+                        modifier = Modifier.weight(if (isCompact) 1f else 0.5f)
+                    )
+                }
+
+                if (!isCompact) {
+                    Spacer(modifier = Modifier.width(16.dp))
+                }
+
+                if (showLength) {
+                    Text(
+                        text = "Length: ${content.length} chars",
+                        style = MaterialTheme.typography.bodySmall.copy(
+                            fontFamily = FontFamily.Monospace,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                        ),
+                        modifier = Modifier.weight(if (isCompact) 1f else 0.5f)
+                    )
+                }
             }
-
-            // Hash Length Info
-            Text(
-                text = "Length: ${hash.length} chars",
-                style = MaterialTheme.typography.bodySmall.copy(
-                    fontFamily = FontFamily.Monospace,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                ),
-                modifier = Modifier
-                    .weight(if (isCompact) 1f else 0.5f)
-                    .align(Alignment.CenterVertically)
-            )
         }
     }
 }
+
 
 @Composable
 private fun PlaceholderInfo(

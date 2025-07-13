@@ -98,3 +98,18 @@ interface EncryptionHistoryDao {
 
 
 }
+
+@Dao
+interface KeyPairDao {
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insert(pair: KeyPairHistory)
+
+    @Query("SELECT * FROM key_pairs ORDER BY timestamp DESC")
+    fun getAllPairs(): Flow<List<KeyPairHistory>>
+
+    @Update
+    suspend fun updateKeyPair(history: KeyPairHistory)
+
+    @Delete
+    suspend fun deleteKeyPair(history: KeyPairHistory)
+}
