@@ -152,22 +152,10 @@ fun SignatureToolScreen(
 
                 // Key Preview
                 Text("KEY DATASTREAM:", color = cyberGreen, fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold, fontSize = 13.sp)
-                Box(
-                    modifier = Modifier
-                        .height(150.dp)
-                        .fillMaxWidth()
-                        .border(1.dp, cyberGreen)
-                        .background(darkPanel)
-                        .padding(8.dp)
-                        .verticalScroll(rememberScrollState())
-                ) {
-                    Text(
-                        state.keyPreview.ifBlank { "NO KEY DATA DETECTED" },
-                        color = cyberGreen,
-                        fontFamily = FontFamily.Monospace,
-                        fontSize = 12.sp
-                    )
-                }
+                ReusableOutputBox(
+                    content = state.keyPreview.ifBlank { "NO KEY DATA DETECTED" },
+                    windowSizeClass = windowSizeClass,
+                )
 
                 Spacer(Modifier.height(24.dp))
 
