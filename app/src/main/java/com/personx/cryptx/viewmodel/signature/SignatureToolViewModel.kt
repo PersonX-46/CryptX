@@ -83,7 +83,7 @@ class SignatureToolViewModel(
             context = application,
             subPath = "cryptx/keys",
             filename = "${filename}_public.pem",
-            content = state.value.generatedPrivateKey
+            content = state.value.generatedPublicKey
         )
     }
 
