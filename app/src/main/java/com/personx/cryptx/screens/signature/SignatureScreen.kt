@@ -145,9 +145,8 @@ fun SignatureToolScreen(
                     )
                 }
 
-                Spacer(Modifier.height(16.dp))
-
                 if (state.mode.lowercase() == "verify"){
+                    Spacer(Modifier.height(16.dp))
                     CyberpunkButton(
                         text = "SELECT SIGNATURE FILE",
                         onClick = { signaturePicker.launch(arrayOf("*/*")) },
@@ -268,12 +267,12 @@ fun SignatureToolScreen(
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     CyberpunkButton(
-                        text = "GENERATE",
+                        text = "GEN",
                         onClick = { viewModel.generateKeyPair() },
                         modifier = Modifier
                             .fillMaxWidth()
                             .weight(1f),
-                        icon = Icons.Default.RestartAlt,
+                        icon = Icons.Filled.VpnKey,
                         isActive = !state.loading
                     )
                     CyberpunkButton(
