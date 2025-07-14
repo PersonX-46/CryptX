@@ -76,6 +76,10 @@ fun SignatureToolScreen(
         uri?.let { viewModel.setTargetFile(uriToFile(context, it)) }
     }
 
+    val signaturePicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri: Uri? ->
+        uri?.let { viewModel.setSignatureFile(uriToFile(context, it)) }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -118,13 +122,34 @@ fun SignatureToolScreen(
 
                 state.keyFile?.let {
                     Text(
-                        text = "🔐 ${it.name}",
+                        text = "${it.name}",
                         color = cyberGreen,
                         fontSize = 12.sp,
                         fontFamily = FontFamily.Monospace,
                         modifier = Modifier.padding(top = 4.dp)
                     )
                 }
+
+                Spacer(Modifier.height(16.dp))
+
+                if (state.mode.lowercase() == "verify"){
+                    CyberpunkButton(
+                        text = "SELECT SIGNATURE FILE",
+                        onClick = { signaturePicker.launch(arrayOf("*/*")) },
+                        modifier = Modifier.fillMaxWidth(),
+                        icon = Icons.Default.AttachFile
+                    )
+                    state.sigFile?.let {
+                        Text(
+                            text = it.name,
+                            color = cyberGreen,
+                            fontSize = 12.sp,
+                            fontFamily = FontFamily.Monospace,
+                            modifier = Modifier.padding(top = 4.dp)
+                        )
+                    }
+                }
+
 
                 Spacer(Modifier.height(16.dp))
 

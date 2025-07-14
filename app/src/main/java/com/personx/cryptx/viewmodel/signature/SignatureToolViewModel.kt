@@ -66,6 +66,12 @@ class SignatureToolViewModel(
         )
     }
 
+    fun setSignatureFile(file: File) {
+        _state.value = _state.value.copy(
+            sigFile = file
+        )
+    }
+
     @RequiresApi(Build.VERSION_CODES.O)
     fun generateKeyPair() {
         _state.value = _state.value.copy(
@@ -119,8 +125,9 @@ class SignatureToolViewModel(
 
                 "verify" -> try {
                     val pub = KeyLoader.loadPublicKeyFromx509Pem(state.keyFile!!)
-                    val signatureFile = state.targetFile!!.resolveSibling("${state.targetFile.name}.sig")
-                    val isValid = Verifier.verifyFile(state.targetFile, pub, signatureFile.readBytes())
+                    val signatureFile = state.sigFile
+                        ?: throw IllegalArgumentException("Signature file not set")
+                    val isValid = Verifier.verifyFile(state.targetFile!!, pub, signatureFile.readBytes())
                     if (isValid) "Signature valid!" else "Signature invalid!"
                 } catch (e: Exception) {
                     "Verify Failed: ${e.message}"

@@ -7,6 +7,7 @@ data class SignatureScreenState(
     val mode: String = "SIGN",
     val keyFile: File? = null,
     val targetFile: File? = null,
+    val sigFile: File? = null,
     val keyPreview: String = "",
     val loading: Boolean = false,
     val resultMessage: String? = null,
