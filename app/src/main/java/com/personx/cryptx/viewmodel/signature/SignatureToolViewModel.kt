@@ -2,6 +2,7 @@ package com.personx.cryptx.viewmodel.signature
 
 import android.app.Application
 import android.os.Build
+import android.os.Environment
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.AndroidViewModel
@@ -10,6 +11,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.cryptography.signature.KeyLoader
 import com.example.cryptography.signature.Signer
 import com.example.cryptography.signature.Verifier
+import com.personx.cryptx.AppFileManager
 import com.personx.cryptx.data.SignatureScreenState
 import com.personx.cryptx.database.encryption.DatabaseProvider
 import com.personx.cryptx.database.encryption.EncryptedDatabase
@@ -97,15 +99,19 @@ class SignatureToolViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             _state.value = _state.value.copy(
                 loading = true,
-                resultMessage = null,
             )
             val result = when (state.mode.lowercase()) {
                 "sign" -> try {
                     val priv = KeyLoader.loadPrivateKeyFromPKCS8Pem(state.keyFile!!)
                     val signature = Signer.signFile(state.targetFile!!, priv)
-                    state.targetFile.resolveSibling("${state.targetFile.name}.sig").writeBytes(signature)
-                    Log.d("SignaturePath", "Saved at: ${state.targetFile.resolveSibling("${state.targetFile.name}.sig").absolutePath}")
-
+                    val filename = "${state.targetFile.name}.sig"
+                    val (file, uri) = AppFileManager.saveToPublicDirectory(
+                        context = application,
+                        subPath = "cryptx/sigs",
+                        filename = filename,
+                        content = signature
+                    )
+                    Log.d("SignaturePath", "Saved at: ${file?.absolutePath}")
                     "File signed!"
                 } catch (e: Exception) {
                     "Sign failed: ${e.message}"

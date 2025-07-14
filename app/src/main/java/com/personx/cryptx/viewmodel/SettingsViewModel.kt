@@ -11,6 +11,7 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.personx.cryptx.AppFileManager
 import com.personx.cryptx.backup.BackupManager
 import com.personx.cryptx.crypto.PinCryptoManager
 import com.personx.cryptx.data.SettingsScreenState
@@ -117,43 +118,13 @@ class SettingsViewModel(
 
     private fun saveZipToDownloads(zipFile: File, fileName: String): Boolean {
         return try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                val contentValues = ContentValues().apply {
-                    put(MediaStore.Downloads.DISPLAY_NAME, fileName)
-                    put(MediaStore.Downloads.MIME_TYPE, "application/zip")
-                    put(MediaStore.Downloads.RELATIVE_PATH, "Download/cryptx")
-                    put(MediaStore.Downloads.IS_PENDING, 1)
-                }
-
-                val uri = application.contentResolver.insert(
-                    MediaStore.Downloads.EXTERNAL_CONTENT_URI,
-                    contentValues
-                ) ?: return false
-
-                application.contentResolver.openOutputStream(uri)?.use { out ->
-                    zipFile.inputStream().copyTo(out)
-                }
-
-                contentValues.clear()
-                contentValues.put(MediaStore.Downloads.IS_PENDING, 0)
-                application.contentResolver.update(uri, contentValues, null, null)
-            } else {
-                val downloads =
-                    Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-                val cryptxDir = File(downloads, "cryptx")
-                if (!cryptxDir.exists()) cryptxDir.mkdirs()
-
-                val destFile = File(cryptxDir, fileName)
-                zipFile.copyTo(destFile, overwrite = true)
-
-                MediaScannerConnection.scanFile(
-                    application,
-                    arrayOf(destFile.absolutePath),
-                    null,
-                    null
-                )
-            }
-
+            val (file, uri) = AppFileManager.saveToPublicDirectory(
+                context = application,
+                subPath = "cryptx/backups",
+                filename = fileName,
+                content = zipFile.readBytes(),
+                mimeType = "application/zip"
+            )
             true
         } catch (e: Exception) {
             e.printStackTrace()
