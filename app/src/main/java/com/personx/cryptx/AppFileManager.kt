@@ -1,5 +1,6 @@
 package com.personx.cryptx
 
+import android.content.ContentUris
 import android.content.ContentValues
 import android.content.Context
 import android.net.Uri
@@ -31,6 +32,23 @@ object AppFileManager {
             Pair(file, null)
         }
     }
+
+    fun saveTextToPublicDirectory(
+        context: Context,
+        subPath: String,
+        filename: String,
+        content: String,
+        mimeType: String = "text/plain"
+    ): Pair<File?, Uri?> {
+        return saveToPublicDirectory(
+            context = context,
+            subPath = subPath,
+            filename = filename,
+            content = content.toByteArray(Charsets.UTF_8),
+            mimeType = mimeType
+        )
+    }
+
 
     @RequiresApi(Build.VERSION_CODES.Q)
     private fun saveToMediaStore(
@@ -91,9 +109,7 @@ object AppFileManager {
                     return tempFile
                 }
             }
-
             null // File not found
         }
     }
-
 }

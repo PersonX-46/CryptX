@@ -10,6 +10,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -18,32 +19,43 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AttachFile
+import androidx.compose.material.icons.filled.CloudUpload
 import androidx.compose.material.icons.filled.FileCopy
 import androidx.compose.material.icons.filled.FlashOn
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.RestartAlt
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.filled.VpnKey
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
 import com.personx.cryptx.components.CyberpunkButton
 import com.personx.cryptx.components.CyberpunkDropdown
@@ -79,6 +91,9 @@ fun SignatureToolScreen(
     val signaturePicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri: Uri? ->
         uri?.let { viewModel.setSignatureFile(uriToFile(context, it)) }
     }
+
+    val showExportDialog = remember { mutableStateOf(false) }
+    val keyFileName = remember { mutableStateOf("") }
 
     Column(
         modifier = Modifier
@@ -255,7 +270,9 @@ fun SignatureToolScreen(
                     CyberpunkButton(
                         text = "GENERATE",
                         onClick = { viewModel.generateKeyPair() },
-                        modifier = Modifier.fillMaxWidth().weight(1f),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f),
                         icon = Icons.Default.RestartAlt,
                         isActive = !state.loading
                     )
@@ -265,12 +282,137 @@ fun SignatureToolScreen(
                             viewModel.saveGeneratedKeyPair()
                             Toast.makeText(context, state.resultMessage, Toast.LENGTH_SHORT).show()
                         },
-                        modifier = Modifier.fillMaxWidth().weight(1f),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f),
                         icon = Icons.Default.Save,
-                        isActive = !state.loading
+                        isActive = !state.loading,
+                    )
+                    CyberpunkButton(
+                        text = "Export",
+                        onClick = {
+                            showExportDialog.value = true
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f),
+                        icon = Icons.Default.CloudUpload,
+                        isActive = !state.loading,
                     )
                 }
 
+            }
+
+            if (showExportDialog.value) {
+                ExportKeyDialog(
+                    currentKeyName = keyFileName.value,
+                    onKeyNameChange = { keyFileName.value = it },
+                    onConfirm = { name ->
+                        showExportDialog.value = false
+                        // Call your export logic, example:
+                        viewModel.exportKeypairs(keyFileName.value)
+                        Toast.makeText(context, "Successfully exported", Toast.LENGTH_SHORT).show()
+                    },
+                    onDismiss = {
+                        showExportDialog.value = false
+                    }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun ExportKeyDialog(
+    currentKeyName: String,
+    onKeyNameChange: (String) -> Unit,
+    onConfirm: (String) -> Unit,
+    onDismiss: () -> Unit
+) {
+    val context = LocalContext.current
+    var error by remember { mutableStateOf<String?>(null) }
+
+    Dialog(onDismissRequest = onDismiss) {
+        Column(
+            modifier = Modifier
+                .background(
+                    color = Color.Black,
+                    shape = RoundedCornerShape(12.dp)
+                )
+                .border(
+                    width = 2.dp,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    shape = RoundedCornerShape(12.dp)
+                )
+                .padding(24.dp)
+        ) {
+            Text(
+                "EXPORT KEY FILE",
+                style = MaterialTheme.typography.headlineSmall.copy(
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontFamily = FontFamily.Monospace,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center
+                ),
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+
+            OutlinedTextField(
+                value = currentKeyName,
+                onValueChange = {
+                    onKeyNameChange(it)
+                    error = null
+                },
+                label = { Text("Enter File Name") },
+                singleLine = true,
+                isError = error != null,
+                modifier = Modifier.fillMaxWidth(),
+                textStyle = MaterialTheme.typography.bodyLarge.copy(
+                    fontFamily = FontFamily.Monospace
+                )
+            )
+
+            error?.let {
+                Text(
+                    text = it,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.labelMedium,
+                    modifier = Modifier.padding(top = 4.dp)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End
+            ) {
+                TextButton(
+                    onClick = onDismiss,
+                    colors = ButtonDefaults.textButtonColors(
+                        contentColor = MaterialTheme.colorScheme.onSurface
+                    )
+                ) {
+                    Text("CANCEL",
+                        style = MaterialTheme.typography.labelLarge.copy(
+                            fontFamily = FontFamily.Monospace
+                        )
+                    )
+                }
+
+                Spacer(Modifier.width(16.dp))
+
+                CyberpunkButton(
+                    onClick = {
+                        if (currentKeyName.isBlank()) {
+                            error = "Filename cannot be empty"
+                        } else {
+                            onConfirm(currentKeyName.trim())
+                        }
+                    },
+                    icon = Icons.Default.Save,
+                    text = "EXPORT"
+                )
             }
         }
     }

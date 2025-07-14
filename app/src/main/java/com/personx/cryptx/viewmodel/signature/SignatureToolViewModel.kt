@@ -72,6 +72,21 @@ class SignatureToolViewModel(
         )
     }
 
+    fun exportKeypairs(filename: String) {
+        val (privFile, _) = AppFileManager.saveTextToPublicDirectory(
+            context = application,
+            subPath = "cryptx/keys",
+            filename = "${filename}_private.pem",
+            content = state.value.generatedPrivateKey
+        )
+        val (pubFile, _) = AppFileManager.saveTextToPublicDirectory(
+            context = application,
+            subPath = "cryptx/keys",
+            filename = "${filename}_public.pem",
+            content = state.value.generatedPrivateKey
+        )
+    }
+
     @RequiresApi(Build.VERSION_CODES.O)
     fun generateKeyPair() {
         _state.value = _state.value.copy(
