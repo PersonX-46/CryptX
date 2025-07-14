@@ -7,6 +7,9 @@ import android.media.MediaScannerConnection
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
+import androidx.compose.ui.graphics.FilterQuality
+import com.personx.cryptx.AppFileManager
+import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
 
@@ -23,43 +26,13 @@ class SteganographyViewModelRepository(private val context: Context) {
 
     fun saveBitmapToGallery(bitmap: Bitmap, fileName: String): Boolean {
         return try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                // Scoped storage for Android 10 and above
-                val contentValues = ContentValues().apply {
-                    put(MediaStore.Images.Media.DISPLAY_NAME, fileName)
-                    put(MediaStore.Images.Media.MIME_TYPE, "image/png")
-                    put(MediaStore.Images.Media.RELATIVE_PATH, "DCIM/cryptx/embedded")
-                    put(MediaStore.Images.Media.IS_PENDING, 1)
-                }
-
-                val uri = context.contentResolver.insert(
-                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                    contentValues
-                ) ?: return false
-
-                context.contentResolver.openOutputStream(uri)?.use { stream ->
-                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
-                }
-
-                contentValues.clear()
-                contentValues.put(MediaStore.Images.Media.IS_PENDING, 0)
-                context.contentResolver.update(uri, contentValues, null, null)
-
-            } else {
-                // Legacy storage for Android 9 and below
-                val picturesDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-                val cryptxDir = File(picturesDir, "cryptx/embedded")
-                if (!cryptxDir.exists()) cryptxDir.mkdirs()
-
-                val imageFile = File(cryptxDir, fileName)
-                FileOutputStream(imageFile).use { out ->
-                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
-                }
-
-                // Notify media scanner to make image visible in gallery
-                MediaScannerConnection.scanFile(context, arrayOf(imageFile.absolutePath), null, null)
-            }
-
+            val (file, uri) = AppFileManager.saveToPublicDirectory(
+                context = context,
+                subPath = "cryptx/embedded",
+                filename = fileName,
+                content = bitmap.toByteArray(),
+                mimeType = "image/png"
+            )
             true
         } catch (e: Exception) {
             e.printStackTrace()
@@ -77,46 +50,26 @@ class SteganographyViewModelRepository(private val context: Context) {
      */
 
     fun saveByteArrayToFile(bytes: ByteArray, fileName: String): Boolean {
+
         return try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                // For Android 10 and above
-                val contentValues = ContentValues().apply {
-                    put(MediaStore.Downloads.DISPLAY_NAME, fileName)
-                    put(MediaStore.Downloads.MIME_TYPE, "application/octet-stream")
-                    put(MediaStore.Downloads.RELATIVE_PATH, "Download/cryptx/extracted")
-                    put(MediaStore.Downloads.IS_PENDING, 1)
-                }
-
-                val uri = context.contentResolver.insert(
-                    MediaStore.Downloads.EXTERNAL_CONTENT_URI,
-                    contentValues
-                ) ?: return false
-
-                context.contentResolver.openOutputStream(uri)?.use { stream ->
-                    stream.write(bytes)
-                }
-
-                contentValues.clear()
-                contentValues.put(MediaStore.Downloads.IS_PENDING, 0)
-                context.contentResolver.update(uri, contentValues, null, null)
-
-            } else {
-                // For Android 9 and below
-                val downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-                val cryptxDir = File(downloadsDir, "cryptx/extracted")
-                if (!cryptxDir.exists()) cryptxDir.mkdirs()
-
-                val file = File(cryptxDir, fileName)
-                FileOutputStream(file).use { it.write(bytes) }
-
-                // Notify the system to scan the file
-                MediaScannerConnection.scanFile(context, arrayOf(file.absolutePath), null, null)
-            }
+            val (file, uri) = AppFileManager.saveToPublicDirectory(
+                context = context,
+                subPath = "cryptx/extracted",
+                filename = fileName,
+                content = bytes,
+                mimeType = "application/octet-stream"
+            )
 
             true
         } catch (e: Exception) {
             e.printStackTrace()
             false
         }
+    }
+
+    fun Bitmap.toByteArray(format: Bitmap.CompressFormat = Bitmap.CompressFormat.PNG, quality: Int = 100) : ByteArray {
+        val stream = ByteArrayOutputStream()
+        this.compress(format, quality, stream)
+        return stream.toByteArray()
     }
 }
