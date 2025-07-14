@@ -195,7 +195,6 @@ fun ReusableOutputBox(
             modifier = Modifier
                 .fillMaxWidth()
                 .heightIn(max = maxHeight)
-                .verticalScroll(rememberScrollState())
                 .background(
                     MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.2f),
                     shape = RoundedCornerShape(8.dp)
@@ -204,13 +203,20 @@ fun ReusableOutputBox(
                 .padding(12.dp)
 
         ) {
-            Text(
-                text = content.ifBlank { "(No output)" },
-                style = MaterialTheme.typography.bodySmall.copy(
-                    fontFamily = FontFamily.Monospace,
-                    color = MaterialTheme.colorScheme.onSurface
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+            ) {
+                Text(
+                    text = content.ifBlank { "(No output)" },
+                    style = MaterialTheme.typography.bodySmall.copy(
+                        fontFamily = FontFamily.Monospace,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
                 )
-            )
+            }
+
         }
 
         if (onCopy != null || showLength) {
