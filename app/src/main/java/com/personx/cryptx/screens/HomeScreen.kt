@@ -24,6 +24,7 @@ import androidx.compose.material.icons.filled.MoreHoriz
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material.icons.filled.VpnKey
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -69,9 +70,8 @@ fun HomeScreen(
         FeatureItem(Icons.Default.Code, "Hash Generator") { navController.navigate("hashGenerator") },
         FeatureItem(Icons.Default.Search, "Hash Detector") { navController.navigate("hashDetector") },
         FeatureItem(Icons.Default.VisibilityOff, "Steganography") { navController.navigate("steganography") },
-        FeatureItem(Icons.Default.MoreHoriz, "Coming Soon") {
+        FeatureItem(Icons.Default.VpnKey, "Signature") {
             navController.navigate("signature")
-            Toast.makeText(context, "Feature coming soon!", Toast.LENGTH_SHORT).show()
         }
     )
 
