@@ -231,12 +231,12 @@ fun SettingsScreen(
                     onConfirm = { password ->
                         val uri = selectedUri.value
                         if (uri == null) {
-                            Toast.makeText(context, "❌ No file selected.", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "No file selected.", Toast.LENGTH_SHORT).show()
                             return@ImportBackupDialog
                         }
 
                         viewModel.importBackupFromUri(uri, password) { success ->
-                            val message = if (success) "✅ Import successful!" else "❌ Import failed."
+                            val message = if (success) "Import successful!" else "❌ Import failed."
                             Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
                             selectedUri.value = null
                             viewModel.updateShowImportDialog(false)

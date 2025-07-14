@@ -33,6 +33,8 @@ class SignatureToolViewModel(
     private val _keyPairHistoryList = MutableStateFlow<List<KeyPairHistory>>(emptyList())
     val keyPairHistoryList: StateFlow<List<KeyPairHistory>> = _keyPairHistoryList
 
+    private val _signatureFileName = MutableStateFlow<String>("")
+    val signatureFileName: StateFlow<String> = _signatureFileName
     fun refreshKeyPairHistory() {
         viewModelScope.launch {
             getAllHistory().collect {
@@ -51,6 +53,10 @@ class SignatureToolViewModel(
             resultMessage = null,
             success = false
         )
+    }
+
+    fun setSignatureFileName(filename: String) {
+        _signatureFileName.value = filename
     }
 
     fun setKeyFile(file: File) {
@@ -125,7 +131,7 @@ class SignatureToolViewModel(
                 "sign" -> try {
                     val priv = KeyLoader.loadPrivateKeyFromPKCS8Pem(state.keyFile!!)
                     val signature = Signer.signFile(state.targetFile!!, priv)
-                    val filename = "${state.targetFile.name}.sig"
+                    val filename = "${signatureFileName.value}.sig"
                     val (file, uri) = AppFileManager.saveToPublicDirectory(
                         context = application,
                         subPath = "cryptx/sigs",

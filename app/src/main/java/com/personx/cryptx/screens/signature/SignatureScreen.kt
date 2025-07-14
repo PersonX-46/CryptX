@@ -27,6 +27,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AttachFile
 import androidx.compose.material.icons.filled.CloudUpload
 import androidx.compose.material.icons.filled.FileCopy
+import androidx.compose.material.icons.filled.Fingerprint
 import androidx.compose.material.icons.filled.FlashOn
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.RestartAlt
@@ -36,6 +37,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
@@ -79,17 +81,30 @@ fun SignatureToolScreen(
     val cyberGreen = Color(0xFF00FF9C)
     val darkPanel = Color(0xFF0F1F1C)
     val scope = rememberCoroutineScope()
+    val selectedKey = remember { mutableStateOf<Uri?>(null) }
+    val selectedTarget = remember { mutableStateOf<Uri?>(null) }
+    val selectedSignature = remember { mutableStateOf<Uri?>(null) }
 
-    val keyPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri: Uri? ->
+    val keyPicker = rememberLauncherForActivityResult(
+        ActivityResultContracts.OpenDocument(),
+        ) { uri: Uri? ->
+        selectedKey.value = uri
         uri?.let { viewModel.setKeyFile(uriToFile(context, it)) }
     }
 
     val targetPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri: Uri? ->
-        uri?.let { viewModel.setTargetFile(uriToFile(context, it)) }
+        selectedTarget.value = uri
+        uri?.let {
+            val file = uriToFile(context, it)
+            viewModel.setTargetFile(file)
+            viewModel.setSignatureFileName(file.name)        }
     }
 
     val signaturePicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri: Uri? ->
-        uri?.let { viewModel.setSignatureFile(uriToFile(context, it)) }
+        selectedSignature.value = uri
+        uri?.let {
+            viewModel.setSignatureFile(uriToFile(context, it))
+        }
     }
 
     val showExportDialog = remember { mutableStateOf(false) }
@@ -98,7 +113,6 @@ fun SignatureToolScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Black)
     ) {
         Header("SIGNATURE TOOL", windowSizeClass = windowSizeClass)
 
@@ -110,7 +124,7 @@ fun SignatureToolScreen(
                     Brush.verticalGradient(
                         listOf(
                             MaterialTheme.colorScheme.onSurface.copy(0.05f),
-                            MaterialTheme.colorScheme.onSurface.copy(0.03f),
+                            MaterialTheme.colorScheme.onSurface.copy(0.02f),
                         )
                     )
                 )
@@ -136,31 +150,37 @@ fun SignatureToolScreen(
                 )
 
                 state.keyFile?.let {
-                    Text(
-                        text = "${it.name}",
-                        color = cyberGreen,
-                        fontSize = 12.sp,
-                        fontFamily = FontFamily.Monospace,
-                        modifier = Modifier.padding(top = 4.dp)
-                    )
+                    selectedKey.value?.lastPathSegment?.let { text ->
+                        Text(
+                            text = text,
+                            color = cyberGreen,
+                            fontSize = 12.sp,
+                            fontFamily = FontFamily.Monospace,
+                            modifier = Modifier.padding(top = 4.dp)
+                        )
+                    }
                 }
 
                 if (state.mode.lowercase() == "verify"){
                     Spacer(Modifier.height(16.dp))
                     CyberpunkButton(
                         text = "SELECT SIGNATURE FILE",
-                        onClick = { signaturePicker.launch(arrayOf("*/*")) },
+                        onClick = {
+                            signaturePicker.launch(arrayOf("*/*"))
+                                  },
                         modifier = Modifier.fillMaxWidth(),
-                        icon = Icons.Default.AttachFile
+                        icon = Icons.Default.Fingerprint
                     )
                     state.sigFile?.let {
-                        Text(
-                            text = it.name,
-                            color = cyberGreen,
-                            fontSize = 12.sp,
-                            fontFamily = FontFamily.Monospace,
-                            modifier = Modifier.padding(top = 4.dp)
-                        )
+                        selectedSignature.value?.lastPathSegment?.let { text ->
+                            Text(
+                                text = text,
+                                color = cyberGreen,
+                                fontSize = 12.sp,
+                                fontFamily = FontFamily.Monospace,
+                                modifier = Modifier.padding(top = 4.dp)
+                            )
+                        }
                     }
                 }
 
@@ -176,13 +196,18 @@ fun SignatureToolScreen(
                 )
 
                 state.targetFile?.let {
-                    Text(
-                        text = it.name,
-                        color = cyberGreen,
-                        fontSize = 12.sp,
-                        fontFamily = FontFamily.Monospace,
-                        modifier = Modifier.padding(top = 4.dp)
-                    )
+                    selectedTarget.value?.lastPathSegment?.let { text ->
+                        Text(
+                            text = text,
+                            color = cyberGreen,
+                            fontSize = 12.sp,
+                            fontFamily = FontFamily.Monospace,
+                            modifier = Modifier.padding(top = 4.dp)
+                        )
+                        selectedTarget.value?.lastPathSegment?.let { targetName ->
+                            viewModel.setSignatureFileName(targetName)
+                        }
+                    }
                 }
 
                 Spacer(Modifier.height(24.dp))
@@ -199,10 +224,13 @@ fun SignatureToolScreen(
                 // Execute signing/verifying
                 CyberpunkButton(
                     text = "EXECUTE ${state.mode.uppercase()} SEQUENCE",
-                    onClick = { viewModel.startAction() },
+                    onClick = {
+                        viewModel.startAction()
+                    },
                     icon = Icons.Default.FlashOn,
-                    modifier = Modifier.fillMaxWidth()
-                )
+                    modifier = Modifier.fillMaxWidth(),
+                    isActive = !state.loading,
+                    )
 
                 Spacer(Modifier.height(16.dp))
 
@@ -218,8 +246,9 @@ fun SignatureToolScreen(
 
                 Spacer(Modifier.height(8.dp))
 
+                if (state.resultMessage != null)
                     Text(
-                        if (state.resultMessage != null) ">> ${state.resultMessage!!}" else "N/A",
+                        ">> ${state.resultMessage!!}",
                         color = if (state.success) cyberGreen else Color(0xFFFF3864),
                         fontFamily = FontFamily.Monospace,
                         fontWeight = FontWeight.Bold,
@@ -330,7 +359,7 @@ fun ExportKeyDialog(
 ) {
     val context = LocalContext.current
     var error by remember { mutableStateOf<String?>(null) }
-
+    val cybergreen = MaterialTheme.colorScheme.onSurface
     Dialog(onDismissRequest = onDismiss) {
         Column(
             modifier = Modifier
@@ -368,6 +397,16 @@ fun ExportKeyDialog(
                 modifier = Modifier.fillMaxWidth(),
                 textStyle = MaterialTheme.typography.bodyLarge.copy(
                     fontFamily = FontFamily.Monospace
+                ),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = cybergreen,
+                    unfocusedBorderColor = cybergreen,
+                    focusedLabelColor = cybergreen,
+                    cursorColor = cybergreen,
+                    unfocusedLabelColor = cybergreen,
+                    focusedTextColor = cybergreen,
+                    unfocusedTextColor = cybergreen,
+                    disabledTextColor = cybergreen
                 )
             )
 
@@ -409,7 +448,7 @@ fun ExportKeyDialog(
                             onConfirm(currentKeyName.trim())
                         }
                     },
-                    icon = Icons.Default.Save,
+                    icon = Icons.Default.CloudUpload,
                     text = "EXPORT"
                 )
             }
