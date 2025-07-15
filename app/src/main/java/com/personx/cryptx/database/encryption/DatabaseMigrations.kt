@@ -10,7 +10,7 @@ val MIGRATION_1_2 = object : Migration(1,2) {
                 id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
                 publicKey TEXT NOT NULL,
                 privateKey TEXT NOT NULL,
-                timestamp INTEGER NOT NULL,
+                timestamp INTEGER NOT NULL
             )
         """.trimIndent())
     }
