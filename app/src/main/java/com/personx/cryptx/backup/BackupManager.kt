@@ -131,7 +131,8 @@ object BackupManager {
                 put("salt", prefs.getString("salt", "") ?: "")
                 put("iv", prefs.getString("iv", "") ?: "")
                 put("encryptedKey", prefs.getString("encryptedSessionKey", "") ?: "")
-                put("version", 1)
+                put("dbVersion", 2)
+                put("backupFormatVersion", 2)
             }
 
             val metadataBytes = metadata.toString().toByteArray()
