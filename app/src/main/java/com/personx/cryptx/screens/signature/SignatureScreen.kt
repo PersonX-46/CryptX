@@ -307,7 +307,7 @@ fun SignatureToolScreen(
                         text = "SAVE",
                         onClick = {
                             viewModel.saveGeneratedKeyPair()
-                            Toast.makeText(context, state.resultMessage, Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "Key pair saved!", Toast.LENGTH_SHORT).show()
                         },
                         modifier = Modifier
                             .fillMaxWidth()
