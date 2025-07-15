@@ -22,4 +22,21 @@ object Signer {
         }
         sig.sign()
     }
+
+    suspend fun signFiles(files: List<File>, privateKey: PrivateKey): ByteArray {
+        val sig = Signature.getInstance(ALGORITHM).apply {
+            initSign(privateKey)
+        }
+        val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
+        files.forEach { file ->
+            file.inputStream().use { input ->
+                var bytesRead: Int
+                while (input.read(buffer).also { bytesRead = it } != -1) {
+                    sig.update(buffer, 0, bytesRead)
+                }
+            }
+        }
+        return sig.sign()
+    }
+
 }
