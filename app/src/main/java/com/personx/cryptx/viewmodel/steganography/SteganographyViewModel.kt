@@ -70,8 +70,8 @@ class SteganographyViewModel(private val repository: SteganographyViewModelRepos
      * Displays appropriate toast messages based on success or failure.
      */
     fun processSteganography() {
-        viewModelScope.launch {
-            _state.value = _state.value.copy(isLoading = true)
+        _state.value = _state.value.copy(isLoading = true)
+        viewModelScope.launch(Dispatchers.IO) {
             try {
                 if (_state.value.isEncoding) {
                     if (_state.value.coverImage == null) throw Exception("Select cover image")
@@ -140,8 +140,8 @@ class SteganographyViewModel(private val repository: SteganographyViewModelRepos
 
     fun saveImage() {
         _state.value.outputImage?.let { bitmap ->
-            viewModelScope.launch {
-                _state.value = _state.value.copy(isLoading = true)
+            _state.value = _state.value.copy(isLoading = true)
+            viewModelScope.launch(Dispatchers.IO) {
                 try {
                     val saved = withContext(Dispatchers.IO) {
                         repository.saveBitmapToGallery(
@@ -150,7 +150,7 @@ class SteganographyViewModel(private val repository: SteganographyViewModelRepos
                         )
                     }
                     _state.value = _state.value.copy(
-                        toastMessage = if (saved) "Image saved under DCIM/cryptx/embedded!" else "Failed to save image",
+                        toastMessage = if (saved) "Image saved under Downloads/cryptx/embedded!" else "Failed to save image",
                         showToast = true
                     )
                 } catch (e: Exception) {

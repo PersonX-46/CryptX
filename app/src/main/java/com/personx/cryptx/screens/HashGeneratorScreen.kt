@@ -141,16 +141,15 @@ fun HashGeneratorScreen(
 
                 // Hash Output Section or Placeholder
                 if (state.inputText.isNotEmpty()) {
-                    ReusableOutputBox(
-                        content = state.generatedHash,
+                    HashOutputSection(
+                        hash = state.generatedHash,
                         onCopy = {
                             scope.launch {
                                 clipboardManager.copyTextWithTimeout(state.generatedHash)
                             }
                         },
                         windowSizeClass = windowSizeClass,
-                        modifier = Modifier.fillMaxWidth(),
-                        title = "GENERATED HASH"
+                        algorithm = state.selectedAlgorithm,
                     )
                 } else {
                     PlaceholderInfo(
@@ -161,6 +160,111 @@ fun HashGeneratorScreen(
                     )
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun HashOutputSection(
+    hash: String,
+    algorithm: String,
+    onCopy: () -> Unit,
+    windowSizeClass: WindowSizeClass,
+    modifier: Modifier = Modifier
+) {
+    val isCompact = windowSizeClass.widthSizeClass == WindowWidthSizeClass.Compact
+
+    Column(modifier = modifier) {
+        // Section Title
+        Text(
+            text = stringResource(R.string.generated_hash),
+            style = MaterialTheme.typography.run {
+                if (isCompact) titleLarge else titleMedium
+            }.copy(
+                fontFamily = FontFamily.Monospace,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+            ),
+            modifier = Modifier.padding(vertical = 8.dp)
+        )
+
+        // Algorithm Info
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(bottom = 8.dp)
+        ) {
+            Text(
+                text = "Algorithm:",
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    fontFamily = FontFamily.Monospace,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                )
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = algorithm,
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    fontFamily = FontFamily.Monospace,
+                    color = Color(0xFF00FFAA)
+                )
+            )
+        }
+
+        // Hash Output Box
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(
+                    MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.2f),
+                    shape = RoundedCornerShape(8.dp)
+                )
+                .border(
+                    1.dp,
+                    Color(0xFF00FFAA).copy(alpha = 0.5f),
+                    shape = RoundedCornerShape(8.dp)
+                )
+                .padding(12.dp)
+        ) {
+            Text(
+                text = hash,
+                style = MaterialTheme.typography.bodyMedium.copy(
+                    fontFamily = FontFamily.Monospace,
+                    color = MaterialTheme.colorScheme.onSurface
+                ),
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+
+        // Action Row
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 16.dp)
+        ) {
+            // Copy Button
+            CyberpunkButton(
+                onClick = onCopy,
+                icon = Icons.Default.ContentCopy,
+                text = stringResource(R.string.copy_hash),
+                modifier = Modifier.weight(if (isCompact) 1f else 0.5f)
+            )
+
+            if (!isCompact) {
+                Spacer(modifier = Modifier.width(16.dp))
+            }
+
+            // Hash Length Info
+            Text(
+                text = "Length: ${hash.length} chars",
+                style = MaterialTheme.typography.bodySmall.copy(
+                    fontFamily = FontFamily.Monospace,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                ),
+                modifier = Modifier
+                    .weight(if (isCompact) 1f else 0.5f)
+                    .align(Alignment.CenterVertically)
+            )
         }
     }
 }

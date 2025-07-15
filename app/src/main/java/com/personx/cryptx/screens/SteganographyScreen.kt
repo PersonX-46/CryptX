@@ -2,6 +2,7 @@ package com.personx.cryptx.screens
 
 import android.graphics.BitmapFactory
 import android.provider.OpenableColumns
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -25,6 +26,7 @@ import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.LockOpen
 import androidx.compose.material.icons.filled.Save
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -45,6 +47,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.personx.cryptx.R
 import com.personx.cryptx.components.CyberpunkButton
@@ -149,6 +152,16 @@ fun SteganographyScreen(
                         icon = Icons.Default.LockOpen,
                         isActive = state.isEncoding
                     )
+
+                    if (state.isLoading) {
+
+                        CircularProgressIndicator(
+                            modifier = Modifier
+                                .zIndex(1f),
+                            color = MaterialTheme.colorScheme.onSurface,
+                            strokeWidth = 4.dp
+                        )
+                    }
                 }
 
                 // Cover Image Section
@@ -253,6 +266,7 @@ fun SteganographyScreen(
                             onClick = { viewModel.processSteganography() },
                             text =  stringResource(R.string.hide_file),
                             icon = Icons.Default.Lock,
+                            isActive = !state.isLoading
                         )
                     }
                 }else {
@@ -261,6 +275,7 @@ fun SteganographyScreen(
                         onClick = { viewModel.processSteganography() },
                         text =  stringResource(R.string.extract_file),
                         icon = Icons.Default.LockOpen,
+                        isActive = !state.isLoading
                     )
                 }
 
@@ -331,9 +346,7 @@ fun SteganographyScreen(
         }
         // Toast message
         if (state.showToast) {
-            Toast(
-                message = state.toastMessage,
-            )
+            Toast.makeText(context, state.toastMessage, Toast.LENGTH_SHORT).show()
         }
     }
 }
