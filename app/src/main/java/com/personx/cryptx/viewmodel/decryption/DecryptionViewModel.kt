@@ -54,12 +54,23 @@ class DecryptionViewModel(private val repository: DecryptionHistoryRepository) :
      * It is updated based on the user's selection and determines whether IV is enabled or not.
      */
     fun updateSelectedMode(mode: String) {
+        val needsIV = mode.contains("GCM", ignoreCase = true) ||
+                mode.contains("CBC", ignoreCase = true) ||
+                mode.contains("CTR", ignoreCase = true) ||
+                mode.contains("OFB", ignoreCase = true) ||
+                mode.contains("CFB", ignoreCase = true) ||
+                mode.contains("ChaCha20", ignoreCase = true) || // precaution
+                !mode.contains("ECB", ignoreCase = true)
+
         _state.value = _state.value.copy(
             selectedMode = mode,
-            enableIV = !mode.contains("ECB"),
-            ivText = if (mode.contains("ECB")) "" else _state.value.ivText
+            enableIV = needsIV,
+            ivText = if (!needsIV) "" else _state.value.ivText
         )
+
+        Log.d("DECRYPTION_VM", "Mode: $mode | needsIV: $needsIV")
     }
+
 
     /* * The history state holds the list of decryption history records.
      * It is initialized as an empty list and can be updated with new records.
@@ -273,11 +284,12 @@ class DecryptionViewModel(private val repository: DecryptionHistoryRepository) :
 
             _state.value = _state.value.copy(
                 transformationList = transformations,
-                selectedMode = transformations.firstOrNull() ?: "",
-                enableIV = !transformations.firstOrNull().toString().contains("ECB"),
+                selectedMode = _state.value.selectedMode.ifBlank { transformations.firstOrNull() ?: "" },
+                enableIV = !_state.value.selectedMode.contains("ECB", ignoreCase = true) // fix here
             )
         }
     }
+
 
     /**
      * Decrypts the input text using the selected algorithm, mode, and key.
@@ -297,10 +309,10 @@ class DecryptionViewModel(private val repository: DecryptionHistoryRepository) :
                 }
 
                 val iv = try {
-                    if (_state.value.enableIV || _state.value.ivText.isBlank()) {
-                        null // Don't generate random IV for decryption
-                    } else {
+                    if (_state.value.enableIV && _state.value.ivText.isNotBlank()) {
                         decodeStringToByteArray(_state.value.ivText)
+                    } else {
+                        null
                     }
                 } catch (e: Exception) {
                     _state.value = _state.value.copy(
