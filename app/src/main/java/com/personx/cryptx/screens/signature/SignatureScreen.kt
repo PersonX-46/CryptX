@@ -30,7 +30,6 @@ import androidx.compose.material.icons.filled.FileCopy
 import androidx.compose.material.icons.filled.Fingerprint
 import androidx.compose.material.icons.filled.FlashOn
 import androidx.compose.material.icons.filled.History
-import androidx.compose.material.icons.filled.RestartAlt
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.filled.VpnKey
 import androidx.compose.material3.ButtonDefaults
@@ -357,7 +356,7 @@ fun ExportKeyDialog(
     onConfirm: (String) -> Unit,
     onDismiss: () -> Unit
 ) {
-    val context = LocalContext.current
+    LocalContext.current
     var error by remember { mutableStateOf<String?>(null) }
     val cybergreen = MaterialTheme.colorScheme.onSurface
     Dialog(onDismissRequest = onDismiss) {
