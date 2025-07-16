@@ -434,7 +434,8 @@ fun KeyPairHistoryScreen(
                     Spacer(modifier = Modifier.height(24.dp))
 
                     CyberpunkButton(
-                        onClick = { navController.navigate("signature_tool") },
+                        onClick = {
+                            navController.navigate("signature") },
                         icon = Icons.Default.Add,
                         text = "GENERATE KEY PAIR",
                         modifier = Modifier

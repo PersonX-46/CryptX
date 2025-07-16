@@ -275,13 +275,3 @@ fun AppContent(windowSizeClass: WindowSizeClass) {
         }
     }
 }
-
-
-
-@Preview(showBackground = true)
-@Composable
-fun HomeScreenPreview() {
-    CryptXTheme(darkTheme = true) {
-
-    }
-}

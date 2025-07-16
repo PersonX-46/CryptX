@@ -37,8 +37,7 @@ object BackupManager {
 
     private const val BACKUP_SALT_FILE = "backup_salt.bin"
 
-    private const val HMAC_FILE = "hmac.sig" +
-            ""
+    private const val HMAC_FILE = "hmac.sig"
     private const val HMAC_ALGO = "HmacSHA256"
     private const val PBKDF2_ITERATIONS = 310_000
     private const val SALT_LENGTH = 16
@@ -142,11 +141,13 @@ object BackupManager {
                 doFinal(metadataBytes)
             }
             // 3. Rekey database using raw bytes (most reliable)
-            if (SessionKeyManager.getSessionKey() != null){
+            if (SessionKeyManager.getSessionKey() != null) {
 
                 val sessionKey = SessionKeyManager.getSessionKey() ?: return null
-                val db = SQLiteDatabase.openOrCreateDatabase(context.getDatabasePath(
-                    context.getDatabasePath(DB_NAME).absolutePath),
+                val db = SQLiteDatabase.openOrCreateDatabase(
+                    context.getDatabasePath(
+                        context.getDatabasePath(DB_NAME).absolutePath
+                    ),
                     sessionKey.encoded,
                     null,
                     null
@@ -179,7 +180,7 @@ object BackupManager {
                 listOf(
                     File(tempDir, METADATA_FILE),
                     File(tempDir, DB_FILE),
-                    File (tempDir, BACKUP_SALT_FILE)
+                    File(tempDir, BACKUP_SALT_FILE)
                 ),
                 key = userKey
             )
@@ -205,7 +206,6 @@ object BackupManager {
                 zip.closeEntry()
 
             }
-
             backupFile
         } catch (e: Exception) {
             Log.e("BackupManager", "Export failed", e)
@@ -239,7 +239,10 @@ object BackupManager {
                             input.copyTo(output)
                         }
                     }
-                    Log.d("BackupManager", "Extracted file: ${outFile.absolutePath} (${outFile.length()} bytes)")
+                    Log.d(
+                        "BackupManager",
+                        "Extracted file: ${outFile.absolutePath} (${outFile.length()} bytes)"
+                    )
                 }
             }
 
@@ -258,7 +261,7 @@ object BackupManager {
                 listOf(
                     File(tempDir, METADATA_FILE),
                     File(tempDir, DB_FILE),
-                    File (tempDir, BACKUP_SALT_FILE)
+                    File(tempDir, BACKUP_SALT_FILE)
                 ),
                 key = userKey
             )
