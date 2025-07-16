@@ -1,6 +1,6 @@
 *.iml
 .gradle
-/.idea
+.idea/deploymentTargetSelector.xml
 /local.properties
 /.idea/caches
 /.idea/libraries
