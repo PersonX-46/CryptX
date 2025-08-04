@@ -26,7 +26,7 @@ fun EncryptedHistoryHandler(
             Log.d("EncryptedHistory", "IV: ${it.iv ?: "null"}")
             Log.d("EncryptedHistory", "Base64: ${it.isBase64}")
             Log.d("EncryptedHistory", "Encrypted Output: ${it.encryptedOutput}")
-
+            viewModel.updateTitle(it.name)
             viewModel.updateSelectedAlgorithm(it.algorithm)
             viewModel.updateSelectedMode(it.transformation)
             viewModel.updateKeyText(it.key)

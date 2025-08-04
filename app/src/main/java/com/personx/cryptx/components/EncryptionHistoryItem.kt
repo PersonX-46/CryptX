@@ -123,11 +123,22 @@ fun EncryptionHistoryItem(
 
             // Content sections
             HistoryItemSection(
-                title = "PLAINTEXT",
-                content = if (prefs.hidePlainTextInEncryptedHistory) "************" else entry.secretText,
+                title = "NAME",
+                content = entry.name,
                 maxChars = maxChars,
                 titleColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
                 contentColor = cyberpunkGreen.copy(alpha = 0.9f),
+                isCompact = isCompact
+            )
+
+            Spacer(modifier = Modifier.height(smallVerticalSpacing))
+
+            HistoryItemSection(
+                title = "PLAINTEXT",
+                content = if (prefs.hidePlainTextInEncryptedHistory) "********" else entry.secretText.take(maxChars),
+                maxChars = maxChars,
+                titleColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
+                contentColor = MaterialTheme.colorScheme.onSurface,
                 isCompact = isCompact
             )
 
@@ -252,13 +263,13 @@ fun MiniEncryptionHistoryItem(
 
             // Plaintext
             Text(
-                text = "PLAINTEXT",
+                text = "NAME",
                 style = textStyle.copy(
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                 )
             )
             Text(
-                text = if (prefs.hidePlainTextInEncryptedHistory) "********" else entry.secretText.take(maxChars),
+                text = entry.name.take(maxChars),
                 style = textStyle.copy(color = cyberpunkGreen.copy(alpha = 0.9f)),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis

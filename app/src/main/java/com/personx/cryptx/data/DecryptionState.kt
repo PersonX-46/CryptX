@@ -2,6 +2,7 @@ package com.personx.cryptx.data
 
 data class DecryptionState(
     val id: Int = 0,
+    val title : String = "Untitled",
     val selectedAlgorithm: String = "",
     val selectedMode: String = "",
     val inputText: String = "",

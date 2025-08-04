@@ -123,6 +123,10 @@ fun DecryptionScreen(
                             .padding(12.dp)
                     ) {
                         SubTitleBar(
+                            title = state.title,
+                            onTitleChange = { value ->
+                                viewModel.updateTitle(value)
+                            },
                             onClick = {
                                 val sessionKey = SessionKeyManager.getSessionKey()
                                 if (sessionKey == null) {
@@ -140,9 +144,8 @@ fun DecryptionScreen(
                                 }
                             },
                             windowSizeClass = windowSizeClass,
-                            titleIcon = Icons.Filled.LockOpen,
-                            clickableIcon = Icons.Filled.History,
-                            title = "Decryption Algorithm"
+                            titleIcon = Icons.Default.LockOpen,
+                            clickableIcon = Icons.Default.History
                         )
 
                         Spacer(modifier = Modifier.height(spacing))
@@ -323,6 +326,7 @@ fun DecryptionScreen(
                                                         viewModel.updatePinPurpose("save")
                                                         val success = viewModel.insertDecryptionHistory(
                                                             id = state.id,
+                                                            title = state.title,
                                                             state.selectedAlgorithm,
                                                             state.selectedMode,
                                                             state.keyText,
@@ -353,6 +357,7 @@ fun DecryptionScreen(
                                                     scope.launch {
                                                         val itemToUpdate = viewModel.createDecryptionHistory(
                                                             id = state.id,
+                                                            title = state.title,
                                                             algorithm = state.selectedAlgorithm,
                                                             transformation = state.selectedMode,
                                                             key = state.keyText,

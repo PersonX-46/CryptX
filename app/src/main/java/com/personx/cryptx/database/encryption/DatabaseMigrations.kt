@@ -15,3 +15,18 @@ val MIGRATION_1_2 = object : Migration(1,2) {
         """.trimIndent())
     }
 }
+
+val MIGRATION_2_3 = object : Migration(2, 3) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("""
+            ALTER TABLE encryption_history ADD COLUMN name TEXT NOT NULL DEFAULT 'Untitled'
+        """.trimIndent())
+        db.execSQL("""
+            ALTER TABLE decryption_history ADD COLUMN name TEXT NOT NULL DEFAULT 'Untitled'
+        """.trimIndent())
+        db.execSQL("""
+            ALTER TABLE key_pairs ADD COLUMN name TEXT NOT NULL DEFAULT 'Untitled'
+        """.trimIndent())
+    }
+}
+

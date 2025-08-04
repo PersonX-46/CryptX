@@ -40,6 +40,10 @@ class EncryptionViewModel(private val repository: EncryptionViewModelRepository)
         itemToDelete = item
     }
 
+    fun updateTitle(title: String) {
+        _state.value = _state.value.copy(title = title)
+    }
+
     fun prepareItemToUpdate(item: EncryptionHistory?) {
         itemToUpdate = item
     }
@@ -153,6 +157,7 @@ class EncryptionViewModel(private val repository: EncryptionViewModelRepository)
 
      fun createEncryptedHistory(
         id: Int? = null,
+        title: String? = null,
         algorithm: String,
         transformation: String,
         keySize: Int,
@@ -165,6 +170,7 @@ class EncryptionViewModel(private val repository: EncryptionViewModelRepository)
 
         return EncryptionHistory(
             id = id?: 0,
+            name = title ?: "Untitled",
             algorithm = algorithm,
             transformation = transformation,
             keySize = keySize,
@@ -179,6 +185,7 @@ class EncryptionViewModel(private val repository: EncryptionViewModelRepository)
 
     suspend fun insertEncryptionHistory(
         id: Int? = 0,
+        title: String? = null,
         algorithm: String,
         transformation: String,
         keySize: Int,
@@ -191,6 +198,7 @@ class EncryptionViewModel(private val repository: EncryptionViewModelRepository)
         return try {
             val encryptionHistory = createEncryptedHistory(
                 id = id,
+                title = title,
                 algorithm = algorithm,
                 transformation = transformation,
                 keySize = keySize,

@@ -141,6 +141,10 @@ fun EncryptMainScreen(
                             .padding(12.dp)
                     ) {
                         SubTitleBar(
+                            title = state.title,
+                            onTitleChange = { value ->
+                                viewModel.updateTitle(value)
+                            },
                             onClick = {
                                 val sessionKey = SessionKeyManager.getSessionKey()
                                 if (sessionKey == null) {
@@ -159,8 +163,7 @@ fun EncryptMainScreen(
                             },
                             windowSizeClass = windowSizeClass,
                             titleIcon = Icons.Default.Lock,
-                            clickableIcon = Icons.Default.History,
-                            title = "Encryption Algorithm"
+                            clickableIcon = Icons.Default.History
                         )
 
                         Spacer(modifier = Modifier.height(8.dp))
@@ -356,6 +359,7 @@ fun EncryptMainScreen(
                                                         try {
                                                             val success = viewModel.insertEncryptionHistory(
                                                                 id = state.id,
+                                                                title = state.title,
                                                                 algorithm = state.selectedAlgorithm,
                                                                 transformation = state.selectedMode,
                                                                 keySize = state.selectedKeySize,
@@ -388,6 +392,7 @@ fun EncryptMainScreen(
                                                     scope.launch {
                                                         val itemToUpdate = viewModel.createEncryptedHistory(
                                                             id = state.id,
+                                                            title = state.title,
                                                             algorithm = state.selectedAlgorithm,
                                                             transformation = state.selectedMode,
                                                             keySize = state.selectedKeySize,

@@ -30,6 +30,7 @@ fun DecryptPinHandler(
                     scope.launch {
                         val success = viewModel.insertDecryptionHistory(
                             id = state.id,
+                            title = state.title,
                             state.selectedAlgorithm,
                             state.selectedMode,
                             state.keyText,
@@ -81,6 +82,7 @@ fun DecryptPinHandler(
                     scope.launch {
                         val itemToUpdate = viewModel.createDecryptionHistory(
                             id = state.id,
+                            title = state.title,
                             algorithm = state.selectedAlgorithm,
                             transformation = state.selectedMode,
                             key = state.keyText,

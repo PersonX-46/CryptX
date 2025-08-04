@@ -1,10 +1,10 @@
 package com.personx.cryptx.data
 
-import androidx.compose.ui.text.toLowerCase
 import java.io.File
 
 data class SignatureScreenState(
     val mode: String = "SIGN",
+    val title: String = "Untitled",
     val keyFile: File? = null,
     val targetFile: File? = null,
     val sigFile: File? = null,

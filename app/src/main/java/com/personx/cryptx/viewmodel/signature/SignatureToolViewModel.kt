@@ -65,6 +65,12 @@ class SignatureToolViewModel(
         )
     }
 
+    fun updateTitle(title: String) {
+        _state.value = _state.value.copy(
+            title = title
+        )
+    }
+
     fun setTargetFile(file: File) {
         _state.value = _state.value.copy(
             targetFile = file

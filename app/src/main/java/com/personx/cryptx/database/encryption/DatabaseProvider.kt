@@ -39,7 +39,9 @@ object DatabaseProvider {
                 "encrypted_history.db"
             )
                 .openHelperFactory(factory)
-                .addMigrations(MIGRATION_1_2)
+                .addMigrations(MIGRATION_1_2,
+                    MIGRATION_2_3
+                )
                 .build()
                 .also { INSTANCE = it }
 

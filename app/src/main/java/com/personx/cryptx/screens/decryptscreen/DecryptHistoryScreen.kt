@@ -22,6 +22,7 @@ fun DecryptHistoryScreen(
     HistoryScreen(
         history = viewModel.history.value,
         onItemClick = {
+            viewModel.updateTitle(it.name)
             viewModel.updateSelectedAlgorithm(it.algorithm)
             viewModel.updateSelectedMode(it.transformation)
             viewModel.updateKeyText(it.key)
@@ -37,6 +38,7 @@ fun DecryptHistoryScreen(
         },
         onEditClick = {
             viewModel.updateId(it.id)
+            viewModel.updateTitle(it.name)
             viewModel.updateSelectedAlgorithm(it.algorithm)
             viewModel.updateSelectedMode(it.transformation)
             viewModel.updateKeyText(it.key)

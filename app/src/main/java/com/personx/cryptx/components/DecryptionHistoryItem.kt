@@ -118,6 +118,17 @@ fun DecryptionHistoryItem(
                 )
             }
 
+            Spacer(modifier = Modifier.height(smallVerticalSpacing))
+
+            HistoryItemSection(
+                title = "NAME",
+                content = entry.name,
+                maxChars = maxChars,
+                titleColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
+                contentColor = cyberpunkGreen.copy(alpha = 0.9f),
+                isCompact = isCompact
+            )
+
             Spacer(modifier = Modifier.height(verticalSpacing))
 
             // Content sections
@@ -129,6 +140,8 @@ fun DecryptionHistoryItem(
                 contentColor = MaterialTheme.colorScheme.onSurface,
                 isCompact = isCompact
             )
+
+
 
             Spacer(modifier = Modifier.height(smallVerticalSpacing))
 
@@ -232,6 +245,22 @@ fun MiniDecryptionHistoryItem(
                 modifier = Modifier.fillMaxWidth()
             )
 
+            Spacer(modifier = Modifier.height(6.dp))
+
+            // Decrypted text
+            Text(
+                text = "NAME",
+                style = textStyle.copy(
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                )
+            )
+            Text(
+                text = entry.name.take( maxChars),
+                style = textStyle.copy(color = cyberpunkGreen.copy(alpha = 0.9f)),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+
             Spacer(modifier = Modifier.height(8.dp))
 
             // Encrypted text
@@ -244,22 +273,6 @@ fun MiniDecryptionHistoryItem(
             Text(
                 text = entry.encryptedText.take(maxChars),
                 style = textStyle.copy(color = MaterialTheme.colorScheme.onSurface),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-
-            Spacer(modifier = Modifier.height(6.dp))
-
-            // Decrypted text
-            Text(
-                text = "DECRYPTED",
-                style = textStyle.copy(
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                )
-            )
-            Text(
-                text = if (prefs.hidePlainTextInEncryptedHistory) "********" else entry.decryptedOutput.take(maxChars),
-                style = textStyle.copy(color = cyberpunkGreen.copy(alpha = 0.9f)),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )

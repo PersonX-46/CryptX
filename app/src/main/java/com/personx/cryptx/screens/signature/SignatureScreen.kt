@@ -261,15 +261,18 @@ fun SignatureToolScreen(
                 // --- KEY GENERATOR SECTION ---
                 Spacer(Modifier.height(32.dp))
                 SubTitleBar(
+                    title = state.title,
+                    onTitleChange = { value ->
+                        viewModel.updateTitle(value)
+                    },
                     onClick = {
                         //TODO: Implement Session Key Timeout Check
                         viewModel.refreshKeyPairHistory()
                         navController.navigate("keypair_history")
                     },
                     windowSizeClass = windowSizeClass,
-                    titleIcon = Icons.Filled.VpnKey,
-                    clickableIcon = Icons.Filled.History,
-                    title = "KeyPair Generator"
+                    titleIcon = Icons.Default.VpnKey,
+                    clickableIcon = Icons.Default.History
                 )
                 Spacer(Modifier.height(8.dp))
 

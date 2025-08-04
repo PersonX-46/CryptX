@@ -46,6 +46,10 @@ class DecryptionViewModel(private val repository: DecryptionHistoryRepository) :
         _state.value = _state.value.copy(id = id)
     }
 
+    fun updateTitle(title: String) {
+        _state.value = _state.value.copy(title = title)
+    }
+
     fun updateSelectedAlgorithm(algorithm: String) {
         _state.value = _state.value.copy(selectedAlgorithm = algorithm)
     }
@@ -131,6 +135,7 @@ class DecryptionViewModel(private val repository: DecryptionHistoryRepository) :
 
      fun createDecryptionHistory(
         id: Int? = null,
+        title: String = "Untitled",
         algorithm: String,
         transformation: String,
         key: String,
@@ -141,6 +146,7 @@ class DecryptionViewModel(private val repository: DecryptionHistoryRepository) :
     ): DecryptionHistory {
         return DecryptionHistory(
             id = id?: 0, // Use provided ID or default to 0 for auto-generation
+            name = title,
             algorithm = algorithm,
             transformation = transformation,
             key = key,
@@ -168,6 +174,7 @@ class DecryptionViewModel(private val repository: DecryptionHistoryRepository) :
 
     suspend fun insertDecryptionHistory(
         id: Int? = 0,
+        title: String = "Untitled",
         algorithm: String,
         transformation: String,
         key: String,
@@ -179,14 +186,15 @@ class DecryptionViewModel(private val repository: DecryptionHistoryRepository) :
 
         return try {
             val decryptionHistory = createDecryptionHistory(
+                title = title,
                 id = id,
-                algorithm,
-                transformation,
-                key,
-                iv,
-                encryptedText,
-                isBase64,
-                decryptedOutput
+                algorithm = algorithm,
+                transformation = transformation,
+                key = key,
+                iv = iv,
+                encryptedText = encryptedText,
+                isBase64 = isBase64,
+                decryptedOutput = decryptedOutput
             )
             val result = repository.insertHistory(decryptionHistory)
             result

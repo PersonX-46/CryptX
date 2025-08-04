@@ -2,6 +2,7 @@ package com.personx.cryptx.data
 
 data class EncryptionState(
     val id: Int = 0,
+    val title: String = "Untitled",
     val selectedAlgorithm: String = "",
     val transformationList: List<String> = emptyList(),
     val keySizeList: List<String> = emptyList(),

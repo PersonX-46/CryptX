@@ -24,6 +24,7 @@ fun EncryptHistoryScreen(
         history = viewModel.history.value,
         onEditClick = { it: EncryptionHistory ->
             viewModel.updateId(it.id)
+            viewModel.updateTitle(it.name)
             viewModel.updateSelectedAlgorithm(it.algorithm)
             viewModel.updateSelectedMode(it.transformation)
             viewModel.updateSelectedKeySize(it.keySize)
@@ -61,6 +62,7 @@ fun EncryptHistoryScreen(
 
         },
         onItemClick = { it: EncryptionHistory ->
+            viewModel.updateTitle(it.name)
             viewModel.updateSelectedAlgorithm(it.algorithm)
             viewModel.updateSelectedMode(it.transformation)
             viewModel.updateSelectedKeySize(it.keySize)

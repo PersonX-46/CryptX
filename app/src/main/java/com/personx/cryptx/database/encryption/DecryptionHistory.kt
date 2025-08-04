@@ -12,6 +12,7 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "decryption_history")
 data class DecryptionHistory(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    val name: String = "Untitled",
     val algorithm: String,
     val transformation: String,
     val key: String,

@@ -11,7 +11,7 @@ import androidx.room.RoomDatabase
     EncryptionHistory::class,
     DecryptionHistory::class,
     KeyPairHistory::class,
- ], version = 2, exportSchema = false)
+ ], version = 3, exportSchema = false)
 abstract class EncryptedDatabase : RoomDatabase() {
     abstract fun historyDao(): EncryptionHistoryDao
     abstract fun keyPairDao(): KeyPairDao

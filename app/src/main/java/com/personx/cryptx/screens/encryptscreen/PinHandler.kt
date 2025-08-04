@@ -36,6 +36,7 @@ fun EncryptPinHandler(
                         try {
                             val success = viewModel.insertEncryptionHistory(
                                 id = state.id,
+                                title = state.title,
                                 algorithm = state.selectedAlgorithm,
                                 transformation = state.selectedMode,
                                 keySize = state.selectedKeySize,
@@ -100,6 +101,7 @@ fun EncryptPinHandler(
                     scope.launch {
                         val itemToUpdate = viewModel.createEncryptedHistory(
                             id = state.id,
+                            title = state.title,
                             algorithm = state.selectedAlgorithm,
                             transformation = state.selectedMode,
                             keySize = state.selectedKeySize,
