@@ -94,7 +94,9 @@ fun AppNavGraph(
                     PinCryptoManager(context),
                     application = context.applicationContext as Application
                 ),
-                windowSizeClass
+                encryptedViewModel = encryptViewmodel,
+                decryptionViewModel = decryptViewModel,
+                windowSizeClass = windowSizeClass
             )
         }
         composable("encrypt") {

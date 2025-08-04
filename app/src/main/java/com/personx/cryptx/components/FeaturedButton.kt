@@ -52,7 +52,7 @@ fun FeatureCardButton(
     val cardSize = if (isCompact) 120.dp else 140.dp
     val iconSize = if (isCompact) 36.dp else 48.dp
     val cornerSize = if (isCompact) 16.dp else 20.dp
-    val borderWidth = if (isCompact) 0.8.dp else 0.1.dp
+    val borderWidth = if (isCompact) 0.2.dp else 0.1.dp
     val padding = if (isCompact) 12.dp else 16.dp
     val textSize = if (isCompact) 12.sp else 14.sp
 
@@ -63,10 +63,7 @@ fun FeatureCardButton(
         animationSpec = tween(100),
         label = "buttonScale"
     )
-    val borderColor by animateColorAsState(
-        targetValue = if (isActive) cyberpunkGreen else cyberpunkGreen.copy(alpha = 0.1f),
-        label = "borderColor"
-    )
+    val borderColor = Color(0xFF00FF9D)
     val iconColor by animateColorAsState(
         targetValue = if (isActive) cyberpunkGreen else cyberpunkGreen.copy(alpha = 0.3f),
         label = "iconColor"
@@ -101,7 +98,7 @@ fun FeatureCardButton(
         ),
         border = BorderStroke(
             width = borderWidth,
-            color = borderColor
+            color = borderColor.copy(alpha = 0.2f)
         ),
         elevation = CardDefaults.cardElevation(
             defaultElevation = if (isPressed) 4.dp else 8.dp,
@@ -119,7 +116,7 @@ fun FeatureCardButton(
                 imageVector = icon,
                 contentDescription = label,
                 modifier = Modifier.size(iconSize),
-                tint = iconColor
+                tint = iconColor.copy(alpha = 0.5f)
             )
             Text(
                 text = label,

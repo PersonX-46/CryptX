@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
@@ -33,6 +34,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.personx.cryptx.PrefsHelper
@@ -106,7 +109,7 @@ fun DecryptionHistoryItem(
 
                 Text(
                     text = SimpleDateFormat(
-                        if (isCompact) "MMM dd" else "MMM dd, HH:mm",
+                        "MMM dd, HH:mm",
                         Locale.getDefault()
                     ).format(Date(entry.timestamp)),
                     style = MaterialTheme.typography.labelSmall.copy(
@@ -185,6 +188,85 @@ fun DecryptionHistoryItem(
         }
     }
 }
+
+@Composable
+fun MiniDecryptionHistoryItem(
+    modifier: Modifier = Modifier,
+    entry: DecryptionHistory,
+    cyberpunkGreen: Color,
+    onItemClick: (DecryptionHistory) -> Unit,
+    windowSizeClass: WindowSizeClass
+) {
+    val isCompact = windowSizeClass.widthSizeClass == WindowWidthSizeClass.Compact
+    val context = LocalContext.current
+    val prefs = PrefsHelper(context)
+
+    val padding = if (isCompact) 10.dp else 12.dp
+    val textStyle = MaterialTheme.typography.labelSmall.copy(
+        fontFamily = FontFamily.Monospace
+    )
+    val maxChars = if (isCompact) 18 else 22
+
+    Card(
+        modifier = modifier
+            .widthIn(min = 160.dp, max = 200.dp)
+            .padding(4.dp)
+            .clickable { onItemClick(entry) },
+        colors = CardDefaults.cardColors(containerColor = Color.Black),
+        border = BorderStroke(1.dp, cyberpunkGreen.copy(alpha = 0.2f)),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        shape = RoundedCornerShape(12.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .padding(padding)
+                .fillMaxWidth()
+        ) {
+            // Timestamp on top right
+            Text(
+                text = SimpleDateFormat("MMM dd, HH:mm", Locale.getDefault()).format(Date(entry.timestamp)),
+                style = textStyle.copy(
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                    textAlign = TextAlign.Start
+                ),
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Encrypted text
+            Text(
+                text = "ENCRYPTED",
+                style = textStyle.copy(
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                )
+            )
+            Text(
+                text = entry.encryptedText.take(maxChars),
+                style = textStyle.copy(color = MaterialTheme.colorScheme.onSurface),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+
+            Spacer(modifier = Modifier.height(6.dp))
+
+            // Decrypted text
+            Text(
+                text = "DECRYPTED",
+                style = textStyle.copy(
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                )
+            )
+            Text(
+                text = if (prefs.hidePlainTextInEncryptedHistory) "********" else entry.decryptedOutput.take(maxChars),
+                style = textStyle.copy(color = cyberpunkGreen.copy(alpha = 0.9f)),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
+    }
+}
+
 
 @Composable
 private fun HistoryItemSection(

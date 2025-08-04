@@ -73,6 +73,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -278,30 +280,32 @@ fun SettingsScreen(
                 Base64Dialog(
                     title = "Base64 by Default",
                     value = "Base64 by Default",
-                    windowSizeClass,
-                    onDismiss = {
-                        viewModel.updateShowBase64(false)
-                        viewModel.resetState()
-                                },
-                    onConfirm = { value ->
-                        prefs.showBase64 = value
-                        viewModel.updateShowBase64(false) // Close dialog after showing
-                    }
-                )
-            }
-
-            if (state.showBase64) {
-                Base64Dialog(
-                    title = "Hide Plaintext",
-                    value = "Hide Plaintext",
+                    switchValue = prefs.showBase64,
                     windowSizeClass,
                     onDismiss = {
                         viewModel.updateShowBase64(false)
                         viewModel.resetState()
                     },
                     onConfirm = { value ->
-                        prefs.hidePlainTextInEncryptedHistory = value
+                        prefs.showBase64 = value
                         viewModel.updateShowBase64(false) // Close dialog after showing
+                    },
+                )
+            }
+
+            if (state.hideShowPlainText) {
+                Base64Dialog(
+                    title = "Hide Plaintext",
+                    value = "Hide Plaintext",
+                    switchValue = prefs.hidePlainTextInEncryptedHistory,
+                    windowSizeClass,
+                    onDismiss = {
+                        viewModel.updateShowHidePlainTextDialog(false)
+                        viewModel.resetState()
+                    },
+                    onConfirm = { value ->
+                        prefs.hidePlainTextInEncryptedHistory = value
+                        viewModel.updateShowHidePlainTextDialog(false) // Close dialog after showing
                     }
                 )
             }
@@ -310,14 +314,15 @@ fun SettingsScreen(
 }
 
 @Composable
-private fun CyberpunkSectionTitle(title: String, color: Color) {
+fun CyberpunkSectionTitle(title: String, color: Color, modifier: Modifier = Modifier, fontSize: TextUnit = 16.sp) {
     Text(
-        modifier = Modifier.padding(bottom = 8.dp),
+        modifier = modifier.padding(bottom = 8.dp),
         text = title,
         style = MaterialTheme.typography.titleSmall.copy(
             color = color,
             fontFamily = FontFamily.Monospace,
             fontWeight = FontWeight.Bold,
+            fontSize = fontSize,
             letterSpacing = 1.sp
         )
     )
@@ -504,13 +509,14 @@ fun ChangePinDialog(
 fun Base64Dialog(
     title: String,
     value: String,
+    switchValue: Boolean,
     windowSizeClass: WindowSizeClass,
     onDismiss: () -> Unit,
     onConfirm: (Boolean) -> Unit,
 ){
     val context = LocalContext.current
     val prefs = context.getSharedPreferences(AppSettingsPrefs.NAME, Context.MODE_PRIVATE)
-    val savedValue = prefs.getBoolean(AppSettingsPrefs.BASE64_DEFAULT, false)
+    val savedValue = switchValue
 
     // Initialize with saved value
     val isChecked = remember { mutableStateOf(savedValue) }

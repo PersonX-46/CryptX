@@ -57,8 +57,8 @@ class SettingsViewModel(
         _state.value = _state.value.copy(newPin = pin)
     }
 
-    fun updateShowHidePlainTextDialog(hide: Boolean) {
-        _state.value = _state.value.copy(hideShowPlainText = hide)
+    fun updateShowHidePlainTextDialog(show: Boolean) {
+        _state.value = _state.value.copy(hideShowPlainText = show)
     }
 
     fun updateConfirmPin(pin: String?) {
