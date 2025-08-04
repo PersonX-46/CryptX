@@ -30,10 +30,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.personx.cryptx.PrefsHelper
 import com.personx.cryptx.database.encryption.DecryptionHistory
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -51,6 +53,8 @@ fun DecryptionHistoryItem(
 ) {
     val isCompact = windowSizeClass.widthSizeClass == WindowWidthSizeClass.Compact
 
+    val context = LocalContext.current
+    val prefs = PrefsHelper(context)
     // Responsive values
     val padding = if (isCompact) 12.dp else 16.dp
     val verticalSpacing = if (isCompact) 8.dp else 12.dp
@@ -127,7 +131,7 @@ fun DecryptionHistoryItem(
 
             HistoryItemSection(
                 title = "DECRYPTED",
-                content = entry.decryptedOutput,
+                content = if (prefs.hidePlainTextInEncryptedHistory) "************" else entry.decryptedOutput,
                 maxChars = maxChars,
                 titleColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
                 contentColor = cyberpunkGreen.copy(alpha = 0.9f),
