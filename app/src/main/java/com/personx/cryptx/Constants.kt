@@ -10,5 +10,5 @@ object SecurePrefs {
 object AppSettingsPrefs {
     const val NAME = "cryptx_prefs"
     const val BASE64_DEFAULT = "base64_default"
-    const val KEY_SEEN_BACKUP_PROMPT = true
+    const val HIDE_PLAINTEXT_ENCRYPTEDHISTORY = "hide_plaintext_encryptedhistory"
 }

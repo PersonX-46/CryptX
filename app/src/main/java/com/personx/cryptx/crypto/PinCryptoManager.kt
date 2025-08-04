@@ -206,7 +206,6 @@ class PinCryptoManager(private val context: Context) {
         val tmp = factory.generateSecret(spec)
         return SecretKeySpec(tmp.encoded, "AES")
     }
-
     /**
      * Generates a random salt for key derivation.
      *

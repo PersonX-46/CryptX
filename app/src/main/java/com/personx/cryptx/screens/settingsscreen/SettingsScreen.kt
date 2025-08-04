@@ -79,6 +79,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.core.content.edit
 import androidx.navigation.NavController
 import com.personx.cryptx.AppSettingsPrefs
+import com.personx.cryptx.PrefsHelper
 import com.personx.cryptx.components.CyberpunkButton
 import com.personx.cryptx.components.Header
 import com.personx.cryptx.viewmodel.SettingsViewModel
@@ -93,7 +94,7 @@ fun SettingsScreen(
     val context = LocalContext.current
     val cyberGreen = Color(0xFF00FF9D)
     val state by viewModel.state.collectAsState()
-    val sharedPreferences = LocalContext.current.getSharedPreferences(AppSettingsPrefs.NAME, Context.MODE_PRIVATE)
+    val prefs = PrefsHelper(context)
     val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
     val versionName = packageInfo.versionName ?: "N/A"
     val versionCode = packageInfo.versionCode
@@ -202,6 +203,14 @@ fun SettingsScreen(
                     onClick = { viewModel.updateShowBase64(true) }
                 )
 
+                CyberpunkSettingCard(
+                    icon = Icons.Default.Notifications,
+                    title = "Hide Plaintext",
+                    description = "Hide plaintext in encrypted history",
+                    accentColor = cyberGreen,
+                    onClick = { viewModel.updateShowHidePlainTextDialog(true) }
+                )
+
                 Spacer(modifier = Modifier.height(spacing))
 
                 // === ADVANCED ===
@@ -267,13 +276,31 @@ fun SettingsScreen(
 
             if (state.showBase64) {
                 Base64Dialog(
+                    title = "Base64 by Default",
+                    value = "Base64 by Default",
                     windowSizeClass,
                     onDismiss = {
                         viewModel.updateShowBase64(false)
                         viewModel.resetState()
                                 },
                     onConfirm = { value ->
-                        sharedPreferences.edit { putBoolean(AppSettingsPrefs.BASE64_DEFAULT, value) }
+                        prefs.showBase64 = value
+                        viewModel.updateShowBase64(false) // Close dialog after showing
+                    }
+                )
+            }
+
+            if (state.showBase64) {
+                Base64Dialog(
+                    title = "Hide Plaintext",
+                    value = "Hide Plaintext",
+                    windowSizeClass,
+                    onDismiss = {
+                        viewModel.updateShowBase64(false)
+                        viewModel.resetState()
+                    },
+                    onConfirm = { value ->
+                        prefs.hidePlainTextInEncryptedHistory = value
                         viewModel.updateShowBase64(false) // Close dialog after showing
                     }
                 )
@@ -475,6 +502,8 @@ fun ChangePinDialog(
 
 @Composable
 fun Base64Dialog(
+    title: String,
+    value: String,
     windowSizeClass: WindowSizeClass,
     onDismiss: () -> Unit,
     onConfirm: (Boolean) -> Unit,
@@ -497,7 +526,7 @@ fun Base64Dialog(
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             Text(
-                "BASE64 BY DEFAULT",
+                title,
                 style = MaterialTheme.typography.headlineSmall.copy(
                     color = MaterialTheme.colorScheme.onSurface,
                     fontFamily = FontFamily.Monospace,
@@ -512,7 +541,7 @@ fun Base64Dialog(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
-                    text = "Base64 Encoding",
+                    text = value,
                     style = MaterialTheme.typography.bodyMedium.copy(
                         fontSize = if (isCompact) MaterialTheme.typography.bodyMedium.fontSize
                         else MaterialTheme.typography.bodyLarge.fontSize

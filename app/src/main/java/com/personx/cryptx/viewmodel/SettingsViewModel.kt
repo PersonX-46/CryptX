@@ -57,6 +57,10 @@ class SettingsViewModel(
         _state.value = _state.value.copy(newPin = pin)
     }
 
+    fun updateShowHidePlainTextDialog(hide: Boolean) {
+        _state.value = _state.value.copy(hideShowPlainText = hide)
+    }
+
     fun updateConfirmPin(pin: String?) {
         _state.value = _state.value.copy(confirmPin = pin)
     }
@@ -109,7 +113,6 @@ class SettingsViewModel(
                 viewModelScope.launch(Dispatchers.Main) {
                     onResult(success)
                 }
-
             } finally {
                 resetState()
             }
