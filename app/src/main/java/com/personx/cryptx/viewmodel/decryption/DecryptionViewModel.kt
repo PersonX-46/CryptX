@@ -3,6 +3,7 @@ package com.personx.cryptx.viewmodel.decryption
 import android.content.Context
 import android.util.Log
 import androidx.compose.runtime.State
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -33,6 +34,19 @@ class DecryptionViewModel(private val repository: DecryptionHistoryRepository) :
     var itemToDelete: DecryptionHistory? by mutableStateOf(null)
     var itemToUpdate: DecryptionHistory? by mutableStateOf(null)
 
+    val searchQuery = mutableStateOf("")
+
+    fun updateSearchQuery(query: String) {
+        searchQuery.value = query
+    }
+
+    val filteredHistory: State<List<DecryptionHistory>> = derivedStateOf {
+        if (searchQuery.value.isBlank()) {
+            history.value
+        } else {
+            history.value.filter { it.name.contains(searchQuery.value, ignoreCase = true) }
+        }
+    }
 
     fun prepareItemToDelete(item: DecryptionHistory?) {
         itemToDelete = item

@@ -3,6 +3,7 @@ package com.personx.cryptx.viewmodel.encryption
 import android.content.Context
 import android.util.Log
 import androidx.compose.runtime.State
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -34,6 +35,20 @@ class EncryptionViewModel(private val repository: EncryptionViewModelRepository)
 
     var itemToDelete: EncryptionHistory? by mutableStateOf(null)
     var itemToUpdate: EncryptionHistory? by mutableStateOf(null)
+
+    val searchQuery = mutableStateOf("")
+
+    fun updateSearchQuery(query: String) {
+        searchQuery.value = query
+    }
+
+    val filteredHistory: State<List<EncryptionHistory>> = derivedStateOf {
+        if (searchQuery.value.isBlank()) {
+            history.value
+        } else {
+            history.value.filter { it.name.contains(searchQuery.value, ignoreCase = true) }
+        }
+    }
 
 
     fun prepareItemToDelete(item: EncryptionHistory?) {

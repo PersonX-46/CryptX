@@ -39,13 +39,14 @@ fun SubTitleBar(
         modifier = Modifier
             .fillMaxWidth()
             .border(0.5.dp, cyberpunkGreen, shape = RoundedCornerShape(15.dp))
-            .padding(horizontal = 5.dp),
+            .padding(horizontal = 5.dp)
+            .padding(start = 4.dp),
     ) {
         Icon(
             imageVector = titleIcon,
             contentDescription = "Title Icon",
             tint = cyberpunkGreen,
-            modifier = Modifier.size(if (isCompact) 24.dp else 28.dp).padding(5.dp)
+            modifier = Modifier.size(if (isCompact) 24.dp else 28.dp)
         )
 
         BasicTextField(

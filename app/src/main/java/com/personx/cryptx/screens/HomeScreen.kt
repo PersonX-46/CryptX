@@ -70,6 +70,7 @@ fun HomeScreen(
     val state = viewModel.state.collectAsState()
 
     encryptedViewModel.refreshHistory()
+    decryptionViewModel.refreshHistory()
 
     // Cyberpunk colors
     val cyberGreen = Color(0xFF00FF9D)
