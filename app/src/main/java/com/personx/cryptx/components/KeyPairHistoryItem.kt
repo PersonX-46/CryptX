@@ -108,6 +108,17 @@ fun KeyPairHistoryItem(
 
             // Public key section
             HistoryItemSection(
+                title = "NAME",
+                content = entry.name,
+                maxChars = keyPreviewLength,
+                titleColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
+                contentColor = cyberpunkGreen.copy(alpha = 0.9f),
+                isCompact = isCompact
+            )
+
+            Spacer(modifier = Modifier.height(verticalSpacing))
+
+            HistoryItemSection(
                 title = "PUBLIC KEY",
                 content = entry.publicKey,
                 maxChars = keyPreviewLength,

@@ -4,6 +4,8 @@ import android.app.Application
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.application
 import androidx.lifecycle.viewModelScope
@@ -22,6 +24,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import java.io.File
+import androidx.compose.runtime.State
 
 class SignatureToolViewModel(
     application: Application
@@ -34,8 +37,23 @@ class SignatureToolViewModel(
 
     private val _signatureFileName = MutableStateFlow<String>("")
     val signatureFileName: StateFlow<String> = _signatureFileName
+
+    val searchQuery = mutableStateOf("")
+
+    fun updateSearchQuery(query: String) {
+        searchQuery.value = query
+    }
+
+    val filteredHistory: State<List<KeyPairHistory>> = derivedStateOf {
+        if (searchQuery.value.isBlank()) {
+            keyPairHistoryList.value
+        } else {
+            keyPairHistoryList.value.filter { it.name.contains(searchQuery.value, ignoreCase = true) }
+        }
+    }
+
     fun refreshKeyPairHistory() {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             getAllHistory().collect {
                 _keyPairHistoryList.value = it
             }
@@ -172,6 +190,7 @@ class SignatureToolViewModel(
     fun saveGeneratedKeyPair() {
         val priv = _state.value.generatedPrivateKey
         val pub = _state.value.generatedPublicKey
+        val name = _state.value.title
 
         if (priv.isBlank() || pub.isBlank()) {
             _state.value = _state.value.copy(
@@ -186,7 +205,8 @@ class SignatureToolViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             val saved = insertKeyPairHistory(
                 KeyPairHistory(
-                    publicKey = priv,
+                    name = name,
+                    publicKey = pub,
                     privateKey = priv,
                 )
             )

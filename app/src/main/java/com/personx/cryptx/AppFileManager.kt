@@ -38,7 +38,7 @@ object AppFileManager {
         subPath: String,
         filename: String,
         content: String,
-        mimeType: String = "text/plain"
+        mimeType: String = "application/octet-stream"
     ): Pair<File?, Uri?> {
         return saveToPublicDirectory(
             context = context,

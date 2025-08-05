@@ -51,7 +51,7 @@ fun EncryptHistoryScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             CyberpunkInputBox(
-                modifier = Modifier.padding(10.dp),
+                modifier = Modifier.padding(17.dp),
                 value = viewModel.searchQuery.value,
                 onValueChange = { query: String ->
                     viewModel.updateSearchQuery(query)

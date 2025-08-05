@@ -348,19 +348,7 @@ fun KeyPairHistoryScreen(
     val navController = LocalNavController.current
 
     Column {
-        Header("KEY PAIR HISTORY", windowSizeClass)
-
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(
-                    Brush.verticalGradient(
-                        colors = listOf(
-                            MaterialTheme.colorScheme.onSurface.copy(0.05f),
-                            MaterialTheme.colorScheme.onPrimary.copy(0.01f)
-                        )
-                    )
-                )
         ) {
             if (history.isEmpty()) {
                 Column(

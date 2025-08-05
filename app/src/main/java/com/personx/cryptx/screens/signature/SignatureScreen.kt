@@ -321,7 +321,9 @@ fun SignatureToolScreen(
                     CyberpunkButton(
                         text = "Export",
                         onClick = {
-                            showExportDialog.value = true
+                            // Call your export logic, example:
+                            viewModel.exportKeypairs(state.title)
+                            Toast.makeText(context, "Successfully exported", Toast.LENGTH_SHORT).show()
                         },
                         modifier = Modifier
                             .fillMaxWidth()
