@@ -58,6 +58,11 @@ fun KeyPairHistoryScreen(
                 history = viewModel.filteredHistory.value,
                 onItemClick = { item ->
                     // Could be used to preview public key or copy to clipboard
+                    viewModel.setMode("GENERATE")
+                    viewModel.updateTitle(item.name)
+                    viewModel.setPublicKeyText(item.publicKey)
+                    viewModel.setPrivateKeyText(item.privateKey)
+                    navController.navigate("signature")
                 },
                 onEditClick = { item ->
                     // Optional: You could allow editing name/label if needed
@@ -65,10 +70,9 @@ fun KeyPairHistoryScreen(
                 onDeleteClick = { item ->
                     scope.launch {
                         val success = viewModel.deleteKeyPair(item)
-                        if (success) {
-                            viewModel.refreshKeyPairHistory()
-                            Toast.makeText(context, "Key pair deleted!", Toast.LENGTH_SHORT).show()
-                        }
+                        viewModel.refreshKeyPairHistory()
+                        navController.navigate("keypair_history")
+                        Toast.makeText(context, "Key pair deleted!", Toast.LENGTH_SHORT).show()
                     }
                 },
                 windowSizeClass = windowSizeClass

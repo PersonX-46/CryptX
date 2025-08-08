@@ -30,10 +30,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.personx.cryptx.PrefsHelper
 import com.personx.cryptx.database.encryption.KeyPairHistory
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -60,6 +62,9 @@ fun KeyPairHistoryItem(
     val smallIconSize = if (isCompact) 14.dp else 16.dp
     val chipPadding = if (isCompact) 4.dp else 8.dp
     val keyPreviewLength = if (isCompact) 16 else 28
+
+    val context = LocalContext.current
+    val prefs = PrefsHelper(context)
 
     Card(
         modifier = modifier
@@ -132,7 +137,7 @@ fun KeyPairHistoryItem(
             // Private key section
             HistoryItemSection(
                 title = "PRIVATE KEY",
-                content = entry.privateKey,
+                content = if (prefs.hidePlainTextInEncryptedHistory) "************" else entry.privateKey,
                 maxChars = keyPreviewLength,
                 titleColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
                 contentColor = MaterialTheme.colorScheme.onSurface,

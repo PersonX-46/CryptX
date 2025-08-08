@@ -25,6 +25,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import java.io.File
 import androidx.compose.runtime.State
+import kotlinx.coroutines.flow.catch
 
 class SignatureToolViewModel(
     application: Application
@@ -53,10 +54,21 @@ class SignatureToolViewModel(
     }
 
     fun refreshKeyPairHistory() {
-        viewModelScope.launch(Dispatchers.IO) {
-            getAllHistory().collect {
-                _keyPairHistoryList.value = it
-            }
+        getAllKeyPairs()
+    }
+
+    private fun getAllKeyPairs() {
+        viewModelScope.launch {
+            getAllHistory()
+                .catch { e ->
+                    Log.e("KEYPAIR_DB", "Error: ${e.message}")
+                    _state.value = _state.value.copy(
+                    )
+                }
+                .collect { historyList ->
+                    Log.d("KEYPAIR_DB", "History loaded: ${historyList.size} items")
+                    _keyPairHistoryList.value = historyList
+                }
         }
     }
 
@@ -69,6 +81,18 @@ class SignatureToolViewModel(
             mode = mode,
             resultMessage = null,
             success = false
+        )
+    }
+
+    fun setPrivateKeyText(key: String) {
+        _state.value = _state.value.copy(
+            generatedPrivateKey = key
+        )
+    }
+
+    fun setPublicKeyText(key: String) {
+        _state.value = _state.value.copy(
+            generatedPublicKey = key
         )
     }
 
@@ -235,7 +259,7 @@ class SignatureToolViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             val saved = deleteKeyPair(
                 KeyPairHistory(
-                    publicKey = priv,
+                    publicKey = pub,
                     privateKey = priv,
                 )
             )
@@ -263,7 +287,7 @@ class SignatureToolViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             val saved = updateKeyPair(
                 KeyPairHistory(
-                    publicKey = priv,
+                    publicKey = pub,
                     privateKey = priv,
                 )
             )
@@ -329,6 +353,7 @@ class SignatureToolViewModel(
             false
         } finally {
             DatabaseProvider.clearDatabaseInstance()
+            refreshKeyPairHistory()
         }
     }
 }
