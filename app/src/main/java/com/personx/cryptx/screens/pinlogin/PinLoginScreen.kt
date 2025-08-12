@@ -47,7 +47,6 @@ import com.personx.cryptx.crypto.PinCryptoManager
 import com.personx.cryptx.viewmodel.PassphraseLoginViewModelFactory
 import com.personx.cryptx.viewmodel.PinLoginViewModel
 
-
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun PassphraseLoginScreen(
