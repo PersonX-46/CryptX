@@ -67,7 +67,7 @@ fun PassphraseLoginScreen(
     var passwordVisible by remember { mutableStateOf(false) }
 
     LaunchedEffect(state.isSuccess) {
-        if (state.isSuccess && state.passphrase != null) {
+        if (state.isSuccess) {
             onLoginSuccess(state.passphrase)
             viewModel.resetState()
         }
