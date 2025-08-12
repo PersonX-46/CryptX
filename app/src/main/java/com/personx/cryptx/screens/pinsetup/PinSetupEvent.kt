@@ -1,8 +1,8 @@
 package com.personx.cryptx.screens.pinsetup
 
-sealed class PinSetupEvent{
-
-    data class EnterPin(val value: String) : PinSetupEvent()
-    data class EnterConfirmPin(val value: String) : PinSetupEvent()
-    data object Continue : PinSetupEvent()
+sealed class PassphraseSetupEvent {
+    data class EnterPassphrase(val value: String) : PassphraseSetupEvent()
+    data class EnterConfirmPassphrase(val value: String) : PassphraseSetupEvent()
+    object Continue : PassphraseSetupEvent()
 }
+

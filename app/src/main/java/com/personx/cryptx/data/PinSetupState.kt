@@ -1,8 +1,8 @@
 package com.personx.cryptx.data
 
-data class PinSetupState(
-    val pin: String = "",
-    val confirmPin: String = "",
+data class PassphraseSetupState(
+    val passphrase: String = "",
+    val confirmPassphrase: String = "",
     val step: Int = 1,
     val error: String? = null,
     val isCompleted: Boolean = false,

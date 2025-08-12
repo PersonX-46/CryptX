@@ -7,7 +7,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavController
 import com.personx.cryptx.crypto.PinCryptoManager
-import com.personx.cryptx.screens.pinlogin.PinLoginScreen
+import com.personx.cryptx.screens.pinlogin.PassphraseLoginScreen
 import com.personx.cryptx.viewmodel.decryption.DecryptionViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -22,8 +22,8 @@ fun DecryptPinHandler(
     val context = LocalContext.current
     val state = viewModel.state.value
     val scope = rememberCoroutineScope()
-    PinLoginScreen(
-        pinCryptoManager = PinCryptoManager(context),
+    PassphraseLoginScreen(
+        passphraseCryptoManager = PinCryptoManager(context),
         onLoginSuccess = { pin: String ->
             when (state.pinPurpose) {
                 "save" -> {

@@ -41,7 +41,7 @@ class PinCryptoManager(private val context: Context) {
         val sessionKey = KeyGenerator.getInstance("AES").apply { init(256) }
             .generateKey()
         val salt = generateSalt()
-        val pinKey = deriveKeyFromPin(pin,salt)
+        val pinKey = deriveKeyFromPassphrase(pin,salt)
 
         val cipher = Cipher.getInstance(TRANSFORMATION)
         val iv = ByteArray(IV_SIZE).also { SecureRandom().nextBytes(it) }
@@ -75,7 +75,7 @@ class PinCryptoManager(private val context: Context) {
         val iv = Base64.decode(ivString, Base64.NO_WRAP)
         val encryptedSessionKey = Base64.decode(encryptedKeyString, Base64.NO_WRAP)
 
-        val key = deriveKeyFromPin(pin, salt)
+        val key = deriveKeyFromPassphrase(pin, salt)
 
         return try {
             val cipher = Cipher.getInstance(TRANSFORMATION)
@@ -117,7 +117,7 @@ class PinCryptoManager(private val context: Context) {
         val iv = Base64.decode(ivString, Base64.NO_WRAP)
         val encryptedSessionKey = Base64.decode(encryptedSessionKeyString, Base64.NO_WRAP)
 
-        val pinKey = deriveKeyFromPin(pin, salt)
+        val pinKey = deriveKeyFromPassphrase(pin, salt)
 
         return try {
             val cipher = Cipher.getInstance(TRANSFORMATION)
@@ -152,7 +152,7 @@ class PinCryptoManager(private val context: Context) {
         val sessionKey = SessionKeyManager.getSessionKey() ?: return false
         // 2. Create new key material
         val newSalt = generateSalt()
-        val newPinKey = deriveKeyFromPin(newPin, newSalt)
+        val newPinKey = deriveKeyFromPassphrase(newPin, newSalt)
 
         return try {
             System.loadLibrary("sqlcipher")
@@ -200,7 +200,7 @@ class PinCryptoManager(private val context: Context) {
      * @return The derived SecretKey.
      */
 
-    private fun deriveKeyFromPin(pin: String, salt: ByteArray): SecretKey {
+    private fun deriveKeyFromPassphrase(pin: String, salt: ByteArray): SecretKey {
         val factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256")
         val spec = PBEKeySpec(pin.toCharArray(), salt, ITERATIONS, KEY_LENGTH)
         val tmp = factory.generateSecret(spec)

@@ -57,8 +57,8 @@ import com.personx.cryptx.crypto.PinCryptoManager
 import com.personx.cryptx.crypto.SessionKeyManager
 import com.personx.cryptx.data.NavBarItem
 import com.personx.cryptx.screens.BackupDecisionScreen
-import com.personx.cryptx.screens.pinlogin.PinLoginScreen
-import com.personx.cryptx.screens.pinsetup.PinSetupScreen
+import com.personx.cryptx.screens.pinlogin.PassphraseLoginScreen
+import com.personx.cryptx.screens.pinsetup.PassphraseSetupScreen
 import com.personx.cryptx.ui.theme.CryptXTheme
 import com.personx.cryptx.viewmodel.SettingsViewModel
 import kotlin.system.exitProcess
@@ -129,7 +129,7 @@ class MainActivity : ComponentActivity() {
                             }
                         )
 
-                        "pinSetup" -> PinSetupScreen(
+                        "pinSetup" -> PassphraseSetupScreen(
                             pinCryptoManager = PinCryptoManager(context),
                             windowSizeClass = windowSizeClass,
                             onSetupComplete = {
@@ -137,8 +137,8 @@ class MainActivity : ComponentActivity() {
                             }
                         )
 
-                        "login" -> PinLoginScreen(
-                            pinCryptoManager = PinCryptoManager(context),
+                        "login" -> PassphraseLoginScreen(
+                            passphraseCryptoManager = PinCryptoManager(context),
                             windowSizeClass = windowSizeClass,
                             onLoginSuccess = { pin ->
                                 PinCryptoManager(context).loadSessionKeyIfPinValid(pin)

@@ -3,8 +3,8 @@ package com.personx.cryptx.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.personx.cryptx.crypto.PinCryptoManager
-import com.personx.cryptx.data.PinSetupState
-import com.personx.cryptx.screens.pinsetup.PinSetupEvent
+import com.personx.cryptx.data.PassphraseSetupState
+import com.personx.cryptx.screens.pinsetup.PassphraseSetupEvent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -15,47 +15,65 @@ import kotlinx.coroutines.launch
  * It handles events related to entering and confirming a PIN, and interacts with the PinCryptoManager
  * to securely store the PIN once it is confirmed.
  */
-class PinSetupViewModel(
-    private val pinCryptoManager: PinCryptoManager
+class PassphraseSetupViewModel(
+    private val pinCryptoManager: PinCryptoManager // keep your existing manager for now
 ) : ViewModel() {
 
-    private val _state = MutableStateFlow(PinSetupState())
-    val state: StateFlow<PinSetupState> = _state
+    private val _state = MutableStateFlow(PassphraseSetupState())
+    val state: StateFlow<PassphraseSetupState> = _state
 
-    fun event(event: PinSetupEvent){
+    fun event(event: PassphraseSetupEvent) {
         when (event) {
-            is PinSetupEvent.EnterPin -> {
-                if (event.value.length <= 6 && event.value.all { it.isDigit() }) {
-                    _state.value = _state.value.copy(pin = event.value)
-                }
+            is PassphraseSetupEvent.EnterPassphrase -> {
+                // Allow any characters and unlimited length. You may optionally enforce a minimum length.
+                _state.value = _state.value.copy(passphrase = event.value)
             }
-            is PinSetupEvent.EnterConfirmPin -> {
-                if (event.value.length <= 6 && event.value.all { it.isDigit() }) {
-                    _state.value = _state.value.copy(confirmPin = event.value)
-                }
+
+            is PassphraseSetupEvent.EnterConfirmPassphrase -> {
+                _state.value = _state.value.copy(confirmPassphrase = event.value)
             }
-            is PinSetupEvent.Continue -> {
+
+            is PassphraseSetupEvent.Continue -> {
                 val current = _state.value
-                if ( current.step == 1 ) {
-                    if (current.pin.length == 6) {
+                // Move from step 1 -> step 2 if not blank
+                if (current.step == 1) {
+                    if (current.passphrase.isNotBlank()) {
                         _state.value = current.copy(step = 2, error = null)
                     } else {
-                        _state.value = current.copy(error = "Pin must be 6 digits")
+                        _state.value = current.copy(error = "Passphrase cannot be empty")
                     }
-                } else {
-                    if ( current.pin == current.confirmPin) {
-                        // Pin confirmed, can now securely store it
-                        _state.value = _state.value.copy(isLoading = true)
+                    return
+                }
+
+                // Step 2: confirm
+                if (current.step == 2) {
+                    if (current.passphrase == current.confirmPassphrase && current.passphrase.isNotBlank()) {
+                        // Passphrase confirmed, store securely
+                        _state.value = _state.value.copy(isLoading = true, error = null)
                         viewModelScope.launch(Dispatchers.IO) {
                             try {
-                                pinCryptoManager.setupPin(current.pin) // Store encrypted PIN data
-                                _state.value = current.copy(error = null, isCompleted = true, isLoading = false)
+                                // NOTE: consider changing setupPin to accept CharArray for extra security
+                                pinCryptoManager.setupPin(current.passphrase)
+                                _state.value = _state.value.copy(
+                                    isLoading = false,
+                                    isCompleted = true,
+                                    error = null
+                                )
                             } catch (e: Exception) {
-                                _state.value = current.copy(error = "Failed to store PIN", pin = "", confirmPin = "", isCompleted = false, isLoading = false)
+                                _state.value = _state.value.copy(
+                                    isLoading = false,
+                                    isCompleted = false,
+                                    error = "Failed to store passphrase"
+                                )
                             }
                         }
                     } else {
-                        _state.value = current.copy(error = "Pins do not match", pin = "", confirmPin = "", isCompleted = false)
+                        _state.value = _state.value.copy(
+                            error = "Passphrases do not match",
+                            passphrase = "",
+                            confirmPassphrase = "",
+                            step = 1
+                        )
                     }
                 }
             }

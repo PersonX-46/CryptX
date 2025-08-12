@@ -24,8 +24,8 @@ import com.personx.cryptx.screens.decryptscreen.EncryptedHistoryHandler
 import com.personx.cryptx.screens.encryptscreen.EncryptHistoryScreen
 import com.personx.cryptx.screens.encryptscreen.EncryptMainScreen
 import com.personx.cryptx.screens.encryptscreen.EncryptPinHandler
-import com.personx.cryptx.screens.pinlogin.PinLoginScreen
-import com.personx.cryptx.screens.pinsetup.PinSetupScreen
+import com.personx.cryptx.screens.pinlogin.PassphraseLoginScreen
+import com.personx.cryptx.screens.pinsetup.PassphraseSetupScreen
 import com.personx.cryptx.screens.settingsscreen.SettingsScreen
 import com.personx.cryptx.screens.signature.KeyPairHistoryScreen
 import com.personx.cryptx.screens.signature.SignatureToolScreen
@@ -64,7 +64,7 @@ fun AppNavGraph(
     )
     NavHost(navController = navController, startDestination = startDestination) {
         composable("pin_setup") {
-            PinSetupScreen(
+            PassphraseSetupScreen(
                 pinCryptoManager = PinCryptoManager(context),
                 windowSizeClass = windowSizeClass,
                 onSetupComplete = {
@@ -76,8 +76,8 @@ fun AppNavGraph(
             )
         }
         composable("pin_login") {
-            PinLoginScreen(
-                pinCryptoManager = PinCryptoManager(context),
+            PassphraseLoginScreen(
+                passphraseCryptoManager = PinCryptoManager(context),
                 windowSizeClass = windowSizeClass,
                 onLoginSuccess = { pin ->
                     PinCryptoManager(context).loadSessionKeyIfPinValid(pin)

@@ -56,8 +56,8 @@ fun CyberpunkButton(
     val borderWidth by animateDpAsState(
         targetValue = when {
             !isActive -> 0.dp
-            isPressed -> 1.5.dp
-            else -> 1.dp
+            isPressed -> 0.1.dp
+            else -> 0.1.dp
         },
         animationSpec = tween(durationMillis = 100),
         label = "borderWidth"

@@ -13,14 +13,18 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
-import androidx.compose.material.icons.automirrored.filled.Backspace
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
@@ -29,46 +33,57 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.personx.cryptx.components.CyberpunkButton
-import com.personx.cryptx.components.CyberpunkKeypadButton
+import com.personx.cryptx.components.CyberpunkInputBox
 import com.personx.cryptx.crypto.PinCryptoManager
-import com.personx.cryptx.ui.theme.CryptXTheme
-import com.personx.cryptx.viewmodel.PinSetupViewModel
-import com.personx.cryptx.viewmodel.PinSetupViewModelFactory
+import com.personx.cryptx.viewmodel.PassphraseSetupViewModel
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun PinSetupScreen(
+fun PassphraseSetupScreen(
     pinCryptoManager: PinCryptoManager,
     onSetupComplete: () -> Unit,
     windowSizeClass: WindowSizeClass
 ) {
-    val viewModel: PinSetupViewModel = viewModel(
-        factory = PinSetupViewModelFactory(pinCryptoManager)
+    val viewModel: PassphraseSetupViewModel = viewModel(
+        factory = object : ViewModelProvider.Factory {
+            @Suppress("UNCHECKED_CAST")
+            override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                return PassphraseSetupViewModel(pinCryptoManager) as T
+            }
+        }
     )
+
     val state by viewModel.state.collectAsState()
     val cyberpunkGreen = MaterialTheme.colorScheme.onSurface
     val cyberpunkLight = Color(0xFF1E1E1E)
 
-    // Responsive values
     val isCompact = windowSizeClass.widthSizeClass == WindowWidthSizeClass.Compact
     val padding = if (isCompact) 16.dp else 24.dp
     val topPadding = if (isCompact) 24.dp else 30.dp
     val spacing = if (isCompact) 12.dp else 16.dp
     val smallSpacing = if (isCompact) 6.dp else 8.dp
-    val keypadSpacing = if (isCompact) 16.dp else 24.dp
     val buttonPadding = if (isCompact) 24.dp else 32.dp
     val iconSize = if (isCompact) 40.dp else 48.dp
-    val pinDotSize = if (isCompact) 20.dp else 24.dp
+
+    var passwordVisible by remember { mutableStateOf(false) }
 
     LaunchedEffect(state.isCompleted) {
         if (state.isCompleted) {
@@ -82,8 +97,8 @@ fun PinSetupScreen(
             .background(
                 Brush.verticalGradient(
                     colors = listOf(
-                        MaterialTheme.colorScheme.onSurface.copy(0.1f),
-                        MaterialTheme.colorScheme.onPrimary.copy(0.01F)
+                        MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f),
+                        MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.01f)
                     )
                 )
             )
@@ -108,7 +123,7 @@ fun PinSetupScreen(
             Spacer(modifier = Modifier.height(spacing))
 
             Text(
-                text = if (state.step == 1) "Create Secure PIN" else "Confirm Your PIN",
+                text = if (state.step == 1) "Create Secure Passphrase" else "Confirm Your Passphrase",
                 style = MaterialTheme.typography.run {
                     if (isCompact) titleLarge else headlineSmall
                 }.copy(
@@ -122,156 +137,115 @@ fun PinSetupScreen(
 
             Text(
                 text = if (state.step == 1)
-                    "Enter a 6-digit PIN for security"
+                    "Enter a secure passphrase. Use a long, memorable phrase (recommended)."
                 else
-                    "Re-enter your PIN to confirm",
+                    "Re-enter your passphrase to confirm",
                 style = MaterialTheme.typography.run {
                     if (isCompact) bodySmall else bodyMedium
                 }.copy(
-                    color = Color.White.copy(alpha = 0.7f),
-                    fontFamily = FontFamily.Monospace
+                    color = cyberpunkGreen.copy(alpha = 0.7f),
+                    fontFamily = FontFamily.Monospace,
+                    textAlign = TextAlign.Center,
                 )
             )
-        }
 
-        // PIN Display
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(30.dp)
-        ) {
-            Row(
-                horizontalArrangement = Arrangement.Center,
-                modifier = Modifier.fillMaxWidth()
+            Spacer(Modifier.height(50.dp))
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp)
             ) {
-                repeat(6) { index ->
-                    Box(
-                        modifier = Modifier
-                            .size(pinDotSize)
-                            .padding(4.dp)
-                            .background(
-                                color = when {
-                                    state.step == 1 && index < state.pin.length -> cyberpunkGreen
-                                    state.step == 2 && index < state.confirmPin.length -> cyberpunkGreen
-                                    else -> cyberpunkLight.copy(alpha = 0.3f)
-                                },
-                                shape = CircleShape
-                            )
-                            .border(
-                                width = 1.dp,
-                                color = cyberpunkGreen.copy(alpha = 0.5f),
-                                shape = CircleShape
-                            )
-                    )
-                }
-            }
-        }
 
-        if (state.isLoading) {
-            Box(
-
-            ) {
-                CircularProgressIndicator(
-                    color = cyberpunkGreen,
-                    strokeWidth = 4.dp
-                )
-            }
-        }
-
-        // Error Message
-        state.error?.let { error ->
-            Text(
-                text = error,
-                color = Color.Red,
-                style = MaterialTheme.typography.bodySmall.copy(
-                    fontFamily = FontFamily.Monospace
-                ),
-                modifier = Modifier.padding(vertical = smallSpacing)
-            )
-        }
-
-        // Keypad
-        Column(
-            horizontalAlignment = Alignment.End,
-            verticalArrangement = Arrangement.spacedBy(keypadSpacing)
-        ) {
-            // Row 1-3
-            listOf("1 2 3", "4 5 6", "7 8 9").forEach { row ->
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(keypadSpacing)
+                // BasicTextField with no border/background (just padding) to match your theme
+                val textValue = if (state.step == 1) state.passphrase else state.confirmPassphrase
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(Color.Black.copy(alpha = 0.15f)) // subtle background — remove if you want fully transparent
+                        .padding(horizontal = 12.dp)
                 ) {
-                    row.split(" ").forEach { num ->
-                        CyberpunkKeypadButton(
-                            text = num,
-                            onClick = {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        CyberpunkInputBox(
+                            value = textValue,
+                            onValueChange = { newText ->
                                 if (state.step == 1) {
-                                    viewModel.event(PinSetupEvent.EnterPin(state.pin + num))
+                                    viewModel.event(PassphraseSetupEvent.EnterPassphrase(newText))
                                 } else {
-                                    viewModel.event(PinSetupEvent.EnterConfirmPin(state.confirmPin + num))
+                                    viewModel.event(PassphraseSetupEvent.EnterConfirmPassphrase(newText))
                                 }
                             },
-                            color = cyberpunkGreen,
+                            placeholder = if (state.step == 1) "Set a passphrase..." else "Confirm the passphrase...",
                         )
+
+
+                        IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                            Icon(
+                                imageVector = if (passwordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
+                                contentDescription = if (passwordVisible) "Hide" else "Show",
+                                tint = cyberpunkGreen
+                            )
+                        }
                     }
                 }
-            }
 
-            // Bottom row (0 and backspace)
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(keypadSpacing)
-            ) {
-                CyberpunkKeypadButton(
-                    text = "0",
-                    onClick = {
-                        if (state.step == 1) {
-                            viewModel.event(PinSetupEvent.EnterPin(state.pin + "0"))
-                        } else {
-                            viewModel.event(PinSetupEvent.EnterConfirmPin(state.confirmPin + "0"))
-                        }
-                    },
-                    color = cyberpunkGreen,
-                )
+                Spacer(modifier = Modifier.height(8.dp))
 
-                CyberpunkKeypadButton(
-                    icon = Icons.AutoMirrored.Filled.Backspace,
-                    onClick = {
-                        if (state.step == 1) {
-                            viewModel.event(PinSetupEvent.EnterPin(state.pin.dropLast(1)))
-                        } else {
-                            viewModel.event(PinSetupEvent.EnterConfirmPin(state.confirmPin.dropLast(1)))
-                        }
-                    },
-                    color = cyberpunkGreen,
+                // Hint / strength suggestion (optional)
+                Text(
+                    text = "Tip: long passphrases (20+ chars) are much stronger than short ones.",
+                    style = MaterialTheme.typography.bodySmall.copy(
+                        color = cyberpunkGreen.copy(alpha = 0.6f),
+                        fontFamily = FontFamily.Monospace
+                    ),
+                    modifier = Modifier.padding(horizontal = 15.dp)
                 )
             }
         }
 
-        // Continue Button
+        // Passphrase input area
+
+
+        // Error / loading / spacer
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            state.error?.let { error ->
+                Text(
+                    text = error,
+                    color = Color.Red,
+                    style = MaterialTheme.typography.bodySmall.copy(
+                        fontFamily = FontFamily.Monospace
+                    ),
+                    modifier = Modifier.padding(vertical = smallSpacing)
+                )
+            }
+
+            if (state.isLoading) {
+                Spacer(modifier = Modifier.height(8.dp))
+                CircularProgressIndicator(color = cyberpunkGreen, strokeWidth = 4.dp)
+            }
+        }
+
+        // Continue / Confirm button
         CyberpunkButton(
-            onClick = {
-                viewModel.event(PinSetupEvent.Continue)
-            },
+            onClick = { viewModel.event(PassphraseSetupEvent.Continue) },
             text = if (state.step == 1) "CONTINUE" else "CONFIRM",
             icon = if (state.step == 1) Icons.AutoMirrored.Filled.ArrowForward else Icons.Default.Check,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = buttonPadding),
             isActive = when (state.step) {
-                1 -> state.pin.length == 6
-                2 -> state.confirmPin.length == 6
+                1 -> state.passphrase.isNotBlank()
+                2 -> state.confirmPassphrase.isNotBlank()
                 else -> false
             } && !state.isLoading,
             isCompact = isCompact
         )
-    }
-}
-
-
-
-@Preview
-@Composable
-fun PinSetupScreenPreview() {
-    CryptXTheme(darkTheme = true) {
-        //PinSetupScreen(pinCryptoManager = PinCryptoManager(LocalContext.current)) { }
     }
 }

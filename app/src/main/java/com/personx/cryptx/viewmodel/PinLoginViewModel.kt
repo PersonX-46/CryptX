@@ -3,8 +3,8 @@ package com.personx.cryptx.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.personx.cryptx.crypto.PinCryptoManager
-import com.personx.cryptx.data.PinLoginState
-import com.personx.cryptx.screens.pinlogin.PinLoginEvent
+import com.personx.cryptx.data.PassphraseLoginState
+import com.personx.cryptx.screens.pinlogin.PassphraseLoginEvent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -16,53 +16,65 @@ import kotlinx.coroutines.launch
  */
 class PinLoginViewModel(
     private val pinCryptoManager: PinCryptoManager
-): ViewModel() {
+) : ViewModel() {
 
-    private val _state = MutableStateFlow(PinLoginState())
-    val state: StateFlow<PinLoginState> = _state
+    private val _state = MutableStateFlow(PassphraseLoginState())
+    val state: StateFlow<PassphraseLoginState> = _state
 
-    /**
-     * Resets the state of the PIN login to its initial values.
-     * This is useful when navigating away from the PIN login screen or when a new login attempt is needed.
-     */
     fun resetState() {
-        _state.value = PinLoginState()
+        _state.value = PassphraseLoginState()
     }
 
-    /**
-     * Handles events related to PIN login.
-     * @param event The event to handle, which can be entering a PIN or submitting it.
-     */
-    fun event(event: PinLoginEvent) {
-        when (event) {
-            is PinLoginEvent.EnterPin -> {
-                val newPin = event.pin
-                if (newPin.length <= 6 && newPin.all { it.isDigit() }) {
-                    _state.value = _state.value.copy(enteredPin = newPin, error = null)
-                }
-            }
-            is PinLoginEvent.Submit -> {
-                val current = _state.value
-                if (current.enteredPin.length == 6) {
-                    _state.value = _state.value.copy(isLoading = true)
+    class PassphraseLoginViewModel(
+        private val passphraseCryptoManager: PinCryptoManager
+    ) : ViewModel() {
 
-                    viewModelScope.launch(Dispatchers.IO) {
-                        val success = try {
-                            pinCryptoManager.verifyPin(current.enteredPin)
-                        } catch (e: Exception) {
-                            false
-                        } finally {
-                           current.copy(isLoading = false)
-                        }
+        private val _state = MutableStateFlow(PassphraseLoginState())
+        val state: StateFlow<PassphraseLoginState> = _state
 
-                        _state.value = if (success) {
-                            current.copy(error = null, isSuccess = true)
-                        } else {
-                            current.copy(error = "Incorrect PIN", enteredPin = "", isSuccess = false, isLoading = false)
-                        }
+        fun resetState() {
+            _state.value = PassphraseLoginState()
+        }
+
+        fun event(event: PassphraseLoginEvent) {
+            when (event) {
+                is PassphraseLoginEvent.EnterPassphrase -> {
+                    val newPass = event.passphrase
+                    // Example rule: min 6 chars, no restriction on digits only
+                    if (newPass.length <= 128) { // can set max length
+                        _state.value = _state.value.copy(passphrase = newPass, error = null)
                     }
-                } else {
-                    _state.value = current.copy(error = "Invalid PIN", enteredPin = "", isSuccess = false)
+                }
+                is PassphraseLoginEvent.Submit -> {
+                    val current = _state.value
+                    if (current.passphrase.length >= 6) {
+                        _state.value = current.copy(isLoading = true)
+
+                        viewModelScope.launch(Dispatchers.IO) {
+                            val success = try {
+                                passphraseCryptoManager.verifyPin(current.passphrase)
+                            } catch (e: Exception) {
+                                false
+                            }
+
+                            _state.value = if (success) {
+                                current.copy(error = null, isSuccess = true, isLoading = false)
+                            } else {
+                                current.copy(
+                                    error = "Incorrect passphrase",
+                                    passphrase = "",
+                                    isSuccess = false,
+                                    isLoading = false
+                                )
+                            }
+                        }
+                    } else {
+                        _state.value = current.copy(
+                            error = "Passphrase must be at least 6 characters",
+                            passphrase = "",
+                            isSuccess = false
+                        )
+                    }
                 }
             }
         }

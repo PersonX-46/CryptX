@@ -13,8 +13,8 @@ class PinSetupViewModelFactory(
 ) : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(PinSetupViewModel::class.java)) {
-            return PinSetupViewModel(pinCryptoManager) as T
+        if (modelClass.isAssignableFrom(PassphraseSetupViewModel::class.java)) {
+            return PassphraseSetupViewModel(pinCryptoManager) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

@@ -1,7 +1,6 @@
 package com.personx.cryptx.screens.pinlogin
 
-sealed class PinLoginEvent {
-    data class EnterPin(val pin: String) : PinLoginEvent()
-    data object Submit : PinLoginEvent()
-
+sealed class PassphraseLoginEvent {
+    data class EnterPassphrase(val passphrase: String) : PassphraseLoginEvent()
+    data object Submit : PassphraseLoginEvent()
 }
