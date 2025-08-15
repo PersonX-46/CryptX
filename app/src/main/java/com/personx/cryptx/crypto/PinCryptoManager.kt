@@ -32,7 +32,7 @@ class PinCryptoManager(private val context: Context) {
     /**
      * Sets up a PIN by generating a salt, deriving a key from the PIN, and encrypting a secret value.
      * The salt, IV, and encrypted secret are stored in SharedPreferences.
-     *
+     * This method also creates a vault using the generated session key.
      * @param pin The PIN to set up.
      */
 
@@ -53,6 +53,8 @@ class PinCryptoManager(private val context: Context) {
             putString(SecurePrefs.IV, Base64.encodeToString(iv, Base64.NO_WRAP))
             putString(SecurePrefs.ENCRYPTED_SESSION_KEY, Base64.encodeToString(encryptedSessionKey, Base64.NO_WRAP))
         }
+
+        VaultManager(context).createVault()
 
         sessionKey.encoded.fill(0)
         pinKey.encoded.fill(0)
