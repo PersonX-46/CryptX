@@ -9,12 +9,12 @@ import com.personx.cryptx.crypto.PinCryptoManager
  * It takes a PinCryptoManager as a parameter to provide the necessary cryptographic operations.
  */
 class PinSetupViewModelFactory(
-    private val pinCryptoManager: PinCryptoManager
+    private val pinCryptoManager: PinCryptoManager,
 ) : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(PassphraseSetupViewModel::class.java)) {
-            return PassphraseSetupViewModel(pinCryptoManager) as T
+            return PassphraseSetupViewModel(pinCryptoManager, PassphraseSetupRepository) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

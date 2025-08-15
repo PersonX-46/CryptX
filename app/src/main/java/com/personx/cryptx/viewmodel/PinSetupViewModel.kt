@@ -3,6 +3,7 @@ package com.personx.cryptx.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.personx.cryptx.crypto.PinCryptoManager
+import com.personx.cryptx.crypto.VaultManager
 import com.personx.cryptx.data.PassphraseSetupState
 import com.personx.cryptx.screens.pinsetup.PassphraseSetupEvent
 import kotlinx.coroutines.Dispatchers
@@ -16,6 +17,7 @@ import kotlinx.coroutines.launch
  * to securely store the PIN once it is confirmed.
  */
 class PassphraseSetupViewModel(
+    private val repository: PassphraseSetupRepository,
     private val pinCryptoManager: PinCryptoManager // keep your existing manager for now
 ) : ViewModel() {
 
@@ -54,6 +56,7 @@ class PassphraseSetupViewModel(
                             try {
                                 // NOTE: consider changing setupPin to accept CharArray for extra security
                                 pinCryptoManager.setupPin(current.passphrase)
+                                repository.createVault()
                                 _state.value = _state.value.copy(
                                     isLoading = false,
                                     isCompleted = true,
