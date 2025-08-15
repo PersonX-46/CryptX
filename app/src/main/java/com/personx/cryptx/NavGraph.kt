@@ -12,6 +12,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.personx.cryptx.crypto.PinCryptoManager
+import com.personx.cryptx.crypto.SessionKeyManager
 import com.personx.cryptx.screens.AboutCryptXScreen
 import com.personx.cryptx.screens.HashDetector
 import com.personx.cryptx.screens.HashGeneratorScreen
@@ -24,6 +25,7 @@ import com.personx.cryptx.screens.decryptscreen.EncryptedHistoryHandler
 import com.personx.cryptx.screens.encryptscreen.EncryptHistoryScreen
 import com.personx.cryptx.screens.encryptscreen.EncryptMainScreen
 import com.personx.cryptx.screens.encryptscreen.EncryptPinHandler
+import com.personx.cryptx.screens.fileencryption.VaultScreen
 import com.personx.cryptx.screens.pinlogin.PassphraseLoginScreen
 import com.personx.cryptx.screens.pinsetup.PassphraseSetupScreen
 import com.personx.cryptx.screens.settingsscreen.SettingsScreen
@@ -34,6 +36,9 @@ import com.personx.cryptx.viewmodel.decryption.DecryptionHistoryRepository
 import com.personx.cryptx.viewmodel.decryption.DecryptionViewModel
 import com.personx.cryptx.viewmodel.encryption.EncryptionViewModel
 import com.personx.cryptx.viewmodel.encryption.EncryptionViewModelRepository
+import com.personx.cryptx.viewmodel.fileencryption.VaultRepository
+import com.personx.cryptx.viewmodel.fileencryption.VaultViewModel
+import com.personx.cryptx.viewmodel.fileencryption.VaultViewModelFactory
 import com.personx.cryptx.viewmodel.signature.SignatureToolViewModel
 import com.personx.cryptx.viewmodel.signature.SignatureToolViewModelFactory
 import com.personx.cryptx.viewmodel.steganography.SteganographyViewModelRepository
@@ -62,6 +67,10 @@ fun AppNavGraph(
     val signatureViewModel: SignatureToolViewModel = viewModel(
         factory = SignatureToolViewModelFactory(context.applicationContext as Application)
     )
+    val vaultViewModel: VaultViewModel = viewModel(
+        factory = VaultViewModelFactory(
+            VaultRepository(context)))
+
     NavHost(navController = navController, startDestination = startDestination) {
         composable("pin_setup") {
             PassphraseSetupScreen(
@@ -184,6 +193,14 @@ fun AppNavGraph(
                 viewModel = signatureViewModel,
                 windowSizeClass = windowSizeClass,
                 navController = navController
+            )
+        }
+
+        composable("file_vault") {
+            VaultScreen(
+                viewModel = vaultViewModel,
+                windowSizeClass = windowSizeClass,
+                onFileClick = {},
             )
         }
     }
