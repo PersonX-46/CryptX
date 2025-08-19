@@ -9,6 +9,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -22,6 +23,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -126,25 +128,11 @@ fun VaultScreen(
                 Spacer(modifier = Modifier.width(8.dp))
 
                 val parts = if (currentFolder.isEmpty()) listOf("Root") else currentFolder.split("/")
-                Row {
-                    var pathSoFar = ""
-                    parts.forEachIndexed { index, part ->
-                        if (index > 0) pathSoFar += "/"
-                        pathSoFar += part
-                        Text(
-                            text = part,
-                            color = cyberGreen,
-                            modifier = Modifier
-                                .clickable { viewModel.openFolder(pathSoFar) }
-                                .padding(horizontal = 4.dp),
-                            fontFamily = FontFamily.Monospace,
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-                        if (index < parts.lastIndex) {
-                            Text(" / ", color = cyberGreen.copy(alpha = 0.6f))
-                        }
-                    }
-                }
+                ScrollableBreadcrumb(
+                    currentFolder = currentFolder,
+                    onNavigate = { viewModel.openFolder(it) },
+                    cyberGreen = cyberGreen
+                )
             }
         }
 
@@ -241,6 +229,42 @@ fun VaultScreen(
     }
 }
 
+@Composable
+fun ScrollableBreadcrumb(
+    currentFolder: String,
+    onNavigate: (String) -> Unit,
+    cyberGreen: Color
+) {
+    val scrollState = rememberScrollState()
+    val parts = if (currentFolder.isEmpty()) listOf("Root") else currentFolder.split("/")
+    var pathSoFar = ""
+
+    Row(
+        modifier = Modifier
+            .horizontalScroll(scrollState)
+            .padding(horizontal = 4.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        parts.forEachIndexed { index, part ->
+            if (index > 0) pathSoFar += "/"
+            pathSoFar += part
+
+            Text(
+                text = part,
+                color = cyberGreen,
+                modifier = Modifier
+                    .clickable { onNavigate(pathSoFar) }
+                    .padding(horizontal = 4.dp),
+                fontFamily = FontFamily.Monospace,
+                style = MaterialTheme.typography.bodyMedium
+            )
+            if (index < parts.lastIndex) {
+                Text(" / ", color = cyberGreen.copy(alpha = 0.6f))
+            }
+        }
+    }
+}
+
 
 @Composable
 fun VaultFileRow(
@@ -258,7 +282,8 @@ fun VaultFileRow(
         shape = RoundedCornerShape(8.dp)
     ) {
         Row(
-            modifier = Modifier.padding(12.dp).fillMaxWidth(),
+            modifier = Modifier.padding(12.dp).fillMaxWidth()
+                .clickable(onClick = onClick),
             verticalAlignment = Alignment.CenterVertically
         ) {
             val icon = when {
