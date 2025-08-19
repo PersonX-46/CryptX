@@ -1,28 +1,12 @@
 package com.personx.cryptx.viewmodel.fileencryption
 
-import android.content.ContentResolver
 import android.content.Context
 import android.net.Uri
-import android.provider.OpenableColumns
-import android.webkit.MimeTypeMap
-import android.widget.Toast
 import com.personx.cryptx.AppFileManager
-import com.personx.cryptx.components.Toast
 import com.personx.cryptx.crypto.VaultManager
 import com.personx.cryptx.data.VaultMetadata
-import org.json.JSONObject
-import java.io.DataInputStream
-import java.io.DataOutputStream
 import java.io.File
-import java.io.FileOutputStream
-import java.io.IOException
 import java.io.InputStream
-import java.util.UUID
-import javax.crypto.Cipher
-import javax.crypto.CipherInputStream
-import javax.crypto.CipherOutputStream
-import javax.crypto.SecretKey
-import javax.crypto.spec.GCMParameterSpec
 
 class VaultRepository(private val context: Context) {
 

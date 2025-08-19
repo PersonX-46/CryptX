@@ -3,7 +3,6 @@ package com.personx.cryptx.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.personx.cryptx.crypto.PinCryptoManager
-import com.personx.cryptx.crypto.VaultManager
 import com.personx.cryptx.data.PassphraseSetupState
 import com.personx.cryptx.screens.pinsetup.PassphraseSetupEvent
 import kotlinx.coroutines.Dispatchers

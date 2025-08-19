@@ -1,6 +1,5 @@
 package com.personx.cryptx.viewmodel.fileencryption
 
-import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 
