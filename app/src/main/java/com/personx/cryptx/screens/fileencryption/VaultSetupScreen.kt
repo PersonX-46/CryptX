@@ -215,7 +215,13 @@ fun VaultScreen(
                                 }
                             },
                             onDownload = { viewModel.downloadFile(file) },
-                            onDelete = { viewModel.deleteFile(file.name) }
+                            onDelete = {
+                                if (file.mimeType == "folder") {
+                                    viewModel.deleteFolder(file.name)
+                                } else {
+                                    viewModel.deleteFile(file.name)
+                                }
+                            }
                         )
                     }
                 }
