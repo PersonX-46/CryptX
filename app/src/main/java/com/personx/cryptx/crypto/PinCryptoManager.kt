@@ -54,8 +54,7 @@ class PinCryptoManager(private val context: Context) {
             putString(SecurePrefs.ENCRYPTED_SESSION_KEY, Base64.encodeToString(encryptedSessionKey, Base64.NO_WRAP))
         }
 
-        VaultManager(context).createVault()
-
+        SessionKeyManager.setSessionKey(sessionKey)
         sessionKey.encoded.fill(0)
         pinKey.encoded.fill(0)
     }

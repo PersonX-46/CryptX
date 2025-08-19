@@ -56,7 +56,6 @@ class PassphraseSetupViewModel(
                             try {
                                 // NOTE: consider changing setupPin to accept CharArray for extra security
                                 pinCryptoManager.setupPin(current.passphrase)
-                                repository.createVault()
                                 _state.value = _state.value.copy(
                                     isLoading = false,
                                     isCompleted = true,
@@ -66,8 +65,10 @@ class PassphraseSetupViewModel(
                                 _state.value = _state.value.copy(
                                     isLoading = false,
                                     isCompleted = false,
-                                    error = "Failed to store passphrase"
+                                    error = "Failed to store passphrase: ${e.message}",
                                 )
+                            } finally {
+                                repository.createVault()
                             }
                         }
                     } else {
