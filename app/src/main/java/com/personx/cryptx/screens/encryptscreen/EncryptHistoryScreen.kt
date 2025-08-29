@@ -92,7 +92,7 @@ fun EncryptHistoryScreen(
                                 viewModel.itemToDelete?.let { item ->
                                     viewModel.deleteEncryptionHistory( item)
                                     viewModel.refreshHistory()
-                                    Toast.makeText(context, "History deleted!", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, context.getString(R.string.history_deleted), Toast.LENGTH_SHORT).show()
                                     viewModel.prepareItemToDelete(null)
                                 }
                             }

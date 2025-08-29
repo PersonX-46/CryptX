@@ -308,7 +308,7 @@ fun DecryptionScreen(
                                             }
                                             Toast.makeText(
                                                 context,
-                                                "Copied!",
+                                                context.getString(R.string.copied),
                                                 Toast.LENGTH_SHORT
                                             ).show()
                                         },
@@ -343,13 +343,13 @@ fun DecryptionScreen(
                                                             viewModel.clearOutput()
                                                             Toast.makeText(
                                                                 context,
-                                                                "Decryption history saved!",
+                                                                context.getString(R.string.decryption_history_saved),
                                                                 Toast.LENGTH_SHORT
                                                             ).show()
                                                         } else {
                                                             Toast.makeText(
                                                                 context,
-                                                                "Failed to save decryption history",
+                                                                context.getString(R.string.failed_to_save_decryption_history),
                                                                 Toast.LENGTH_SHORT
                                                             ).show()
                                                         }
@@ -371,7 +371,10 @@ fun DecryptionScreen(
                                                         viewModel.itemToUpdate?.let { item ->
                                                             viewModel.updateDecryptionHistory(item)
                                                             viewModel.refreshHistory()
-                                                            Toast.makeText(context, "History updated!", Toast.LENGTH_SHORT)
+                                                            Toast.makeText(context,
+                                                                context.getString(
+                                                                    R.string.history_updated
+                                                                ), Toast.LENGTH_SHORT)
                                                                 .show()
                                                             viewModel.prepareItemToUpdate(null)
                                                         }

@@ -201,7 +201,8 @@ fun BackupDecisionScreen(
                 onConfirm = { password ->
                     val uri = selectedUri.value
                     if (uri == null) {
-                        Toast.makeText(context, "No file selected.", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context,
+                            context.getString(R.string.no_file_selected), Toast.LENGTH_SHORT).show()
                         return@ImportBackupDialog
                     }
 

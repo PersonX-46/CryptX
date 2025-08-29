@@ -5,7 +5,9 @@ import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
+import com.personx.cryptx.R
 import com.personx.cryptx.crypto.PinCryptoManager
 import com.personx.cryptx.screens.pinlogin.PassphraseLoginScreen
 import com.personx.cryptx.viewmodel.decryption.DecryptionViewModel
@@ -49,13 +51,13 @@ fun DecryptPinHandler(
                             viewModel.clearOutput()
                             Toast.makeText(
                                 context,
-                                "Decryption history saved!",
+                                context.getString(R.string.decryption_history_saved),
                                 Toast.LENGTH_SHORT
                             ).show()
                         } else {
                             Toast.makeText(
                                 context,
-                                "Failed to save decryption history",
+                                context.getString(R.string.failed_to_save_decryption_history),
                                 Toast.LENGTH_SHORT
                             ).show()
                         }
@@ -99,7 +101,7 @@ fun DecryptPinHandler(
                                 popUpTo("decrypt_pin_handler") { inclusive = true } // clears entire backstack
                                 launchSingleTop = true
                             }
-                            Toast.makeText(context, "History updated!", Toast.LENGTH_SHORT)
+                            Toast.makeText(context, context.getString(R.string.history_updated), Toast.LENGTH_SHORT)
                                 .show()
                             viewModel.prepareItemToUpdate(null)
                         }
@@ -117,7 +119,7 @@ fun DecryptPinHandler(
                                 }
                                 Toast.makeText(
                                     context,
-                                    "History deleted!",
+                                    context.getString(R.string.history_deleted),
                                     Toast.LENGTH_SHORT
                                 ).show()
                                 viewModel.prepareItemToDelete(null)

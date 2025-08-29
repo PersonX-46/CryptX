@@ -245,7 +245,7 @@ fun SettingsScreen(
                     onConfirm = { password ->
                         val uri = selectedUri.value
                         if (uri == null) {
-                            Toast.makeText(context, "No file selected.", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, context.getString(R.string.no_file_selected), Toast.LENGTH_SHORT).show()
                             return@ImportBackupDialog
                         }
 
@@ -508,14 +508,17 @@ fun ChangePinDialog(
                                     viewModel.updateShowPinDialog(false)
 
                                     if (success) {
-                                        Toast.makeText(context, "PIN changed successfully!", Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(context,
+                                            context.getString(R.string.pin_changed_successfully), Toast.LENGTH_SHORT).show()
                                     } else {
-                                        Toast.makeText(context, "Failed to change PIN. Please try again.", Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(context,
+                                            context.getString(R.string.failed_to_change_pin_please_try_again), Toast.LENGTH_SHORT).show()
                                     }
                                 }
                             )
                         } catch (e: Exception) {
-                            Toast.makeText(context, "Error changing PIN: ${e.message}", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context,
+                                context.getString(R.string.error_changing_pin, e.message), Toast.LENGTH_SHORT).show()
                         }
                     },
                     icon = Icons.Default.LockReset,
@@ -732,7 +735,8 @@ fun ExportBackupDialog(
                         if (password.isNotBlank()) {
                             onConfirm(password)
                         } else {
-                            Toast.makeText(context, "Password is required.", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context,
+                                context.getString(R.string.password_is_required), Toast.LENGTH_SHORT).show()
                         }
                     },
                     icon = Icons.Default.CloudUpload,
@@ -813,7 +817,8 @@ fun ImportBackupDialog(
                         if (password.isNotBlank() && selectedFileName != null) {
                             onConfirm(password)
                         } else {
-                            Toast.makeText(context, "Password or file not selected.", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context,
+                                context.getString(R.string.password_or_file_not_selected), Toast.LENGTH_SHORT).show()
                         }
                     },
                     icon = Icons.Default.CloudDownload,

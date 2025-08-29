@@ -249,6 +249,22 @@
     <string name="selected_file_details">Selected File Details</string>
     <string name="cover_image_size_bytes_secret_file_size_bytes">Cover Image Size: %1$d bytes \nSecret File Size: %2$d bytes</string>
     <string name="extracted_file">Extracted file</string>
+    <string name="no_file_selected">No file selected.</string>
+    <string name="copied">Copied!</string>
+    <string name="decryption_history_saved">Decryption history saved!</string>
+    <string name="failed_to_save_decryption_history">Failed to save decryption history</string>
+    <string name="history_updated">History updated!</string>
+    <string name="encryption_history_saved">Encryption history saved!</string>
+    <string name="failed_to_save_history">Failed to save history.</string>
+    <string name="error_saving_history">Error saving history: %1$s</string>
+    <string name="pin_changed_successfully">PIN changed successfully!</string>
+    <string name="failed_to_change_pin_please_try_again">Failed to change PIN. Please try again.</string>
+    <string name="error_changing_pin">Error changing PIN: %1$s</string>
+    <string name="password_is_required">Password is required.</string>
+    <string name="password_or_file_not_selected">Password or file not selected.</string>
+    <string name="key_pair_deleted">Key pair deleted!</string>
+    <string name="key_pair_saved">Key pair saved!</string>
+    <string name="successfully_exported">Successfully exported</string>
 
 
 </resources>

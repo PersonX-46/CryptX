@@ -74,7 +74,8 @@ fun KeyPairHistoryScreen(
                         val success = viewModel.deleteKeyPair(item)
                         viewModel.refreshKeyPairHistory()
                         navController.navigate("keypair_history")
-                        Toast.makeText(context, "Key pair deleted!", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context,
+                            context.getString(R.string.key_pair_deleted), Toast.LENGTH_SHORT).show()
                     }
                 },
                 windowSizeClass = windowSizeClass

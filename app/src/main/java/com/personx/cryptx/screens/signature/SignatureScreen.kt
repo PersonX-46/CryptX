@@ -312,7 +312,8 @@ fun SignatureToolScreen(
                         text = stringResource(R.string.save),
                         onClick = {
                             viewModel.saveGeneratedKeyPair()
-                            Toast.makeText(context, "Key pair saved!", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context,
+                                context.getString(R.string.key_pair_saved), Toast.LENGTH_SHORT).show()
                         },
                         modifier = Modifier
                             .fillMaxWidth()
@@ -325,7 +326,8 @@ fun SignatureToolScreen(
                         onClick = {
                             // Call your export logic, example:
                             viewModel.exportKeypairs(state.title)
-                            Toast.makeText(context, "Successfully exported", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context,
+                                context.getString(R.string.successfully_exported), Toast.LENGTH_SHORT).show()
                         },
                         modifier = Modifier
                             .fillMaxWidth()
@@ -345,7 +347,7 @@ fun SignatureToolScreen(
                         showExportDialog.value = false
                         // Call your export logic, example:
                         viewModel.exportKeypairs(keyFileName.value)
-                        Toast.makeText(context, "Successfully exported", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, context.getString(R.string.successfully_exported), Toast.LENGTH_SHORT).show()
                     },
                     onDismiss = {
                         showExportDialog.value = false

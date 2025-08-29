@@ -339,7 +339,7 @@ fun EncryptMainScreen(
                                             }
                                             Toast.makeText(
                                                 context,
-                                                "Copied!",
+                                                context.getString(R.string.copied),
                                                 Toast.LENGTH_SHORT
                                             ).show()
                                         },
@@ -373,18 +373,28 @@ fun EncryptMainScreen(
                                                                 viewModel.refreshHistory()
                                                                 delay(200)
                                                                 viewModel.clearOutput()
-                                                                Toast.makeText(context, "Encryption history saved!", Toast.LENGTH_SHORT).show()
+                                                                Toast.makeText(context,
+                                                                    context.getString(
+                                                                        R.string.encryption_history_saved
+                                                                    ), Toast.LENGTH_SHORT).show()
                                                                 navController.navigate("encrypt") {
                                                                     popUpTo(0) { inclusive = true } // clears entire backstack
                                                                     launchSingleTop = true
                                                                 }
 
                                                             } else {
-                                                                Toast.makeText(context, "Failed to save history.", Toast.LENGTH_SHORT).show()
+                                                                Toast.makeText(context,
+                                                                    context.getString(
+                                                                        R.string.failed_to_save_history
+                                                                    ), Toast.LENGTH_SHORT).show()
                                                             }
                                                             viewModel.updatePinPurpose("")
                                                         } catch (e: Exception) {
-                                                            Toast.makeText(context, "Error saving history: ${e.message}", Toast.LENGTH_SHORT).show()
+                                                            Toast.makeText(context,
+                                                                context.getString(
+                                                                    R.string.error_saving_history,
+                                                                    e.message
+                                                                ), Toast.LENGTH_SHORT).show()
                                                             viewModel.updatePinPurpose("")
                                                         }
                                                     }
@@ -406,7 +416,8 @@ fun EncryptMainScreen(
                                                         viewModel.itemToUpdate?.let { item ->
                                                             viewModel.updateEncryptionHistory( item)
                                                             viewModel.refreshHistory()
-                                                            Toast.makeText(context, "History updated!", Toast.LENGTH_SHORT).show()
+                                                            Toast.makeText(context,
+                                                                context.getString(R.string.history_updated), Toast.LENGTH_SHORT).show()
                                                             viewModel.prepareItemToUpdate(null)
                                                         }
                                                         viewModel.updatePinPurpose("")

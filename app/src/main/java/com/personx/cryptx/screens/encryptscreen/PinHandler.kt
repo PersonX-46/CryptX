@@ -7,6 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavController
+import com.personx.cryptx.R
 import com.personx.cryptx.crypto.PinCryptoManager
 import com.personx.cryptx.screens.pinlogin.PassphraseLoginScreen
 import com.personx.cryptx.viewmodel.encryption.EncryptionViewModel
@@ -50,17 +51,17 @@ fun EncryptPinHandler(
                                 viewModel.refreshHistory()
                                 delay(200)
                                 viewModel.clearOutput()
-                                Toast.makeText(context, "Encryption history saved!", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, context.getString(R.string.encryption_history_saved), Toast.LENGTH_SHORT).show()
                                 navController.navigate("encrypt") {
                                     popUpTo("encrypt_pin_handler") { inclusive = true } // clears entire backstack
                                     launchSingleTop = true
                                 }
 
                             } else {
-                                Toast.makeText(context, "Failed to save history.", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, context.getString(R.string.failed_to_save_history), Toast.LENGTH_SHORT).show()
                             }
                         } catch (e: Exception) {
-                            Toast.makeText(context, "Error saving history: ${e.message}", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, context.getString(R.string.error_saving_history,e.message), Toast.LENGTH_SHORT).show()
                         }
 
                     }
@@ -90,7 +91,7 @@ fun EncryptPinHandler(
                                     popUpTo("encrypt_pin_handler") { inclusive = true } // clears entire backstack
                                     launchSingleTop = true
                                 }
-                                Toast.makeText(context, "History deleted!", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, context.getString(R.string.history_deleted), Toast.LENGTH_SHORT).show()
                                 viewModel.prepareItemToDelete(null)
                             }
                         }
@@ -119,7 +120,7 @@ fun EncryptPinHandler(
                                 popUpTo("encrypt_pin_handler") { inclusive = true } // clears entire backstack
                                 launchSingleTop = true
                             }
-                            Toast.makeText(context, "History updated!", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, context.getString(R.string.history_updated), Toast.LENGTH_SHORT).show()
                             viewModel.prepareItemToUpdate(null)
                         }
                     }
