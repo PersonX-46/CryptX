@@ -42,6 +42,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
+import com.personx.cryptx.R
 import com.personx.cryptx.components.CyberpunkButton
 import com.personx.cryptx.components.Header
 import com.personx.cryptx.screens.settingsscreen.ImportBackupDialog
@@ -84,7 +85,7 @@ fun BackupDecisionScreen(
             )
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
-            Header("RESTORE BACKUP", windowSizeClass)
+            Header(R.string.restore_backup_header, windowSizeClass)
 
             Column(
                 modifier = Modifier

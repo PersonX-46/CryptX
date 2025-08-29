@@ -49,7 +49,7 @@ fun HashDetector(
     Column(
     ) {
         Header(
-            "HASH DETECTOR",
+            R.string.hash_detector_header,
             windowSizeClass = windowSizeClass
         )
         Column(

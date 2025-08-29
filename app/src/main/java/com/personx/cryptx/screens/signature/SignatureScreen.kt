@@ -58,6 +58,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
+import com.personx.cryptx.R
 import com.personx.cryptx.components.CyberpunkButton
 import com.personx.cryptx.components.CyberpunkDropdown
 import com.personx.cryptx.components.Header
@@ -113,7 +114,7 @@ fun SignatureToolScreen(
         modifier = Modifier
             .fillMaxSize()
     ) {
-        Header("SIGNATURE TOOL", windowSizeClass = windowSizeClass)
+        Header(R.string.signature_tool_header, windowSizeClass = windowSizeClass)
 
         Column(
             modifier = Modifier

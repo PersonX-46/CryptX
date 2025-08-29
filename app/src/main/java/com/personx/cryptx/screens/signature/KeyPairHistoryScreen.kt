@@ -16,6 +16,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.personx.cryptx.R
 import com.personx.cryptx.components.CyberpunkInputBox
 import com.personx.cryptx.components.Header
 import com.personx.cryptx.screens.KeyPairHistoryScreen
@@ -33,7 +34,7 @@ fun KeyPairHistoryScreen(
     viewModel.refreshKeyPairHistory()
 
     Column {
-        Header("KEY PAIR HISTORY", windowSizeClass)
+        Header(R.string.key_pair_history_header, windowSizeClass)
         Column (
             modifier = Modifier
                 .background(

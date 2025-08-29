@@ -94,7 +94,7 @@ fun DecryptionScreen(
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Header("DECRYPTION", windowSizeClass)
+            Header(R.string.decryption_header, windowSizeClass)
             Column(
                 modifier = Modifier
                     .fillMaxWidth()

@@ -113,7 +113,7 @@ fun SteganographyScreen(
         modifier = Modifier
             .verticalScroll(rememberScrollState()),
     ) {
-        Header("STEGANOGRAPHY", windowSizeClass)
+        Header(R.string.steganography_header, windowSizeClass)
         Box(
             modifier = Modifier
                 .fillMaxSize()

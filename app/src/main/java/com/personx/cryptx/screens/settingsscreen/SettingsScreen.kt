@@ -82,6 +82,7 @@ import androidx.core.content.edit
 import androidx.navigation.NavController
 import com.personx.cryptx.AppSettingsPrefs
 import com.personx.cryptx.PrefsHelper
+import com.personx.cryptx.R
 import com.personx.cryptx.components.CyberpunkButton
 import com.personx.cryptx.components.Header
 import com.personx.cryptx.viewmodel.SettingsViewModel
@@ -139,7 +140,7 @@ fun SettingsScreen(
             modifier = Modifier
                 .verticalScroll(rememberScrollState())
         ) {
-            Header("SETTINGS", windowSizeClass)
+            Header(R.string.settings_header, windowSizeClass)
 
             Column(
                 modifier = Modifier

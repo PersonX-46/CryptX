@@ -45,6 +45,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.personx.cryptx.LocalNavController
+import com.personx.cryptx.R
 import com.personx.cryptx.components.FeatureCardButton
 import com.personx.cryptx.components.Header
 import com.personx.cryptx.components.MiniDecryptionHistoryItem
@@ -96,7 +97,7 @@ fun HomeScreen(
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
     ) {
-        Header("CRYPTOGRAPHY TOOLKIT", windowSizeClass)
+        Header(R.string.home_header, windowSizeClass)
 
         Column(
             modifier = Modifier

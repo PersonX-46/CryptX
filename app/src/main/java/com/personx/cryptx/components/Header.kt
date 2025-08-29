@@ -1,5 +1,6 @@
 package com.personx.cryptx.components
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -18,16 +19,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
+import com.personx.cryptx.R
 
 @Composable
 fun Header(
-    subtitle: String,
+    @StringRes
+    subtitle: Int,
     windowSizeClass: WindowSizeClass
 ) {
     val isCompact = windowSizeClass.widthSizeClass == WindowWidthSizeClass.Compact
@@ -52,7 +56,7 @@ fun Header(
         Spacer(modifier = Modifier.height(if (isCompact) 16.dp else 32.dp))
 
         Text(
-            text = "CRYPTX",
+            text = stringResource(R.string.app_name).uppercase(),
             style = MaterialTheme.typography.run {
                 when {
                     isCompact -> displayMedium
@@ -75,7 +79,7 @@ fun Header(
         Spacer(modifier = Modifier.height(if (isCompact) 4.dp else 8.dp))
 
         Text(
-            text = subtitle,
+            text = stringResource(subtitle),
             style = MaterialTheme.typography.run {
                 when {
                     isCompact -> titleMedium

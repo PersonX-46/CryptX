@@ -123,5 +123,19 @@
     <string name="save_output">SAVE</string>
     <string name="copy">COPY</string>
 
+    <string name="about_header">ABOUT CRYPTX</string>
+    <string name="restore_backup_header">RESTORE BACKUP</string>
+    <string name="home_header">CRYPTOGRAPHY TOOLKIT</string>
+    <string name="steganography_header">STEGANOGRAPHY</string>
+    <string name="decryption_history_header">DECRYPTION HISTORY</string>
+    <string name="decryption_header">DECRYPTION</string>
+    <string name="encryption_history_header">ENCRYPTION HISTORY</string>
+    <string name="encryption_header">ENCRYPTION</string>
+    <string name="settings_header">SETTINGS</string>
+    <string name="key_pair_history_header">KEY PAIR HISTORY</string>
+    <string name="signature_tool_header">SIGNATURE TOOL</string>
+    <string name="hash_detector_header">HASH DETECTOR</string>
+    <string name="hash_generator_header">HASH GENERATOR</string>
+
 
 </resources>

@@ -89,7 +89,7 @@ fun HashGeneratorScreen(
         modifier = Modifier.fillMaxSize()
     ) {
         Header(
-            "HASH GENERATOR",
+            R.string.hash_generator_header,
             windowSizeClass = windowSizeClass
         )
 

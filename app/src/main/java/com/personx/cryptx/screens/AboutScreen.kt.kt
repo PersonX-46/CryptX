@@ -44,6 +44,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
+import com.personx.cryptx.R
 import com.personx.cryptx.components.Header
 import java.util.Calendar
 
@@ -56,7 +57,7 @@ fun AboutCryptXScreen(windowSizeClass: WindowSizeClass) {
 
     Column(modifier = Modifier.fillMaxSize()) {
         // HEADER
-        Header("ABOUT CRYPTX", windowSizeClass = windowSizeClass)
+        Header(R.string.about_header, windowSizeClass = windowSizeClass)
 
         // CONTENT
         Column(

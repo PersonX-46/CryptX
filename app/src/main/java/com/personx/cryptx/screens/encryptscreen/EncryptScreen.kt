@@ -112,7 +112,7 @@ fun EncryptMainScreen(
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Header("ENCRYPTION", windowSizeClass)
+            Header(R.string.encryption_header, windowSizeClass)
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
