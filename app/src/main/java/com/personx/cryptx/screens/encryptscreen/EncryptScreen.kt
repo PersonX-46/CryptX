@@ -172,7 +172,7 @@ fun EncryptMainScreen(
                             items = stringArrayResource(R.array.supported_algorithms_list).toList(),
                             selectedItem = state.selectedAlgorithm,
                             onItemSelected = { viewModel.updateSelectedAlgorithm(it) },
-                            label = "Algorithm",
+                            label = R.string.algorithm,
                             modifier = Modifier.fillMaxWidth()
                         )
 
@@ -183,7 +183,7 @@ fun EncryptMainScreen(
                                 items = state.transformationList,
                                 selectedItem = state.selectedMode,
                                 onItemSelected = { viewModel.updateSelectedMode(it) },
-                                label = "Mode",
+                                label = R.string.mode,
                                 modifier = Modifier.fillMaxWidth()
                             )
 
@@ -193,7 +193,7 @@ fun EncryptMainScreen(
                                 items = state.keySizeList,
                                 selectedItem = state.selectedKeySize.toString(),
                                 onItemSelected = { viewModel.updateSelectedKeySize(it.toInt()) },
-                                label = "Key Size",
+                                label = R.string.key_size,
                                 modifier = Modifier.fillMaxWidth()
                             )
                         }
@@ -211,7 +211,7 @@ fun EncryptMainScreen(
                     ) {
                         Column(modifier = Modifier.padding(12.dp)) {
                             Text(
-                                text = "Input Data",
+                                text = stringResource(R.string.input_data),
                                 style = MaterialTheme.typography.labelMedium.copy(
                                     color = cyberpunkGreen.copy(alpha = 0.8f),
                                     fontFamily = FontFamily.Monospace,
@@ -225,7 +225,7 @@ fun EncryptMainScreen(
                             CyberpunkInputBox(
                                 value = state.inputText,
                                 onValueChange = { viewModel.updateInputText(it) },
-                                placeholder = "Enter text to encrypt...",
+                                placeholder = R.string.enter_text_to_encrypt,
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .height(if (isCompact) 100.dp else 120.dp)
@@ -257,7 +257,7 @@ fun EncryptMainScreen(
                                 keyText = state.keyText,
                                 onKeyTextChange = { viewModel.updateKeyText(it) },
                                 onGenerateKey = { viewModel.generateKey() },
-                                title = "Encryption Key",
+                                title = R.string.encryption_key,
                                 isCompact = isCompact
                             )
 
@@ -268,7 +268,7 @@ fun EncryptMainScreen(
                                     keyText = state.ivText,
                                     onKeyTextChange = { viewModel.updateIVText(it) },
                                     onGenerateKey = { viewModel.generateIV() },
-                                    title = "Initialization Vector (IV)",
+                                    title = R.string.initialization_vector,
                                     isCompact = isCompact
                                 )
                             }
@@ -281,7 +281,7 @@ fun EncryptMainScreen(
                                 modifier = Modifier.fillMaxWidth()
                             ) {
                                 Text(
-                                    text = "Base64 Encoding",
+                                    text = stringResource(R.string.base64_encoding),
                                     style = MaterialTheme.typography.bodyMedium.copy(
                                         fontSize = if (isCompact) MaterialTheme.typography.bodyMedium.fontSize
                                         else MaterialTheme.typography.bodyLarge.fontSize,
@@ -310,7 +310,7 @@ fun EncryptMainScreen(
                         modifier = Modifier.fillMaxWidth(),
                         onClick = { viewModel.encrypt(context) },
                         icon = Icons.Default.Lock,
-                        text = "ENCRYPT",
+                        text = R.string.encrypt,
                         isCompact = isCompact
                     )
 
@@ -331,7 +331,7 @@ fun EncryptMainScreen(
                                 Column(modifier = Modifier.padding(cardPadding)) {
 
                                     CyberpunkOutputSection(
-                                        title = stringResource(R.string.encrypted_output),
+                                        title = R.string.encrypted_output,
                                         output = state.outputText,
                                         onCopy = {
                                             scope.launch {

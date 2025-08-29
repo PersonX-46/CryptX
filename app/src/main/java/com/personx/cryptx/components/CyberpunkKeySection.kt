@@ -1,5 +1,6 @@
 package com.personx.cryptx.components
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -29,7 +30,8 @@ import com.personx.cryptx.R
 @Composable
 fun CyberpunkKeySection(
     modifier: Modifier = Modifier,
-    title: String,
+    @StringRes
+    title: Int,
     keyText: String,
     onKeyTextChange: (String) -> Unit,
     onGenerateKey: () -> Unit,
@@ -56,7 +58,7 @@ fun CyberpunkKeySection(
                 .padding(7.dp)
         ) {
             Text(
-                text = title,
+                text = stringResource(title),
                 style = MaterialTheme.typography.labelSmall.copy(
                     fontFamily = FontFamily.Monospace,
                     color = labelColor,
@@ -88,7 +90,7 @@ fun CyberpunkKeySection(
             CyberpunkInputBox(
                 value = keyText,
                 onValueChange = onKeyTextChange,
-                placeholder = stringResource(R.string.enter_encryption_key),
+                placeholder = R.string.enter_encryption_key,
                 modifier = Modifier.weight(1f),
                 trailingIcon = {
 
@@ -102,7 +104,7 @@ fun CyberpunkKeySection(
                 isActive = isGenActive,
                 onClick = onGenerateKey,
                 icon = Icons.Default.Refresh,
-                text = if (isCompact) "GEN" else "GENERATE",
+                text = if (isCompact) R.string.cyberpunk_key_section_compact else R.string.cyberpunk_key_section,
                 isCompact = isCompact
             )
         }

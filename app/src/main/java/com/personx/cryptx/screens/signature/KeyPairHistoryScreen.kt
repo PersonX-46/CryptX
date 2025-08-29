@@ -14,6 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.personx.cryptx.R
@@ -53,7 +54,7 @@ fun KeyPairHistoryScreen(
                 onValueChange = { query: String ->
                     viewModel.updateSearchQuery(query)
                 },
-                placeholder = "Search history with name...",
+                placeholder = R.string.search_history_with_name,
             )
             KeyPairHistoryScreen(
                 history = viewModel.filteredHistory.value,

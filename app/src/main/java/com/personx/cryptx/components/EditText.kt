@@ -1,5 +1,6 @@
 package com.personx.cryptx.components
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -12,6 +13,7 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
@@ -22,7 +24,8 @@ fun CyberpunkInputBox(
     modifier: Modifier = Modifier,
     value: String,
     onValueChange: (String) -> Unit,
-    placeholder: String,
+    @StringRes
+    placeholder: Int,
     trailingIcon: @Composable () -> Unit= {},
 ) {
     Box(
@@ -47,7 +50,7 @@ fun CyberpunkInputBox(
             ),
             placeholder = {
                 Text(
-                    text = placeholder,
+                    text = stringResource(placeholder),
                     style = TextStyle(
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
                         fontFamily = FontFamily.Monospace

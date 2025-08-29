@@ -51,6 +51,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -135,7 +136,7 @@ fun SignatureToolScreen(
                 items = listOf("SIGN", "VERIFY", "GENERATE"),
                 selectedItem = state.mode,
                 onItemSelected = { viewModel.setMode(it) },
-                label = "Select Mode"
+                label = R.string.select_mode
             )
 
             if (state.mode.lowercase() == "verify" || state.mode.lowercase() == "sign") {
@@ -143,7 +144,7 @@ fun SignatureToolScreen(
 
                 // Key file
                 CyberpunkButton(
-                    text = "SELECT ${state.keyLabel.uppercase()} KEY FILE",
+                    text = stringResource(R.string.select_key_file, state.keyLabel.uppercase()),
                     onClick = { keyPicker.launch(arrayOf("*/*")) },
                     modifier = Modifier.fillMaxWidth(),
                     icon = Icons.Default.FileCopy
@@ -164,7 +165,7 @@ fun SignatureToolScreen(
                 if (state.mode.lowercase() == "verify"){
                     Spacer(Modifier.height(16.dp))
                     CyberpunkButton(
-                        text = "SELECT SIGNATURE FILE",
+                        text = stringResource(R.string.select_signature_file),
                         onClick = {
                             signaturePicker.launch(arrayOf("*/*"))
                                   },
@@ -189,7 +190,7 @@ fun SignatureToolScreen(
 
                 // Target file
                 CyberpunkButton(
-                    text = "SELECT FILE TO ${state.mode.uppercase()}",
+                    text = stringResource(R.string.select_file_to, state.mode.uppercase()),
                     onClick = { targetPicker.launch(arrayOf("*/*")) },
                     modifier = Modifier.fillMaxWidth(),
                     icon = Icons.Default.AttachFile
@@ -213,9 +214,9 @@ fun SignatureToolScreen(
                 Spacer(Modifier.height(24.dp))
 
                 // Key Preview
-                Text("KEY DATASTREAM:", color = cyberGreen, fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                Text(stringResource(R.string.key_datastream), color = cyberGreen, fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold, fontSize = 13.sp)
                 ReusableOutputBox(
-                    content = state.keyPreview.ifBlank { "NO KEY DATA DETECTED" },
+                    content = state.keyPreview.ifBlank { stringResource(R.string.no_key_data_detected) },
                     windowSizeClass = windowSizeClass,
                 )
 
@@ -223,7 +224,7 @@ fun SignatureToolScreen(
 
                 // Execute signing/verifying
                 CyberpunkButton(
-                    text = "EXECUTE ${state.mode.uppercase()} SEQUENCE",
+                    text = stringResource(R.string.execute_sequence, state.mode.uppercase()),
                     onClick = {
                         viewModel.startAction()
                     },
@@ -280,7 +281,7 @@ fun SignatureToolScreen(
                 Spacer(Modifier.height(16.dp))
 
                 // PRIVATE KEY OUTPUT
-                Text("PRIVATE KEY:", color = cyberGreen, fontSize = 13.sp, fontFamily = FontFamily.Monospace, fontWeight = FontWeight.SemiBold)
+                Text(stringResource(R.string.private_key), color = cyberGreen, fontSize = 13.sp, fontFamily = FontFamily.Monospace, fontWeight = FontWeight.SemiBold)
                 ReusableOutputBox(
                     content = state.generatedPrivateKey.ifBlank { "NOT GENERATED" },
                     windowSizeClass = windowSizeClass,
@@ -289,7 +290,7 @@ fun SignatureToolScreen(
                 Spacer(Modifier.height(16.dp))
 
                 // PUBLIC KEY OUTPUT
-                Text("PUBLIC KEY:", color = cyberGreen, fontSize = 13.sp, fontFamily = FontFamily.Monospace, fontWeight = FontWeight.SemiBold)
+                Text(stringResource(R.string.public_key), color = cyberGreen, fontSize = 13.sp, fontFamily = FontFamily.Monospace, fontWeight = FontWeight.SemiBold)
                 ReusableOutputBox(
                     content = state.generatedPublicKey.ifBlank { "NOT GENERATED" },
                     windowSizeClass = windowSizeClass,
@@ -299,7 +300,7 @@ fun SignatureToolScreen(
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     CyberpunkButton(
-                        text = "GEN",
+                        text = stringResource(R.string.gen),
                         onClick = { viewModel.generateKeyPair() },
                         modifier = Modifier
                             .fillMaxWidth()
@@ -308,7 +309,7 @@ fun SignatureToolScreen(
                         isActive = !state.loading
                     )
                     CyberpunkButton(
-                        text = "SAVE",
+                        text = stringResource(R.string.save),
                         onClick = {
                             viewModel.saveGeneratedKeyPair()
                             Toast.makeText(context, "Key pair saved!", Toast.LENGTH_SHORT).show()
@@ -320,7 +321,7 @@ fun SignatureToolScreen(
                         isActive = !state.loading,
                     )
                     CyberpunkButton(
-                        text = "Export",
+                        text = stringResource(R.string.export),
                         onClick = {
                             // Call your export logic, example:
                             viewModel.exportKeypairs(state.title)
@@ -380,7 +381,7 @@ fun ExportKeyDialog(
                 .padding(24.dp)
         ) {
             Text(
-                "EXPORT KEY FILE",
+                stringResource(R.string.export_key_file),
                 style = MaterialTheme.typography.headlineSmall.copy(
                     color = MaterialTheme.colorScheme.onSurface,
                     fontFamily = FontFamily.Monospace,
@@ -396,7 +397,7 @@ fun ExportKeyDialog(
                     onKeyNameChange(it)
                     error = null
                 },
-                label = { Text("Enter File Name") },
+                label = { Text(stringResource(R.string.enter_file_name)) },
                 singleLine = true,
                 isError = error != null,
                 modifier = Modifier.fillMaxWidth(),
@@ -436,7 +437,8 @@ fun ExportKeyDialog(
                         contentColor = MaterialTheme.colorScheme.onSurface
                     )
                 ) {
-                    Text("CANCEL",
+                    Text(
+                        stringResource(R.string.cancel),
                         style = MaterialTheme.typography.labelLarge.copy(
                             fontFamily = FontFamily.Monospace
                         )
@@ -454,7 +456,7 @@ fun ExportKeyDialog(
                         }
                     },
                     icon = Icons.Default.CloudUpload,
-                    text = "EXPORT"
+                    text = R.string.export
                 )
             }
         }

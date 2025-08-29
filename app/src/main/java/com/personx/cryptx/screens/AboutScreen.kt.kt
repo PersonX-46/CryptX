@@ -38,6 +38,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
@@ -92,7 +93,7 @@ fun AboutCryptXScreen(windowSizeClass: WindowSizeClass) {
                     )
                     Spacer(modifier = Modifier.height(6.dp))
                     Text(
-                        "Lightweight vault for encrypted notes, hidden files, and hash tools.",
+                        stringResource(R.string.lightweight_vault_for_encrypted_notes_hidden_files_and_hash_tools),
                         color = cybergreen,
                         fontFamily = FontFamily.Monospace,
                         fontSize = 13.sp
@@ -103,10 +104,14 @@ fun AboutCryptXScreen(windowSizeClass: WindowSizeClass) {
 // Features
             SectionTitle("> FEATURES", cybergreen)
             Column {
-                FeatureItem(Icons.Default.Lock, "AES Text Encryption", cybergreen)
-                FeatureItem(Icons.Default.Image, "LSB Image Steganography", cybergreen)
-                FeatureItem(Icons.Default.Fingerprint, "Hash Generator & Detector", cybergreen)
-                FeatureItem(Icons.Default.Security, "100% Offline, No Cloud", cybergreen)
+                FeatureItem(Icons.Default.Lock,
+                    stringResource(R.string.aes_text_encryption), cybergreen)
+                FeatureItem(Icons.Default.Image,
+                    stringResource(R.string.lsb_image_steganography), cybergreen)
+                FeatureItem(Icons.Default.Fingerprint,
+                    stringResource(R.string.hash_generator_detector), cybergreen)
+                FeatureItem(Icons.Default.Security,
+                    stringResource(R.string._100_offline_no_cloud), cybergreen)
             }
 
             DividerLine(cybergreen)
@@ -126,7 +131,7 @@ fun AboutCryptXScreen(windowSizeClass: WindowSizeClass) {
             SectionTitle("> LEGAL", cybergreen)
             Text("© ${Calendar.getInstance().get(Calendar.YEAR)} CryptX", color = cybergreen, fontFamily = FontFamily.Monospace, fontSize = 13.sp, modifier = Modifier.padding(bottom = 16.dp))
             ClickableLink(
-                label = "View Licenses",
+                label = stringResource(R.string.view_licenses),
                 url = "https://opensource.org/licenses",
                 color = cybergreen,
                 icon = Icons.Default.Description
@@ -135,15 +140,15 @@ fun AboutCryptXScreen(windowSizeClass: WindowSizeClass) {
             DividerLine(cybergreen)
 
             // Developer
-            SectionTitle("> DEVELOPER", cybergreen)
-            Text("Built with care by personx", color = cybergreen, fontSize = 13.sp, fontFamily = FontFamily.Monospace)
+            SectionTitle(stringResource(R.string.developer), cybergreen)
+            Text(stringResource(R.string.built_with_care_by_personx), color = cybergreen, fontSize = 13.sp, fontFamily = FontFamily.Monospace)
 
             DividerLine(cybergreen)
 
             // Source Code
-            SectionTitle("> SOURCE CODE", cybergreen)
+            SectionTitle(stringResource(R.string.source_code), cybergreen)
             ClickableLink(
-                label = "GitHub Repository",
+                label = stringResource(R.string.github_repository),
                 url = "https://github.com/PersonX-46/CryptX",
                 color = cybergreen,
                 icon = Icons.Default.Code
@@ -152,7 +157,7 @@ fun AboutCryptXScreen(windowSizeClass: WindowSizeClass) {
             DividerLine(cybergreen)
 
             // Contact
-            SectionTitle("> CONTACT", cybergreen)
+            SectionTitle(stringResource(R.string.contact), cybergreen)
             ClickableLink(
                 label = "thelonewolf06@proton.me",
                 url = "mailto:thelonewolf06@proton.me",

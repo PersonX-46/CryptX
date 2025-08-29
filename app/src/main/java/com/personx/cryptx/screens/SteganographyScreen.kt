@@ -140,14 +140,14 @@ fun SteganographyScreen(
                 ) {
                     CyberpunkButton(
                         onClick = { viewModel.updateIsEncoding(true) },
-                        text = stringResource(R.string.hide),
+                        text = R.string.hide,
                         icon = Icons.Default.Lock,
                         isActive = !state.isEncoding
                     )
 
                     CyberpunkButton(
                         onClick = { viewModel.toggleMode() },
-                        text = stringResource(R.string.extract),
+                        text = R.string.extract,
                         icon = Icons.Default.LockOpen,
                         isActive = state.isEncoding
                     )
@@ -227,8 +227,8 @@ fun SteganographyScreen(
                             Text(
                                 modifier = Modifier.padding(3.dp),
                                 text = state.secretFile?.let {
-                                    "File: ${state.secretFileName}"
-                                } ?: "Select any file",
+                                    stringResource(R.string.file, state.secretFileName)
+                                } ?: stringResource(R.string.select_any_file),
                                 fontFamily = FontFamily.Monospace,
                                 color = cyberpunkGreen,
                                 textAlign = TextAlign.Center
@@ -238,7 +238,7 @@ fun SteganographyScreen(
                     if (state.secretFile != null) {
                         Text(
                             modifier = Modifier.fillMaxWidth(),
-                            text = "Selected File Details",
+                            text = stringResource(R.string.selected_file_details),
                             style = MaterialTheme.typography.titleMedium.copy(
                                 fontFamily = FontFamily.Monospace,
                                 color = cyberpunkGreen
@@ -248,8 +248,11 @@ fun SteganographyScreen(
                         )
                         Text(
                             modifier = Modifier.fillMaxWidth(),
-                            text = "Cover Image Size: ${viewModel.getCoverImageCapacity()} bytes" +
-                                    "\nSecret File Size: ${viewModel.getFileAndMetaSize()} bytes",
+                            text = stringResource(
+                                R.string.cover_image_size_bytes_secret_file_size_bytes,
+                                viewModel.getCoverImageCapacity(),
+                                viewModel.getFileAndMetaSize()
+                            ),
                             fontFamily = FontFamily.Monospace,
                             color = cyberpunkGreen,
                             textAlign = TextAlign.Center
@@ -263,7 +266,7 @@ fun SteganographyScreen(
                         CyberpunkButton(
                             modifier = Modifier.fillMaxWidth(),
                             onClick = { viewModel.processSteganography() },
-                            text =  stringResource(R.string.hide_file),
+                            text =  R.string.hide_file,
                             icon = Icons.Default.Lock,
                             isActive = !state.isLoading
                         )
@@ -272,7 +275,7 @@ fun SteganographyScreen(
                     CyberpunkButton(
                         modifier = Modifier.fillMaxWidth(),
                         onClick = { viewModel.processSteganography() },
-                        text =  stringResource(R.string.extract_file),
+                        text =  R.string.extract_file,
                         icon = Icons.Default.LockOpen,
                         isActive = !state.isLoading
                     )
@@ -305,7 +308,7 @@ fun SteganographyScreen(
 
                         CyberpunkButton(
                             onClick = { viewModel.saveImage() },
-                            text = stringResource(R.string.save_image),
+                            text = R.string.save_image,
                             icon = Icons.Default.Save,
                             modifier = Modifier.align(Alignment.CenterHorizontally),
                         )
@@ -314,7 +317,7 @@ fun SteganographyScreen(
                     state.extractedFile?.let { (fileName, _) ->
                         Text(
                             modifier = Modifier.fillMaxWidth(),
-                            text = "Extracted file",
+                            text = stringResource(R.string.extracted_file),
                             style = MaterialTheme.typography.titleLarge.copy(
                                 fontFamily = FontFamily.Monospace,
                                 color = cyberpunkGreen
@@ -335,7 +338,7 @@ fun SteganographyScreen(
 
                         CyberpunkButton(
                             onClick = { viewModel.saveExtractedFile() },
-                            text = stringResource(R.string.save_file),
+                            text = R.string.save_file,
                             icon = Icons.Default.Save,
                             modifier = Modifier.align(Alignment.CenterHorizontally),
                         )

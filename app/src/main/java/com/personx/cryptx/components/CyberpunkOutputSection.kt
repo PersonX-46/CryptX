@@ -1,5 +1,6 @@
 package com.personx.cryptx.components
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -33,7 +34,8 @@ import com.personx.cryptx.R
 
 @Composable
 fun CyberpunkOutputSection(
-    title: String,
+    @StringRes
+    title: Int,
     output: String,
     onCopy: () -> Unit,
     onSave: () -> Unit,
@@ -60,7 +62,7 @@ fun CyberpunkOutputSection(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                text = title,
+                text = stringResource(title),
                 style = MaterialTheme.typography.run {
                     if (isCompact) titleMedium else titleLarge
                 }.copy(
@@ -71,7 +73,7 @@ fun CyberpunkOutputSection(
 
             if (showLength && output.isNotEmpty()) {
                 Text(
-                    text = "${output.length} chars",
+                    text = stringResource(R.string.chars_amount, output.length),
                     style = MaterialTheme.typography.labelSmall.copy(
                         fontFamily = FontFamily.Monospace,
                         color = cyberpunkGreen.copy(alpha = 0.6f)
@@ -143,7 +145,7 @@ fun CyberpunkOutputSection(
                     CyberpunkButton(
                         onClick = onCopy,
                         icon = Icons.Default.ContentCopy,
-                        text = stringResource(R.string.copy_output),
+                        text = R.string.copy_output,
                         isCompact = isCompact,
                         modifier = Modifier.weight(1f)
                     )
@@ -154,8 +156,7 @@ fun CyberpunkOutputSection(
                 CyberpunkButton(
                     onClick = onSave,
                     icon = Icons.Default.Save,
-                    text = if (isCompact) ("SAVE")
-                    else stringResource(R.string.save_output),
+                    text = R.string.save_output,
                     isCompact = isCompact,
                     modifier = if (isCompact) Modifier else Modifier.weight(1f)
                 )

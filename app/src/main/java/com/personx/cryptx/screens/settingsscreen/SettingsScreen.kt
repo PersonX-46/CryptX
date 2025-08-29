@@ -7,6 +7,7 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
+import androidx.annotation.StringRes
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -67,6 +68,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -159,7 +161,7 @@ fun SettingsScreen(
                 Row(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    CyberpunkSectionTitle("SECURITY PROTOCOLS", cyberGreen)
+                    CyberpunkSectionTitle(R.string.security_protocols, cyberGreen)
                     if (state.isLoading) {
 
                         CircularProgressIndicator(
@@ -171,24 +173,24 @@ fun SettingsScreen(
 
                 CyberpunkSettingCard(
                     icon = Icons.Default.Lock,
-                    title = "Change Security PIN",
-                    description = "Update your encryption access code",
+                    title = R.string.change_security_pin,
+                    description = R.string.update_your_encryption_access_code,
                     accentColor = cyberGreen,
                     onClick = { viewModel.updateShowPinDialog(true) }
                 )
 
                 CyberpunkSettingCard(
                     icon = Icons.Default.CloudUpload,
-                    title = "Backup Database",
-                    description = "Create secure backup of encrypted data",
+                    title = R.string.backup_database,
+                    description = R.string.create_secure_backup_of_encrypted_data,
                     accentColor = cyberGreen,
                     onClick = { viewModel.updateShowExportDialog(true) }
                 )
 
                 CyberpunkSettingCard(
                     icon = Icons.Default.CloudDownload,
-                    title = "Restore Database",
-                    description = "Recover from previous backup",
+                    title = R.string.restore_database,
+                    description = R.string.recover_from_previous_backup,
                     accentColor = cyberGreen,
                     onClick = { viewModel.updateShowImportDialog(true) }
                 )
@@ -196,20 +198,20 @@ fun SettingsScreen(
                 Spacer(modifier = Modifier.height(spacing))
 
                 // === APP CONFIG ===
-                CyberpunkSectionTitle("APPLICATION CONFIG", cyberGreen)
+                CyberpunkSectionTitle(R.string.application_config, cyberGreen)
 
                 CyberpunkSettingCard(
                     icon = Icons.Default.Notifications,
-                    title = "Base64 by Default",
-                    description = "Use Base64 encoding for all data",
+                    title = R.string.base64_by_default,
+                    description = R.string.use_base64_encoding_for_all_data,
                     accentColor = cyberGreen,
                     onClick = { viewModel.updateShowBase64(true) }
                 )
 
                 CyberpunkSettingCard(
                     icon = Icons.Default.Notifications,
-                    title = "Hide Plaintext",
-                    description = "Hide plaintext in encrypted history",
+                    title = R.string.hide_plaintext,
+                    description = R.string.hide_plaintext_in_encrypted_history,
                     accentColor = cyberGreen,
                     onClick = { viewModel.updateShowHidePlainTextDialog(true) }
                 )
@@ -217,12 +219,12 @@ fun SettingsScreen(
                 Spacer(modifier = Modifier.height(spacing))
 
                 // === ADVANCED ===
-                CyberpunkSectionTitle("OTHER SETTINGS", cyberGreen)
+                CyberpunkSectionTitle(R.string.other_settings, cyberGreen)
 
                 CyberpunkSettingCard(
                     icon = Icons.Default.Info,
-                    title = "About CryptX",
-                    description = "Version $versionName | Build $versionCode",
+                    title = R.string.about_cryptx,
+                    description = stringResource(R.string.version_build, versionName, versionCode),
                     accentColor = cyberGreen,
                     onClick = { navController.navigate("about") }
                 )
@@ -279,8 +281,8 @@ fun SettingsScreen(
 
             if (state.showBase64) {
                 Base64Dialog(
-                    title = "Base64 by Default",
-                    value = "Base64 by Default",
+                    title = R.string.base64_by_default,
+                    value = stringResource(R.string.base64_by_default),
                     switchValue = prefs.showBase64,
                     windowSizeClass,
                     onDismiss = {
@@ -296,8 +298,8 @@ fun SettingsScreen(
 
             if (state.hideShowPlainText) {
                 Base64Dialog(
-                    title = "Hide Plaintext",
-                    value = "Hide Plaintext",
+                    title = R.string.hide_plaintext,
+                    value = stringResource(R.string.hide_plaintext),
                     switchValue = prefs.hidePlainTextInEncryptedHistory,
                     windowSizeClass,
                     onDismiss = {
@@ -315,10 +317,10 @@ fun SettingsScreen(
 }
 
 @Composable
-fun CyberpunkSectionTitle(title: String, color: Color, modifier: Modifier = Modifier, fontSize: TextUnit = 16.sp) {
+fun CyberpunkSectionTitle(@StringRes title: Int, color: Color, modifier: Modifier = Modifier, fontSize: TextUnit = 16.sp) {
     Text(
         modifier = modifier.padding(bottom = 8.dp),
-        text = title,
+        text = stringResource(title),
         style = MaterialTheme.typography.titleSmall.copy(
             color = color,
             fontFamily = FontFamily.Monospace,
@@ -332,7 +334,24 @@ fun CyberpunkSectionTitle(title: String, color: Color, modifier: Modifier = Modi
 @Composable
 private fun CyberpunkSettingCard(
     icon: ImageVector,
-    title: String,
+    @StringRes title: Int,
+    @StringRes description: Int,
+    accentColor: Color,
+    onClick: () -> Unit
+) {
+    CyberpunkSettingCard(
+        icon = icon,
+        title = title,
+        description = stringResource(description),
+        accentColor = accentColor,
+        onClick = onClick
+    )
+}
+
+@Composable
+private fun CyberpunkSettingCard(
+    icon: ImageVector,
+    @StringRes title: Int,
     description: String,
     accentColor: Color,
     onClick: () -> Unit
@@ -370,7 +389,7 @@ private fun CyberpunkSettingCard(
 
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = title,
+                    text = stringResource(title),
                     style = MaterialTheme.typography.bodyLarge.copy(
                         color = MaterialTheme.colorScheme.onSurface,
                         fontFamily = FontFamily.Monospace
@@ -418,7 +437,7 @@ fun ChangePinDialog(
                     .padding(24.dp)
             ) {
                 Text(
-                    "CHANGE SECURITY PIN",
+                    stringResource(R.string.change_security_pin).uppercase(),
                     style = MaterialTheme.typography.headlineSmall.copy(
                         color = MaterialTheme.colorScheme.onSurface,
                         fontFamily = FontFamily.Monospace,
@@ -432,7 +451,7 @@ fun ChangePinDialog(
                     isPin = true,
                     value = state.value.currentPin?: "",
                     onValueChange = { viewModel.updateCurrentPin(it) },
-                    label = "Current PIN",
+                    label = R.string.current_pin,
                     modifier = Modifier.fillMaxWidth()
                 )
 
@@ -442,7 +461,7 @@ fun ChangePinDialog(
                     isPin = true,
                     value = state.value.newPin?: "",
                     onValueChange = { viewModel.updateNewPin(it) },
-                    label = "New PIN",
+                    label = R.string.new_pin,
                     modifier = Modifier.fillMaxWidth()
                 )
 
@@ -452,7 +471,7 @@ fun ChangePinDialog(
                     isPin = true,
                     value = state.value.confirmPin?: "",
                     onValueChange = { viewModel.updateConfirmPin(it) },
-                    label = "Confirm PIN",
+                    label = R.string.confirm_pin,
                     modifier = Modifier.fillMaxWidth()
                 )
 
@@ -468,7 +487,8 @@ fun ChangePinDialog(
                             contentColor = MaterialTheme.colorScheme.onSurface
                         ),
                     ) {
-                        Text("CANCEL",
+                        Text(
+                            stringResource(R.string.cancel),
                             style = MaterialTheme.typography.labelLarge.copy(
                                 fontFamily = FontFamily.Monospace,
                             )
@@ -499,7 +519,7 @@ fun ChangePinDialog(
                         }
                     },
                     icon = Icons.Default.LockReset,
-                    text = "CONFIRM",
+                    text = R.string.confirm,
                 )
             }
         }
@@ -508,7 +528,7 @@ fun ChangePinDialog(
 
 @Composable
 fun Base64Dialog(
-    title: String,
+    @StringRes title: Int,
     value: String,
     switchValue: Boolean,
     windowSizeClass: WindowSizeClass,
@@ -533,7 +553,7 @@ fun Base64Dialog(
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             Text(
-                title,
+                stringResource(title),
                 style = MaterialTheme.typography.headlineSmall.copy(
                     color = MaterialTheme.colorScheme.onSurface,
                     fontFamily = FontFamily.Monospace,
@@ -592,7 +612,7 @@ fun Base64Dialog(
                         onConfirm(isChecked.value)
                     },
                     icon = Icons.Default.Save,
-                    text = "SAVE",
+                    text = R.string.save_output,
                 )
             }
         }
@@ -605,7 +625,7 @@ fun CyberpunkPinField(
     value: String,
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
-    label: String = if (isPin) "Enter PIN" else "Enter Passphrase"
+    @StringRes label: Int
 ) {
     val cybergreen = MaterialTheme.colorScheme.onSurface
     var isPasswordVisible by remember { mutableStateOf(false) }
@@ -625,7 +645,7 @@ fun CyberpunkPinField(
             val filtered = if (isPin) it.filter { c -> c.isDigit() } else it
             if (filtered.length <= maxLength) onValueChange(filtered)
         },
-        label = { Text(text = label, fontFamily = FontFamily.Monospace) },
+        label = { Text(text = stringResource(label), fontFamily = FontFamily.Monospace) },
         visualTransformation = visualTransformation,
         singleLine = true,
         keyboardOptions = KeyboardOptions(
@@ -671,7 +691,7 @@ fun ExportBackupDialog(
                 .padding(24.dp)
         ) {
             Text(
-                "EXPORT BACKUP",
+                stringResource(R.string.export_backup),
                 style = MaterialTheme.typography.headlineSmall.copy(
                     color = MaterialTheme.colorScheme.onSurface,
                     fontFamily = FontFamily.Monospace,
@@ -685,7 +705,7 @@ fun ExportBackupDialog(
                 isPin = false,
                 value = passwordInput.value,
                 onValueChange = { passwordInput.value = it },
-                label = "Passphrase",
+                label = R.string.passphrase,
                 modifier = Modifier.fillMaxWidth()
             )
 
@@ -716,7 +736,7 @@ fun ExportBackupDialog(
                         }
                     },
                     icon = Icons.Default.CloudUpload,
-                    text = "EXPORT",
+                    text = R.string.export,
                 )
             }
         }
@@ -758,7 +778,7 @@ fun ImportBackupDialog(
                 isPin = false,
                 value = passwordInput.value,
                 onValueChange = { passwordInput.value = it },
-                label = "Passphrase",
+                label = R.string.passphrase,
                 modifier = Modifier.fillMaxWidth()
             )
 
@@ -767,7 +787,7 @@ fun ImportBackupDialog(
             CyberpunkButton(
                 onClick = launchFilePicker,
                 icon = Icons.Default.FolderOpen,
-                text = selectedFileName ?: "Select Backup File",
+                text = selectedFileName ?: stringResource(R.string.select_backup_file),
             )
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -782,7 +802,7 @@ fun ImportBackupDialog(
                         contentColor = MaterialTheme.colorScheme.onSurface
                     )
                 ) {
-                    Text("CANCEL", style = MaterialTheme.typography.labelLarge.copy(fontFamily = FontFamily.Monospace))
+                    Text(stringResource(R.string.cancel), style = MaterialTheme.typography.labelLarge.copy(fontFamily = FontFamily.Monospace))
                 }
 
                 Spacer(modifier = Modifier.width(16.dp))
@@ -797,7 +817,7 @@ fun ImportBackupDialog(
                         }
                     },
                     icon = Icons.Default.CloudDownload,
-                    text = "IMPORT",
+                    text = R.string.import2,
                 )
             }
         }

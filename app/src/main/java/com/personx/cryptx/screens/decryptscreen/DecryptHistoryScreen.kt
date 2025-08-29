@@ -12,6 +12,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.room.util.TableInfo
@@ -31,6 +32,8 @@ fun DecryptHistoryScreen(
 ) {
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
+
+    val msg =  stringResource(R.string.history_deleted)
 
     Column {
         Header(R.string.decryption_history_header, windowSizeClass)
@@ -52,7 +55,7 @@ fun DecryptHistoryScreen(
                 onValueChange = { query: String ->
                     viewModel.updateSearchQuery(query)
                 },
-                placeholder = "Search history with name...",
+                placeholder = R.string.search_history,
             )
             HistoryScreen(
                 history = viewModel.filteredHistory.value,
@@ -107,7 +110,7 @@ fun DecryptHistoryScreen(
                                     }
                                     Toast.makeText(
                                         context,
-                                        "History deleted!",
+                                        msg,
                                         Toast.LENGTH_SHORT
                                     ).show()
                                     viewModel.prepareItemToDelete(null)

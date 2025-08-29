@@ -57,7 +57,7 @@ fun EncryptHistoryScreen(
                 onValueChange = { query: String ->
                     viewModel.updateSearchQuery(query)
                 },
-                placeholder = "Search history with name...",
+                placeholder = R.string.search_history,
             )
             HistoryScreen(
                 history = viewModel.filteredHistory.value,
