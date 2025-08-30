@@ -16,6 +16,7 @@ import kotlinx.coroutines.launch
  * to securely store the PIN once it is confirmed.
  */
 class PassphraseSetupViewModel(
+    private val repository: PassphraseSetupRepository,
     private val pinCryptoManager: PinCryptoManager // keep your existing manager for now
 ) : ViewModel() {
 
@@ -63,8 +64,10 @@ class PassphraseSetupViewModel(
                                 _state.value = _state.value.copy(
                                     isLoading = false,
                                     isCompleted = false,
-                                    error = "Failed to store passphrase"
+                                    error = "Failed to store passphrase: ${e.message}",
                                 )
+                            } finally {
+                                repository.createVault()
                             }
                         }
                     } else {

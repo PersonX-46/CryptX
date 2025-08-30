@@ -54,8 +54,21 @@ class SignatureToolViewModel(
     }
 
     fun refreshKeyPairHistory() {
-        getAllKeyPairs()
+        viewModelScope.launch {
+            try {
+                ensureDatabase()?.keyPairDao()?.getAllPairs()?.collect { historyList ->
+                    Log.d("KEYPAIR_DB", "History loaded: ${historyList.size} items")
+                    _keyPairHistoryList.value = historyList
+                }
+            } catch (e: Exception) {
+                Log.e("KEYPAIR_DB", "Failed to refresh: ${e.message}")
+                _keyPairHistoryList.value = emptyList()
+            } finally {
+                DatabaseProvider.clearDatabaseInstance()
+            }
+        }
     }
+
 
     private fun getAllKeyPairs() {
         viewModelScope.launch {

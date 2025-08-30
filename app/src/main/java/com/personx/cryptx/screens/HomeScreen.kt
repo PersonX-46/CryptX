@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -24,6 +25,7 @@ import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.LockOpen
 import androidx.compose.material.icons.filled.MoreHoriz
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material.icons.filled.VpnKey
@@ -114,6 +116,50 @@ fun HomeScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top
         ) {
+
+            Spacer(Modifier.height(spacing))
+            CyberpunkSectionTitle(
+                "FILE ENCRYPTION VAULT", cyberGreen,
+                modifier = Modifier.fillMaxWidth()
+                    .padding(horizontal = padding)
+                    .align(Alignment.Start)
+            )
+
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = padding)
+                    .clickable { navController.navigate("file_vault") },
+                colors = CardDefaults.cardColors(containerColor = Color.Black),
+                border = BorderStroke(1.dp, cyberGreen.copy(alpha = 0.5f)),
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Security,
+                        contentDescription = "Vault",
+                        tint = cyberGreen,
+                        modifier = Modifier.size(28.dp)
+                    )
+
+                    Spacer(Modifier.width(12.dp))
+
+                    Text(
+                        text = "File Vault (WIP)",
+                        style = MaterialTheme.typography.bodyLarge.copy(
+                            color = cyberGreen,
+                            fontFamily = FontFamily.Monospace
+                        )
+                    )
+                }
+            }
+
             Spacer(Modifier.height(spacing))
             CyberpunkSectionTitle(
                 R.string.cryptography_tools,

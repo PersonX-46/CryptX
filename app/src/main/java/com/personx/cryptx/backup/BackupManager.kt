@@ -2,6 +2,7 @@ package com.personx.cryptx.backup
 
 import android.content.Context
 import android.os.Build
+import android.provider.Settings
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.content.edit
@@ -10,15 +11,23 @@ import com.personx.cryptx.database.encryption.DatabaseProvider
 import kotlinx.coroutines.delay
 import net.zetetic.database.sqlcipher.SQLiteDatabase
 import org.json.JSONObject
+import java.io.BufferedInputStream
+import java.io.BufferedOutputStream
 import java.io.File
+import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.IOException
+import java.io.InputStream
+import java.io.OutputStream
 import java.io.RandomAccessFile
 import java.security.SecureRandom
 import java.util.zip.ZipEntry
 import java.util.zip.ZipFile
+import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
 import javax.crypto.Cipher
+import javax.crypto.CipherInputStream
+import javax.crypto.CipherOutputStream
 import javax.crypto.Mac
 import javax.crypto.SecretKey
 import javax.crypto.SecretKeyFactory
@@ -26,6 +35,7 @@ import javax.crypto.spec.GCMParameterSpec
 import javax.crypto.spec.PBEKeySpec
 import javax.crypto.spec.SecretKeySpec
 import javax.security.auth.Destroyable
+import kotlin.math.cos
 
 @RequiresApi(Build.VERSION_CODES.O)
 object BackupManager {
@@ -42,6 +52,108 @@ object BackupManager {
     private const val PBKDF2_ITERATIONS = 310_000
     private const val SALT_LENGTH = 16
     private const val IV_LENGTH = 12
+
+    private const val VAULT_DIR_NAME = "vault"
+    private const val VAULT_FILE = "vault.enc"
+    private const val VAULT_ZIP_TEMP_FILE = "vault.zip"
+    private const val backupFormatVersion = 3 // only version 3 includes vault
+
+    private fun zipDirectory(sourceDir: File, out: OutputStream) {
+        ZipOutputStream(BufferedOutputStream(out)).use { zip ->
+            fun addFile(base: File, file: File) {
+                val relPath = base.toURI().relativize(file.toURI()).path
+
+                if (relPath.isNotEmpty()) {
+                    if (file.isDirectory) {
+                        val entryName = if (relPath.endsWith("/")) relPath else "$relPath/"
+                        zip.putNextEntry(ZipEntry(entryName))
+                        zip.closeEntry()
+                    } else {
+                        zip.putNextEntry(ZipEntry(relPath))
+                        file.inputStream().use { it.copyTo(zip) }
+                        zip.closeEntry()
+                    }
+                }
+
+                // Always recurse into directories (but do not re-add them again)
+                if (file.isDirectory) {
+                    file.listFiles()?.forEach { addFile(base, it) }
+                }
+            }
+
+            if (sourceDir.exists()) {
+                addFile(sourceDir, sourceDir)
+            }
+        }
+    }
+
+
+    private fun unzipInto(input: InputStream, targetDir: File) {
+        ZipInputStream(BufferedInputStream(input)).use { zip ->
+            var entry: ZipEntry?
+            while (zip.nextEntry.also { entry = it } != null) {
+                val safeName = entry!!.name.removePrefix("/")
+                if (safeName.isBlank()) {
+                    zip.closeEntry()
+                    continue
+                }
+                val outFile = File(targetDir, safeName)
+                if (!outFile.canonicalPath.startsWith(targetDir.canonicalPath))
+                    throw IOException("Unsafe zip entry: ${entry!!.name}")
+                if (entry!!.isDirectory) {
+                    outFile.mkdirs()
+                } else {
+                    outFile.parentFile?.mkdirs()
+                    outFile.outputStream().use { output ->
+                        zip.copyTo(output)
+                    }
+                }
+                zip.closeEntry()
+            }
+        }
+    }
+
+    private fun deleteRecursively(file: File) {
+        if (!file.exists()) return
+        file.walkBottomUp().forEach { file ->
+            if (file.isFile) secureDelete(file) else file.delete()
+        }
+        file.delete()
+    }
+
+    private fun encryptFileGcmStreaming(plainFile: File, outFile: File, key: SecretKey) {
+        val iv = ByteArray(IV_LENGTH).apply { SecureRandom().nextBytes(this) }
+        FileOutputStream(outFile).use { fout ->
+            fout.write(iv)
+            val cipher = Cipher.getInstance(TRANSFORMATION).apply {
+                init(Cipher.ENCRYPT_MODE, key, GCMParameterSpec(128, iv))
+            }
+            CipherOutputStream(fout, cipher).use { cos ->
+                FileInputStream(plainFile).use { it.copyTo(cos) }
+            }
+        }
+    }
+
+    private fun decryptFileGcmStreaming(encFile: File, outFile: File, key: SecretKey) {
+        Log.d("BackupManager", "Starting decryption: ${encFile.absolutePath} -> ${outFile.absolutePath}")
+        FileInputStream(encFile).use { fin ->
+            val iv = ByteArray(IV_LENGTH)
+            val read = fin.read(iv)
+            Log.d("BackupManager", "Read IV bytes: $read, IV: ${iv.joinToString("") { "%02x".format(it) }}")
+            if (read != iv.size) throw IOException("Failed to read IV from encrypted file")
+            val cipher = Cipher.getInstance(TRANSFORMATION).apply {
+                init(Cipher.DECRYPT_MODE, key, GCMParameterSpec(128, iv))
+            }
+            Log.d("BackupManager", "Cipher initialized for decryption")
+            CipherInputStream(fin, cipher).use { cin ->
+                FileOutputStream(outFile).use { fos ->
+                    val bytesCopied = cin.copyTo(fos)
+                    Log.d("BackupManager", "Decryption complete, bytes written: $bytesCopied")
+                }
+            }
+        }
+        Log.d("BackupManager", "Decryption finished successfully")
+    }
 
     private fun secureDelete(file: File) {
         try {
@@ -131,7 +243,7 @@ object BackupManager {
                 put("iv", prefs.getString("iv", "") ?: "")
                 put("encryptedKey", prefs.getString("encryptedSessionKey", "") ?: "")
                 put("dbVersion", 2)
-                put("backupFormatVersion", 2)
+                put("backupFormatVersion", backupFormatVersion)
             }
 
             val metadataBytes = metadata.toString().toByteArray()
@@ -176,15 +288,22 @@ object BackupManager {
             File(tempDir, METADATA_FILE).writeBytes(metadataIv + encryptedMetadata)
             File(tempDir, DB_FILE).writeBytes(dbIv + encryptedDb)
 
-            val hmac = generateHmac(
-                listOf(
-                    File(tempDir, METADATA_FILE),
-                    File(tempDir, DB_FILE),
-                    File(tempDir, BACKUP_SALT_FILE)
-                ),
-                key = userKey
+            val vaultDir = File(context.filesDir, VAULT_DIR_NAME)
+            val tempVaultZip = File(tempDir, VAULT_ZIP_TEMP_FILE)
+            FileOutputStream(tempVaultZip).use { zipDirectory(vaultDir, it) }
+
+            val tempVaultEnc = File(tempDir, VAULT_FILE)
+            encryptFileGcmStreaming(tempVaultZip, tempVaultEnc, userKey)
+
+            val hmacFiles = mutableListOf(
+                File(tempDir, METADATA_FILE),
+                File(tempDir, DB_FILE),
+                File(tempDir, BACKUP_SALT_FILE),
+                File(tempDir, VAULT_FILE)
             )
+            val hmac = generateHmac(hmacFiles, key = userKey)
             File(tempDir, HMAC_FILE).writeBytes(hmac)
+
             // 6. Create final backup archive
             val backupFile = createSecureBackupFile(context)
 
@@ -201,11 +320,15 @@ object BackupManager {
                 File(tempDir, BACKUP_SALT_FILE).inputStream().use { it.copyTo(zip) }
                 zip.closeEntry()
 
+                zip.putNextEntry(ZipEntry(VAULT_FILE))
+                File(tempDir, VAULT_FILE).inputStream().use { it.copyTo(zip) }
+                zip.closeEntry()
+
                 zip.putNextEntry(ZipEntry(HMAC_FILE))
                 File(tempDir, HMAC_FILE).inputStream().use { it.copyTo(zip) }
                 zip.closeEntry()
-
             }
+
             backupFile
         } catch (e: Exception) {
             Log.e("BackupManager", "Export failed", e)
@@ -256,18 +379,7 @@ object BackupManager {
             if (!hmacFile.exists()) {
                 return false
             }
-            val expectedHmac = hmacFile.readBytes()
-            val computedHmac = generateHmac(
-                listOf(
-                    File(tempDir, METADATA_FILE),
-                    File(tempDir, DB_FILE),
-                    File(tempDir, BACKUP_SALT_FILE)
-                ),
-                key = userKey
-            )
-            if (!expectedHmac.contentEquals(computedHmac)) {
-                return false
-            }
+
 
             val metadataFile = File(tempDir, METADATA_FILE)
             val dbFile = File(tempDir, DB_FILE)
@@ -297,6 +409,21 @@ object BackupManager {
                 }
                 val metadataJson = String(decryptedMetadataBytes)
                 val metadata = JSONObject(metadataJson)
+
+                val expectedHmac = hmacFile.readBytes()
+                val hmacFiles = mutableListOf(
+                    File(tempDir, METADATA_FILE),
+                    File(tempDir, DB_FILE),
+                    File(tempDir, BACKUP_SALT_FILE)
+                )
+                if (metadata.getInt("backupFormatVersion") == 3) {
+                    hmacFiles.add(File(tempDir, VAULT_FILE))
+                }
+                val computedHmac = generateHmac(hmacFiles, key = userKey)
+
+                if (!expectedHmac.contentEquals(computedHmac)) {
+                    return false
+                }
 
                 val dbBytes = dbFile.readBytes()
                 Log.d("BackupManager", "Encrypted DB file size: ${dbBytes.size}")
@@ -331,6 +458,32 @@ object BackupManager {
                 Log.d("BackupManager", "Secure prefs restored")
 
                 DatabaseProvider.clearDatabaseInstance()
+
+                if (metadata.getInt("backupFormatVersion") == 3) {
+                    Log.e("BackupManager", "VERSION 3 FOUND")
+                    val vaultEnc = File(tempDir, VAULT_FILE)
+                    if (!vaultEnc.exists()) {
+                        Log.e("BackupManager", "Vault file missing in backup")
+                        return false
+                    }
+                    Log.d("BackupManager", "Decrypting and restoring vault...")
+                    val tempVaultZip = File(tempDir, VAULT_ZIP_TEMP_FILE)
+                    Log.e("BackupManager", "Vault enc located at: ${vaultEnc.absolutePath}")
+                    decryptFileGcmStreaming(vaultEnc, tempVaultZip, userKey)
+                    Log.e("BackupManager", "Vault decrypted to temp zip: ${tempVaultZip.absolutePath}")
+
+                    val vaultDir = File(context.filesDir, VAULT_DIR_NAME)
+                    Log.e("BackupManager", "Restoring vault into: ${vaultDir.absolutePath}")
+                    if (vaultDir.exists()) {
+                        Log.e("BackupManager", "Existing vault found, deleting...")
+                        deleteRecursively(vaultDir)
+                        Log.e("BackupManager", "Existing vault deleted")
+                    }
+                    vaultDir.mkdirs()
+                    Log.e("BackupManager", "Unzipping vault into: ${vaultDir.absolutePath}")
+                    FileInputStream(tempVaultZip).use { unzipInto(it, vaultDir) }
+                    Log.e("BackupManager", "Vault restored successfully")
+                }
                 return true
             } catch (e: Exception) {
                 Log.e("BackupManager", "DB decryption failed", e)

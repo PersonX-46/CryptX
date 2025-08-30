@@ -19,6 +19,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Password
+import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.CircularProgressIndicator
@@ -43,6 +45,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -54,7 +57,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.personx.cryptx.R
 import com.personx.cryptx.components.CyberpunkButton
 import com.personx.cryptx.components.CyberpunkInputBox
+import com.personx.cryptx.components.CyberpunkPasswordBox
+import com.personx.cryptx.components.PlaceholderInfo
 import com.personx.cryptx.crypto.PinCryptoManager
+import com.personx.cryptx.viewmodel.PassphraseSetupRepository
 import com.personx.cryptx.viewmodel.PassphraseSetupViewModel
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -64,11 +70,19 @@ fun PassphraseSetupScreen(
     onSetupComplete: () -> Unit,
     windowSizeClass: WindowSizeClass
 ) {
+
+    val context = LocalContext.current
+
     val viewModel: PassphraseSetupViewModel = viewModel(
         factory = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                return PassphraseSetupViewModel(pinCryptoManager) as T
+                return PassphraseSetupViewModel(
+                    PassphraseSetupRepository(
+                        context = context
+                    ),
+                    pinCryptoManager = pinCryptoManager
+                ) as T
             }
         }
     )
@@ -175,7 +189,8 @@ fun PassphraseSetupScreen(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        CyberpunkInputBox(
+
+                        CyberpunkPasswordBox(
                             value = textValue,
                             onValueChange = { newText ->
                                 if (state.step == 1) {
@@ -188,8 +203,11 @@ fun PassphraseSetupScreen(
                                 R.string.set_passphrase
                             else
                                 R.string.confirm_passphrase,
-                        )
 
+                            onDone = {
+                                viewModel.event(PassphraseSetupEvent.Continue)
+                            }
+                        )
 
                         IconButton(onClick = { passwordVisible = !passwordVisible }) {
                             Icon(
@@ -233,6 +251,12 @@ fun PassphraseSetupScreen(
                     modifier = Modifier.padding(vertical = smallSpacing)
                 )
             }
+
+            PlaceholderInfo(
+                icon = Icons.Default.Password,
+                title = "Create Passphrase",
+                description = "Please enter a secure passphrase to protect your vault.",
+            )
 
             if (state.isLoading) {
                 Spacer(modifier = Modifier.height(8.dp))
