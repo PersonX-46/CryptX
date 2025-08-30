@@ -14,8 +14,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.personx.cryptx.R
 import com.personx.cryptx.components.CyberpunkInputBox
 import com.personx.cryptx.components.Header
 import com.personx.cryptx.screens.KeyPairHistoryScreen
@@ -33,7 +35,7 @@ fun KeyPairHistoryScreen(
     viewModel.refreshKeyPairHistory()
 
     Column {
-        Header("KEY PAIR HISTORY", windowSizeClass)
+        Header(R.string.key_pair_history_header, windowSizeClass)
         Column (
             modifier = Modifier
                 .background(
@@ -52,7 +54,7 @@ fun KeyPairHistoryScreen(
                 onValueChange = { query: String ->
                     viewModel.updateSearchQuery(query)
                 },
-                placeholder = "Search history with name...",
+                placeholder = R.string.search_history_with_name,
             )
             KeyPairHistoryScreen(
                 history = viewModel.filteredHistory.value,
@@ -72,7 +74,8 @@ fun KeyPairHistoryScreen(
                         val success = viewModel.deleteKeyPair(item)
                         viewModel.refreshKeyPairHistory()
                         navController.navigate("keypair_history")
-                        Toast.makeText(context, "Key pair deleted!", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context,
+                            context.getString(R.string.key_pair_deleted), Toast.LENGTH_SHORT).show()
                     }
                 },
                 windowSizeClass = windowSizeClass

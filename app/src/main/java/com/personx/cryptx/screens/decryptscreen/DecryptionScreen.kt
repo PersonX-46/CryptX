@@ -40,6 +40,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringArrayResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
@@ -94,7 +95,7 @@ fun DecryptionScreen(
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Header("DECRYPTION", windowSizeClass)
+            Header(R.string.decryption_header, windowSizeClass)
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -154,7 +155,7 @@ fun DecryptionScreen(
                             items = stringArrayResource(R.array.supported_algorithms_list).toList(),
                             selectedItem = state.selectedAlgorithm,
                             onItemSelected = { viewModel.updateSelectedAlgorithm(it) },
-                            label = "Algorithm",
+                            label = R.string.algorithm,
                             modifier = Modifier.fillMaxWidth(),
                             isCompact = isCompact
                         )
@@ -166,7 +167,7 @@ fun DecryptionScreen(
                                 items = state.transformationList,
                                 selectedItem = state.selectedMode,
                                 onItemSelected = { viewModel.updateSelectedMode(it) },
-                                label = "Cipher Mode",
+                                label = R.string.cipher_mode,
                                 modifier = Modifier.fillMaxWidth(),
                                 isCompact = isCompact
                             )
@@ -184,7 +185,7 @@ fun DecryptionScreen(
                     ) {
                         Column(modifier = Modifier.padding(cardPadding)) {
                             Text(
-                                text = "Encrypted Input",
+                                text = stringResource(R.string.encrypted_input),
                                 style = MaterialTheme.typography.labelMedium.copy(
                                     color = cyberpunkGreen.copy(alpha = 0.8f),
                                     fontSize = if (isCompact) MaterialTheme.typography.labelLarge.fontSize
@@ -197,7 +198,7 @@ fun DecryptionScreen(
                             CyberpunkInputBox(
                                 value = state.inputText,
                                 onValueChange = { viewModel.updateInputText(it) },
-                                placeholder = "Paste ciphertext here...",
+                                placeholder = R.string.past_here,
                                 modifier = Modifier.height(inputHeight),
                             )
                         }
@@ -212,7 +213,7 @@ fun DecryptionScreen(
                     ) {
                         Column(modifier = Modifier.padding(cardPadding)) {
                             Text(
-                                text = "Decryption Keys",
+                                text = stringResource(R.string.decryption_keys),
                                 style = MaterialTheme.typography.labelMedium.copy(
                                     color = cyberpunkGreen.copy(alpha = 0.8f),
                                     fontSize = if (isCompact) MaterialTheme.typography.labelLarge.fontSize
@@ -227,7 +228,7 @@ fun DecryptionScreen(
                                 keyText = state.keyText,
                                 onKeyTextChange = { viewModel.updateKeyText(it) },
                                 onGenerateKey = { },
-                                title = "Decryption Key",
+                                title = R.string.decryption_keys,
                                 isCompact = isCompact
                             )
 
@@ -237,7 +238,7 @@ fun DecryptionScreen(
                                 CyberpunkInputBox(
                                     value = state.ivText,
                                     onValueChange = { viewModel.updateIVText(it) },
-                                    placeholder = "Enter Initialization Vector (IV)...",
+                                    placeholder = R.string.enter_initialization_vector,
                                     modifier = Modifier.fillMaxWidth(),
                                 )
                             }
@@ -250,7 +251,7 @@ fun DecryptionScreen(
                                 modifier = Modifier.fillMaxWidth()
                             ) {
                                 Text(
-                                    text = "Base64 Encoded Input",
+                                    text = stringResource(R.string.base64_encoded_input),
                                     style = MaterialTheme.typography.bodyMedium.copy(
                                         fontSize = if (isCompact) MaterialTheme.typography.bodyMedium.fontSize
                                         else MaterialTheme.typography.bodyLarge.fontSize,
@@ -278,7 +279,7 @@ fun DecryptionScreen(
                     CyberpunkButton(
                         onClick = { viewModel.decrypt(context) },
                         icon = Icons.Default.LockOpen,
-                        text = "DECRYPT",
+                        text = R.string.decrypt,
                         modifier = Modifier.fillMaxWidth(),
                         isCompact = isCompact
                     )
@@ -299,7 +300,7 @@ fun DecryptionScreen(
                                 Column(modifier = Modifier.padding(cardPadding)) {
 
                                     CyberpunkOutputSection(
-                                        title = "DECRYPTED OUTPUT",
+                                        title = R.string.decrypted_output,
                                         output = state.outputText,
                                         onCopy = {
                                             scope.launch {
@@ -307,7 +308,7 @@ fun DecryptionScreen(
                                             }
                                             Toast.makeText(
                                                 context,
-                                                "Copied!",
+                                                context.getString(R.string.copied),
                                                 Toast.LENGTH_SHORT
                                             ).show()
                                         },
@@ -342,13 +343,13 @@ fun DecryptionScreen(
                                                             viewModel.clearOutput()
                                                             Toast.makeText(
                                                                 context,
-                                                                "Decryption history saved!",
+                                                                context.getString(R.string.decryption_history_saved),
                                                                 Toast.LENGTH_SHORT
                                                             ).show()
                                                         } else {
                                                             Toast.makeText(
                                                                 context,
-                                                                "Failed to save decryption history",
+                                                                context.getString(R.string.failed_to_save_decryption_history),
                                                                 Toast.LENGTH_SHORT
                                                             ).show()
                                                         }
@@ -370,7 +371,10 @@ fun DecryptionScreen(
                                                         viewModel.itemToUpdate?.let { item ->
                                                             viewModel.updateDecryptionHistory(item)
                                                             viewModel.refreshHistory()
-                                                            Toast.makeText(context, "History updated!", Toast.LENGTH_SHORT)
+                                                            Toast.makeText(context,
+                                                                context.getString(
+                                                                    R.string.history_updated
+                                                                ), Toast.LENGTH_SHORT)
                                                                 .show()
                                                             viewModel.prepareItemToUpdate(null)
                                                         }

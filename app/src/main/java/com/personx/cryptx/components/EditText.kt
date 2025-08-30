@@ -1,5 +1,6 @@
 package com.personx.cryptx.components
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -22,6 +23,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
@@ -36,7 +38,8 @@ fun CyberpunkInputBox(
     modifier: Modifier = Modifier,
     value: String,
     onValueChange: (String) -> Unit,
-    placeholder: String,
+    @StringRes
+    placeholder: Int,
     trailingIcon: @Composable () -> Unit= {},
 ) {
     Box(
@@ -61,7 +64,7 @@ fun CyberpunkInputBox(
             ),
             placeholder = {
                 Text(
-                    text = placeholder,
+                    text = stringResource(placeholder),
                     style = TextStyle(
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
                         fontFamily = FontFamily.Monospace

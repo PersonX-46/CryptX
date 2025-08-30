@@ -49,7 +49,7 @@ fun HashDetector(
     Column(
     ) {
         Header(
-            "HASH DETECTOR",
+            R.string.hash_detector_header,
             windowSizeClass = windowSizeClass
         )
         Column(
@@ -73,7 +73,7 @@ fun HashDetector(
             CyberpunkInputBox(
                 value = state.inputHash,
                 onValueChange = { viewModel.updateInputHash(it) },
-                placeholder = stringResource(R.string.paste_hash_here_to_identify),
+                placeholder = R.string.paste_hash_here_to_identify,
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp),
             )
 
@@ -101,7 +101,7 @@ fun HashDetector(
                         }
                     },
                     icon = Icons.Default.ContentCopy,
-                    text = stringResource(R.string.copy_hash)
+                    text = R.string.copy_hash
                 )
             }
         }

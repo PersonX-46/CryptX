@@ -30,10 +30,12 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.personx.cryptx.LocalNavController
+import com.personx.cryptx.R
 import com.personx.cryptx.components.CyberpunkButton
 import com.personx.cryptx.components.DecryptionHistoryItem
 import com.personx.cryptx.components.EncryptionHistoryItem
@@ -98,7 +100,7 @@ fun HistoryScreen(
 
                     // Glowing text
                     Text(
-                        text = "No History Yet",
+                        text = stringResource(R.string.no_history_yet),
                         style = MaterialTheme.typography.headlineSmall.copy(
                             color = cyberpunkGreen,
                             fontFamily = FontFamily.Monospace,
@@ -114,7 +116,7 @@ fun HistoryScreen(
 
                     // Description
                     Text(
-                        text = "Your encrypted items will appear here",
+                        text = stringResource(R.string.your_encrypted_items_will_appear_here),
                         style = MaterialTheme.typography.bodyMedium.copy(
                             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
                             fontFamily = FontFamily.Monospace,
@@ -129,7 +131,7 @@ fun HistoryScreen(
                     CyberpunkButton(
                         onClick = {navController.navigate("encrypt")},
                         icon = Icons.Default.LockOpen,
-                        text = "ENCRYPT NOW",
+                        text = R.string.encrypt_now,
                         modifier = Modifier
                             .padding(horizontal = 48.dp)
                             .height(48.dp),
@@ -222,7 +224,7 @@ fun HistoryScreen(
 
                     // Glowing text
                     Text(
-                        text = "No History Yet",
+                        text = stringResource(R.string.no_history_yet),
                         style = MaterialTheme.typography.headlineSmall.copy(
                             color = cyberpunkGreen,
                             fontFamily = FontFamily.Monospace,
@@ -238,7 +240,7 @@ fun HistoryScreen(
 
                     // Description
                     Text(
-                        text = "Your decrypted items will appear here",
+                        text = stringResource(R.string.your_decrypted_items_will_appear_here),
                         style = MaterialTheme.typography.bodyMedium.copy(
                             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
                             fontFamily = FontFamily.Monospace,
@@ -254,7 +256,7 @@ fun HistoryScreen(
                         CyberpunkButton(
                             onClick = chooseFromEncrypt,
                             icon = Icons.Default.LockOpen,
-                            text = "CHOOSE ENCRYPTS",
+                            text = stringResource(R.string.choose_encrypts),
                             modifier = Modifier
                                 .padding(end = 10.dp)
                                 .height(48.dp),
@@ -264,7 +266,7 @@ fun HistoryScreen(
                         CyberpunkButton(
                             onClick = {navController.navigate("decrypt") },
                             icon = Icons.Default.LockOpen,
-                            text = "DECRYPT NOW",
+                            text = stringResource(R.string.decrypt_now),
                             modifier = Modifier
                                 .height(48.dp),
                             isCompact = isCompact
@@ -285,7 +287,7 @@ fun HistoryScreen(
                     CyberpunkButton(
                         onClick = chooseFromEncrypt,
                         icon = Icons.Default.LockOpen,
-                        text = "CHOOSE ENCRYPTS",
+                        text = stringResource(R.string.choose_encrypts),
                         modifier = Modifier
                             .padding(end = 10.dp)
                             .height(48.dp),
@@ -295,7 +297,7 @@ fun HistoryScreen(
                     CyberpunkButton(
                         onClick = {navController.navigate("decrypt") },
                         icon = Icons.Default.LockOpen,
-                        text = "DECRYPT NOW",
+                        text = stringResource(R.string.decrypt_now),
                         modifier = Modifier
                             .height(48.dp),
                         isCompact = isCompact
@@ -373,7 +375,7 @@ fun KeyPairHistoryScreen(
                     Spacer(modifier = Modifier.height(24.dp))
 
                     Text(
-                        text = "No Key Pairs Saved",
+                        text = stringResource(R.string.no_key_pairs_saved),
                         style = MaterialTheme.typography.headlineSmall.copy(
                             color = cyberpunkGreen,
                             fontFamily = FontFamily.Monospace,
@@ -388,7 +390,7 @@ fun KeyPairHistoryScreen(
                     Spacer(modifier = Modifier.height(8.dp))
 
                     Text(
-                        text = "Generated key pairs will appear here",
+                        text = stringResource(R.string.generated_key_pairs_will_appear_here),
                         style = MaterialTheme.typography.bodyMedium.copy(
                             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
                             fontFamily = FontFamily.Monospace,
@@ -403,7 +405,7 @@ fun KeyPairHistoryScreen(
                         onClick = {
                             navController.navigate("signature") },
                         icon = Icons.Default.Add,
-                        text = "GENERATE KEY PAIR",
+                        text = stringResource(R.string.generate_key_pair),
                         modifier = Modifier
                             .padding(horizontal = 48.dp)
                             .height(48.dp),

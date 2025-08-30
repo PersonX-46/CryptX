@@ -18,6 +18,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.personx.cryptx.R
 import com.personx.cryptx.components.CyberpunkInputBox
 import com.personx.cryptx.components.Header
 import com.personx.cryptx.crypto.SessionKeyManager
@@ -36,7 +37,7 @@ fun EncryptHistoryScreen(
     val context = LocalContext.current
 
     Column {
-        Header("ENCRYPTION HISTORY", windowSizeClass)
+        Header(R.string.encryption_history_header, windowSizeClass)
 
         Column (
             modifier = Modifier
@@ -56,7 +57,7 @@ fun EncryptHistoryScreen(
                 onValueChange = { query: String ->
                     viewModel.updateSearchQuery(query)
                 },
-                placeholder = "Search history with name...",
+                placeholder = R.string.search_history,
             )
             HistoryScreen(
                 history = viewModel.filteredHistory.value,
@@ -91,7 +92,7 @@ fun EncryptHistoryScreen(
                                 viewModel.itemToDelete?.let { item ->
                                     viewModel.deleteEncryptionHistory( item)
                                     viewModel.refreshHistory()
-                                    Toast.makeText(context, "History deleted!", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, context.getString(R.string.history_deleted), Toast.LENGTH_SHORT).show()
                                     viewModel.prepareItemToDelete(null)
                                 }
                             }

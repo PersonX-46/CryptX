@@ -36,10 +36,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.personx.cryptx.R
 import com.personx.cryptx.components.CyberpunkButton
 import com.personx.cryptx.components.CyberpunkInputBox
 import com.personx.cryptx.components.CyberpunkPasswordBox
@@ -106,7 +108,7 @@ fun PassphraseLoginScreen(
             Spacer(modifier = Modifier.height(if (isCompact) 16.dp else 24.dp))
 
             Text(
-                text = "Enter Your Passphrase",
+                text = stringResource(R.string.enter_your_passphrase),
                 style = MaterialTheme.typography.run {
                     if (isCompact) headlineSmall else headlineMedium
                 }.copy(
@@ -119,7 +121,7 @@ fun PassphraseLoginScreen(
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "Authenticate to unlock your vault",
+                text = stringResource(R.string.authenticate_to_unlock),
                 style = MaterialTheme.typography.bodyMedium.copy(
                     color = Color.White.copy(alpha = 0.7f),
                     fontFamily = FontFamily.Monospace
@@ -142,9 +144,9 @@ fun PassphraseLoginScreen(
                 ) {
                     CyberpunkPasswordBox(
                         value = state.passphrase,
+                        placeholder = R.string.enter_passphrase,
                         onValueChange = {
                             viewModel.event(PassphraseLoginEvent.EnterPassphrase(it)) },
-                        placeholder = "Enter passphrase...",
                         onDone = { viewModel.event(PassphraseLoginEvent.Submit) },
                     )
 
@@ -175,7 +177,7 @@ fun PassphraseLoginScreen(
 
             PlaceholderInfo(
                 icon = Icons.Default.Lock,
-                title = "Unlock App to Continue",
+                title = stringResource(R.string.unlock_app),
                 description = "Please enter your passphrase to access your vault.",
             )
 
@@ -187,7 +189,7 @@ fun PassphraseLoginScreen(
         // Login button
         CyberpunkButton(
             onClick = { viewModel.event(PassphraseLoginEvent.Submit) },
-            text = "AUTHENTICATE",
+            text = stringResource(R.string.authenticate),
             icon = Icons.Default.Lock,
             modifier = Modifier.fillMaxWidth(),
             isActive = state.passphrase.isNotBlank() && !state.isLoading,

@@ -12,9 +12,11 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.room.util.TableInfo
+import com.personx.cryptx.R
 import com.personx.cryptx.components.CyberpunkInputBox
 import com.personx.cryptx.components.Header
 import com.personx.cryptx.crypto.SessionKeyManager
@@ -31,8 +33,10 @@ fun DecryptHistoryScreen(
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
 
+    val msg =  stringResource(R.string.history_deleted)
+
     Column {
-        Header("DECRYPTION HISTORY", windowSizeClass)
+        Header(R.string.decryption_history_header, windowSizeClass)
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -51,7 +55,7 @@ fun DecryptHistoryScreen(
                 onValueChange = { query: String ->
                     viewModel.updateSearchQuery(query)
                 },
-                placeholder = "Search history with name...",
+                placeholder = R.string.search_history,
             )
             HistoryScreen(
                 history = viewModel.filteredHistory.value,
@@ -106,7 +110,7 @@ fun DecryptHistoryScreen(
                                     }
                                     Toast.makeText(
                                         context,
-                                        "History deleted!",
+                                        msg,
                                         Toast.LENGTH_SHORT
                                     ).show()
                                     viewModel.prepareItemToDelete(null)

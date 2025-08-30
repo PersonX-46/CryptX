@@ -44,6 +44,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.modifier.modifierLocalConsumer
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -53,6 +54,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.personx.cryptx.R
 import com.personx.cryptx.components.CyberpunkButton
 import com.personx.cryptx.components.CyberpunkInputBox
 import com.personx.cryptx.components.CyberpunkPasswordBox
@@ -137,7 +139,10 @@ fun PassphraseSetupScreen(
             Spacer(modifier = Modifier.height(spacing))
 
             Text(
-                text = if (state.step == 1) "Create Secure Passphrase" else "Confirm Your Passphrase",
+                text = if (state.step == 1)
+                    stringResource(R.string.create_secure_passphrase)
+                else
+                    stringResource(R.string.confirm_your_passphrase),
                 style = MaterialTheme.typography.run {
                     if (isCompact) titleLarge else headlineSmall
                 }.copy(
@@ -151,9 +156,9 @@ fun PassphraseSetupScreen(
 
             Text(
                 text = if (state.step == 1)
-                    "Enter a secure passphrase. Use a long, memorable phrase (recommended)."
+                    stringResource(R.string.enter_secure_passphrase)
                 else
-                    "Re-enter your passphrase to confirm",
+                    stringResource(R.string.reenter_secure_passphrase),
                 style = MaterialTheme.typography.run {
                     if (isCompact) bodySmall else bodyMedium
                 }.copy(
@@ -194,7 +199,11 @@ fun PassphraseSetupScreen(
                                     viewModel.event(PassphraseSetupEvent.EnterConfirmPassphrase(newText))
                                 }
                             },
-                            placeholder = if (state.step == 1) "Set a passphrase..." else "Confirm the passphrase...",
+                            placeholder = if (state.step == 1)
+                                R.string.set_passphrase
+                            else
+                                R.string.confirm_passphrase,
+
                             onDone = {
                                 viewModel.event(PassphraseSetupEvent.Continue)
                             }
@@ -214,7 +223,7 @@ fun PassphraseSetupScreen(
 
                 // Hint / strength suggestion (optional)
                 Text(
-                    text = "Tip: long passphrases (20+ chars) are much stronger than short ones.",
+                    text = stringResource(R.string.tip_long_pass),
                     style = MaterialTheme.typography.bodySmall.copy(
                         color = cyberpunkGreen.copy(alpha = 0.6f),
                         fontFamily = FontFamily.Monospace
@@ -258,7 +267,7 @@ fun PassphraseSetupScreen(
         // Continue / Confirm button
         CyberpunkButton(
             onClick = { viewModel.event(PassphraseSetupEvent.Continue) },
-            text = if (state.step == 1) "CONTINUE" else "CONFIRM",
+            text = if (state.step == 1) stringResource(R.string.continue_action) else stringResource(R.string.confirm),
             icon = if (state.step == 1) Icons.AutoMirrored.Filled.ArrowForward else Icons.Default.Check,
             modifier = Modifier
                 .fillMaxWidth()

@@ -89,7 +89,7 @@ fun HashGeneratorScreen(
         modifier = Modifier.fillMaxSize()
     ) {
         Header(
-            "HASH GENERATOR",
+            R.string.hash_generator_header,
             windowSizeClass = windowSizeClass
         )
 
@@ -121,7 +121,7 @@ fun HashGeneratorScreen(
                     items = state.algorithms,
                     selectedItem = state.selectedAlgorithm,
                     onItemSelected = { viewModel.updateSelectedAlgorithm(it) },
-                    label = stringResource(R.string.select_algorithm),
+                    label = R.string.select_algorithm,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = 20.dp)
@@ -131,7 +131,7 @@ fun HashGeneratorScreen(
                 CyberpunkInputBox(
                     value = state.inputText,
                     onValueChange = { viewModel.updateInputText(it) },
-                    placeholder = stringResource(R.string.enter_text_to_hash),
+                    placeholder = R.string.enter_text_to_hash,
                     modifier = Modifier.fillMaxWidth(),
 //                    minLines = when (windowSizeClass.heightSizeClass) {
 //                        WindowHeightSizeClass.Compact -> 3
@@ -193,7 +193,7 @@ private fun HashOutputSection(
             modifier = Modifier.padding(bottom = 8.dp)
         ) {
             Text(
-                text = "Algorithm:",
+                text = stringResource(R.string.algorithm),
                 style = MaterialTheme.typography.bodyLarge.copy(
                     fontFamily = FontFamily.Monospace,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
@@ -246,7 +246,7 @@ private fun HashOutputSection(
             CyberpunkButton(
                 onClick = onCopy,
                 icon = Icons.Default.ContentCopy,
-                text = stringResource(R.string.copy_hash),
+                text = R.string.copy_hash,
                 modifier = Modifier.weight(if (isCompact) 1f else 0.5f)
             )
 
@@ -256,7 +256,7 @@ private fun HashOutputSection(
 
             // Hash Length Info
             Text(
-                text = "Length: ${hash.length} chars",
+                text = stringResource(R.string.length_chars, hash.length),
                 style = MaterialTheme.typography.bodySmall.copy(
                     fontFamily = FontFamily.Monospace,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
@@ -313,7 +313,7 @@ fun ReusableOutputBox(
                     .verticalScroll(rememberScrollState())
             ) {
                 Text(
-                    text = content.ifBlank { "(No output)" },
+                    text = content.ifBlank { stringResource(R.string.no_output) },
                     style = MaterialTheme.typography.bodySmall.copy(
                         fontFamily = FontFamily.Monospace,
                         color = MaterialTheme.colorScheme.onSurface
@@ -335,7 +335,7 @@ fun ReusableOutputBox(
                     CyberpunkButton(
                         onClick = onCopy,
                         icon = Icons.Default.ContentCopy,
-                        text = stringResource(R.string.copy),
+                        text = R.string.copy,
                         modifier = Modifier.weight(if (isCompact) 1f else 0.5f)
                     )
                 }
@@ -346,7 +346,7 @@ fun ReusableOutputBox(
 
                 if (showLength) {
                     Text(
-                        text = "Length: ${content.length} chars",
+                        text = stringResource(R.string.length_chars, content.length),
                         style = MaterialTheme.typography.bodySmall.copy(
                             fontFamily = FontFamily.Monospace,
                             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)

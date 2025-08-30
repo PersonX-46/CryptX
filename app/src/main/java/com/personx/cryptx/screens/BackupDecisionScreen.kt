@@ -36,12 +36,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
+import com.personx.cryptx.R
 import com.personx.cryptx.components.CyberpunkButton
 import com.personx.cryptx.components.Header
 import com.personx.cryptx.screens.settingsscreen.ImportBackupDialog
@@ -84,7 +86,7 @@ fun BackupDecisionScreen(
             )
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
-            Header("RESTORE BACKUP", windowSizeClass)
+            Header(R.string.restore_backup_header, windowSizeClass)
 
             Column(
                 modifier = Modifier
@@ -113,7 +115,7 @@ fun BackupDecisionScreen(
                     Spacer(modifier = Modifier.height(spacing))
 
                     Text(
-                        text = "RESTORE ENCRYPTED DATA?",
+                        text = stringResource(R.string.restore_encrypted_data),
                         style = MaterialTheme.typography.headlineSmall.copy(
                             color = lightGreen,
                             fontWeight = FontWeight.Bold,
@@ -126,7 +128,7 @@ fun BackupDecisionScreen(
                     Spacer(modifier = Modifier.height(8.dp))
 
                     Text(
-                        text = "If you have a previous backup file, you can restore your encrypted data now.",
+                        text = stringResource(R.string.if_you_have_a_previous_backup_file_you_can_restore_your_encrypted_data_now),
                         style = MaterialTheme.typography.bodyLarge.copy(
                             color = lightGreen,
                             fontFamily = FontFamily.Monospace
@@ -151,14 +153,14 @@ fun BackupDecisionScreen(
                                 viewModel.updateShowImportDialog(true)
                             },
                             icon = Icons.Default.CloudDownload,
-                            text = "RESTORE",
+                            text = R.string.backup_restore,
                             modifier = Modifier.weight(1f)
                         )
 
                         CyberpunkButton(
                             onClick = onSkip,
                             icon = Icons.Default.Refresh,
-                            text = "SKIP",
+                            text = R.string.backup_skip,
                             modifier = Modifier.weight(1f)
                         )
                     }
@@ -166,7 +168,7 @@ fun BackupDecisionScreen(
                     Spacer(modifier = Modifier.height(spacing))
 
                     Text(
-                        text = "You can also restore later from Settings",
+                        text = stringResource(R.string.you_can_also_restore_later_from_settings),
                         style = MaterialTheme.typography.bodySmall.copy(
                             color = lightGreen,
                             fontFamily = FontFamily.Monospace
@@ -199,12 +201,15 @@ fun BackupDecisionScreen(
                 onConfirm = { password ->
                     val uri = selectedUri.value
                     if (uri == null) {
-                        Toast.makeText(context, "No file selected.", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context,
+                            context.getString(R.string.no_file_selected), Toast.LENGTH_SHORT).show()
                         return@ImportBackupDialog
                     }
 
                     viewModel.importBackupFromUri(uri, password) { success ->
-                        val message = if (success) "Import successful!" else "Import failed."
+                        val message = if (success) context.getString(R.string.import_successful) else context.getString(
+                            R.string.import_failed
+                        )
                         Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
                         selectedUri.value = null
                         viewModel.updateShowImportDialog(false)

@@ -43,10 +43,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.personx.cryptx.LocalNavController
+import com.personx.cryptx.R
 import com.personx.cryptx.components.FeatureCardButton
 import com.personx.cryptx.components.Header
 import com.personx.cryptx.components.MiniDecryptionHistoryItem
@@ -98,7 +100,7 @@ fun HomeScreen(
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
     ) {
-        Header("CRYPTOGRAPHY TOOLKIT", windowSizeClass)
+        Header(R.string.home_header, windowSizeClass)
 
         Column(
             modifier = Modifier
@@ -160,8 +162,10 @@ fun HomeScreen(
 
             Spacer(Modifier.height(spacing))
             CyberpunkSectionTitle(
-                "CRYPTOGRAPHY TOOLS ", cyberGreen,
-                modifier = Modifier.fillMaxWidth()
+                R.string.cryptography_tools,
+                cyberGreen,
+                modifier = Modifier
+                    .fillMaxWidth()
                     .padding(horizontal = padding)
                     .align(Alignment.Start)
             )
@@ -187,8 +191,10 @@ fun HomeScreen(
 
             Spacer(Modifier.height(32.dp))
             CyberpunkSectionTitle(
-                "LATEST ENCRYPTED VALUES", cyberGreen,
-                modifier = Modifier.fillMaxWidth()
+                R.string.latest_encrypted_values,
+                cyberGreen,
+                modifier = Modifier
+                    .fillMaxWidth()
                     .padding(horizontal = padding)
                     .align(Alignment.Start)
             )
@@ -207,8 +213,10 @@ fun HomeScreen(
 
             Spacer(Modifier.height(32.dp))
             CyberpunkSectionTitle(
-                "LATEST DECRYPTED VALUES", cyberGreen,
-                modifier = Modifier.fillMaxWidth()
+                R.string.latest_decrypted_values,
+                cyberGreen,
+                modifier = Modifier
+                    .fillMaxWidth()
                     .padding(horizontal = padding)
                     .align(Alignment.Start)
             )
@@ -261,10 +269,14 @@ fun EncryptedItems(
                         cyberpunkGreen = cyberpunkGreen,
                         onItemClick = onItemClick,
                         windowSizeClass = windowSizeClass,
-                        modifier = Modifier.weight(1f).padding(horizontal = 4.dp)
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(horizontal = 4.dp)
                     )
                 } else {
-                    Spacer(modifier = Modifier.weight(1f).padding(horizontal = 4.dp))
+                    Spacer(modifier = Modifier
+                        .weight(1f)
+                        .padding(horizontal = 4.dp))
                 }
             }
         }
@@ -340,7 +352,9 @@ fun EmptyHistoryCard(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = if (type == "ENCRYPTION") "No encrypted history found" else "No decrypted history found",
+                text = if (type == "ENCRYPTION")
+                    stringResource(R.string.no_encrypted_history_found)
+                else stringResource(R.string.no_decrypted_history_found),
                 style = MaterialTheme.typography.labelMedium.copy(
                     fontFamily = FontFamily.Monospace,
                     color = cyberpunkGreen.copy(alpha = 0.7f)

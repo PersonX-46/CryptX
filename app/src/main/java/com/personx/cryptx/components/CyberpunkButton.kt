@@ -1,5 +1,6 @@
 package com.personx.cryptx.components
 
+import androidx.annotation.StringRes
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -30,9 +31,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
-
 
 @Composable
 fun CyberpunkButton(
@@ -119,4 +120,26 @@ fun CyberpunkButton(
             )
         }
     }
+}
+
+@Composable
+fun CyberpunkButton(
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit,
+    icon: ImageVector,
+    @StringRes
+    text: Int,
+    isActive: Boolean = true,
+    isCompact: Boolean = false,
+    buttonColor: Color = Color(0xFF00FFAA)
+) {
+    CyberpunkButton(
+        modifier = modifier,
+        onClick = onClick,
+        icon = icon,
+        text = stringResource(text),
+        isActive = isActive,
+        isCompact = isCompact,
+        buttonColor = buttonColor
+    )
 }
