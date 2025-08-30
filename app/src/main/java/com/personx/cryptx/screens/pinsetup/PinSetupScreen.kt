@@ -55,6 +55,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.personx.cryptx.components.CyberpunkButton
 import com.personx.cryptx.components.CyberpunkInputBox
+import com.personx.cryptx.components.CyberpunkPasswordBox
 import com.personx.cryptx.components.PlaceholderInfo
 import com.personx.cryptx.crypto.PinCryptoManager
 import com.personx.cryptx.viewmodel.PassphraseSetupRepository
@@ -183,7 +184,8 @@ fun PassphraseSetupScreen(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        CyberpunkInputBox(
+
+                        CyberpunkPasswordBox(
                             value = textValue,
                             onValueChange = { newText ->
                                 if (state.step == 1) {
@@ -194,7 +196,6 @@ fun PassphraseSetupScreen(
                             },
                             placeholder = if (state.step == 1) "Set a passphrase..." else "Confirm the passphrase...",
                         )
-
 
                         IconButton(onClick = { passwordVisible = !passwordVisible }) {
                             Icon(

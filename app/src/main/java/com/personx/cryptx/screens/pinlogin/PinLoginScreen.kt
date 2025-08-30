@@ -42,6 +42,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.personx.cryptx.components.CyberpunkButton
 import com.personx.cryptx.components.CyberpunkInputBox
+import com.personx.cryptx.components.CyberpunkPasswordBox
 import com.personx.cryptx.components.PlaceholderInfo
 import com.personx.cryptx.crypto.PinCryptoManager
 import com.personx.cryptx.viewmodel.PassphraseLoginViewModelFactory
@@ -139,9 +140,10 @@ fun PassphraseLoginScreen(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    CyberpunkInputBox(
+                    CyberpunkPasswordBox(
                         value = state.passphrase,
-                        onValueChange = { viewModel.event(PassphraseLoginEvent.EnterPassphrase(it)) },
+                        onValueChange = {
+                            viewModel.event(PassphraseLoginEvent.EnterPassphrase(it)) },
                         placeholder = "Enter passphrase...",
                     )
 
