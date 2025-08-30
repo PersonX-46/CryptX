@@ -7,6 +7,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -42,17 +43,20 @@ import androidx.compose.material.icons.outlined.MusicNote
 import androidx.compose.material.icons.outlined.Videocam
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -64,10 +68,15 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import com.personx.cryptx.components.CyberpunkButton
+import com.personx.cryptx.components.CyberpunkInputBox
 import com.personx.cryptx.components.Header
+import com.personx.cryptx.screens.settingsscreen.CyberpunkPinField
 import com.personx.cryptx.viewmodel.fileencryption.VaultFile
 import com.personx.cryptx.viewmodel.fileencryption.VaultViewModel
 import java.util.Date
@@ -88,7 +97,7 @@ fun VaultScreen(
     val spacing = if (isCompact) 16.dp else 24.dp
 
     var showFolderDialog by remember { mutableStateOf(false) }
-    var newFolderName by remember { mutableStateOf("") }
+    val newFolderName = remember { mutableStateOf("") }
 
     // Load files initially
     LaunchedEffect(currentFolder) {
@@ -167,30 +176,18 @@ fun VaultScreen(
             // Folder creation dialog
             if (showFolderDialog) {
 
-                AlertDialog(
-                    onDismissRequest = { showFolderDialog = false },
-                    title = { Text("New Folder") },
-                    text = {
-                        TextField(
-                            value = newFolderName,
-                            onValueChange = { newFolderName = it },
-                            placeholder = { Text("Folder Name") }
-                        )
-                    },
-                    confirmButton = {
-                        Button(onClick = {
-                            if (newFolderName.isNotBlank()) {
-                                viewModel.createFolder(newFolderName)
-                                newFolderName = ""
-                                showFolderDialog = false
-                            } else {
-                                Toast.makeText(context, "Folder name cannot be empty", Toast.LENGTH_SHORT).show()
-                            }
-                        }) { Text("Create") }
-                    },
-                    dismissButton = {
-                        Button(onClick = { showFolderDialog = false }) { Text("Cancel") }
+                CreateFolderDialog(
+                    onDismiss = { showFolderDialog = false },
+                    onConfirm = {
+                        if (newFolderName.value.isNotBlank()) {
+                        viewModel.createFolder(newFolderName.value)
+                        newFolderName.value = ""
+                        showFolderDialog = false
+                    } else {
+                        Toast.makeText(context, "Folder name cannot be empty", Toast.LENGTH_SHORT).show()
                     }
+                    },
+                    foldername = newFolderName
                 )
             }
 
@@ -441,6 +438,69 @@ fun EmptyVaultCard(cyberpunkGreen: Color, windowSizeClass: WindowSizeClass) {
                     fontFamily = FontFamily.Monospace
                 )
             )
+        }
+    }
+}
+
+@Composable
+fun CreateFolderDialog(
+    onDismiss: () -> Unit,
+    onConfirm: () -> Unit,
+    foldername: MutableState<String>
+) {
+    val context = LocalContext.current
+
+    Dialog(onDismissRequest = onDismiss) {
+        Column(
+            modifier = Modifier
+                .background(Color.Black, RoundedCornerShape(12.dp))
+                .border(2.dp, MaterialTheme.colorScheme.onSurface, RoundedCornerShape(12.dp))
+                .padding(24.dp)
+        ) {
+            Text(
+                "NEW FOLDER",
+                style = MaterialTheme.typography.headlineSmall.copy(
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontFamily = FontFamily.Monospace,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center
+                ),
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+
+            CyberpunkInputBox(
+                modifier = Modifier.border(
+                    1.dp,
+                    MaterialTheme.colorScheme.onSurface,
+                ),
+                value = foldername.value,
+                onValueChange = {foldername.value = it},
+                placeholder = "Folder Name",
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End
+            ) {
+                TextButton(
+                    onClick = onDismiss,
+                    colors = ButtonDefaults.textButtonColors(
+                        contentColor = MaterialTheme.colorScheme.onSurface
+                    )
+                ) {
+                    Text("CANCEL", style = MaterialTheme.typography.labelLarge.copy(fontFamily = FontFamily.Monospace))
+                }
+
+                Spacer(modifier = Modifier.width(16.dp))
+
+                CyberpunkButton(
+                    onClick = onConfirm,
+                    icon = Icons.Outlined.Folder,
+                    text = "CREATE",
+                )
+            }
         }
     }
 }
