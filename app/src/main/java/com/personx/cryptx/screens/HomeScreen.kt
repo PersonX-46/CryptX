@@ -149,7 +149,7 @@ fun HomeScreen(
                     Spacer(Modifier.width(12.dp))
 
                     Text(
-                        text = "Open File Vault",
+                        text = "File Vault (WIP)",
                         style = MaterialTheme.typography.bodyLarge.copy(
                             color = cyberGreen,
                             fontFamily = FontFamily.Monospace
