@@ -267,6 +267,7 @@
     <string name="successfully_exported">Successfully exported</string>
     <string name="file_vault">FILE VAULT</string>
     <string name="folder_name">Folder Name</string>
+    <string name="file_encryption_vault">FILE ENCRYPTION VAULT</string>
 
 
 </resources>

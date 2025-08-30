@@ -143,7 +143,7 @@ fun PassphraseLoginScreen(
                 ) {
                     CyberpunkPasswordBox(
                         value = state.passphrase,
-                        placeholder = R.string.enter_passphrase,
+                        placeholder = stringResource(R.string.enter_passphrase),
                         onValueChange = {
                             viewModel.event(PassphraseLoginEvent.EnterPassphrase(it)) },
                         onDone = { viewModel.event(PassphraseLoginEvent.Submit) },

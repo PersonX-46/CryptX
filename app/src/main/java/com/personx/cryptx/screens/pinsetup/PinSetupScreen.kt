@@ -193,9 +193,9 @@ fun PassphraseSetupScreen(
                                 }
                             },
                             placeholder = if (state.step == 1)
-                                R.string.set_passphrase
+                                stringResource(R.string.set_passphrase)
                             else
-                                R.string.confirm_passphrase,
+                                stringResource(R.string.confirm_passphrase),
 
                             onDone = {
                                 viewModel.event(PassphraseSetupEvent.Continue)

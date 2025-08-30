@@ -115,8 +115,9 @@ fun HomeScreen(
 
             Spacer(Modifier.height(spacing))
             CyberpunkSectionTitle(
-                "FILE ENCRYPTION VAULT", cyberGreen,
-                modifier = Modifier.fillMaxWidth()
+                R.string.file_encryption_vault, cyberGreen,
+                modifier = Modifier
+                    .fillMaxWidth()
                     .padding(horizontal = padding)
                     .align(Alignment.Start)
             )
