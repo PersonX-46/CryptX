@@ -47,7 +47,7 @@ class PinLoginViewModel(
                 }
                 is PassphraseLoginEvent.Submit -> {
                     val current = _state.value
-                    if (current.passphrase.length >= 6) {
+                    if (current.passphrase.isNotEmpty()) {
                         _state.value = current.copy(isLoading = true)
 
                         viewModelScope.launch(Dispatchers.IO) {

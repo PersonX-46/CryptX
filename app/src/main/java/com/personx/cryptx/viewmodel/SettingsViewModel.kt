@@ -87,13 +87,20 @@ class SettingsViewModel(
         confirmPin: String,
         onResult: (Boolean) -> Unit
     ) {
+        Log.d("SettingsViewModel", "updatePin called: oldPin=${oldPin}, newPin=${newPin}, confirmPin=${confirmPin}")
         _state.value = _state.value.copy(isLoading = true)
         viewModelScope.launch(Dispatchers.IO) {
             try {
+                Log.d("SettingsViewModel", "Validating new PIN and confirmation")
                 val success =
-                    if (newPin == confirmPin && newPin.length == 6 && newPin.all { it.isDigit() }) {
+                    if (newPin == confirmPin && newPin.length >1) {
+                        Log.d("SettingsViewModel", "PINs match and are valid, attempting to change PIN and rekey database")
                         val result = pinCryptoManager.changePinAndRekeyDatabase(newPin)
-                        if (result) DatabaseProvider.clearDatabaseInstance()
+                        Log.d("SettingsViewModel", "changePinAndRekeyDatabase result: $result")
+                        if (result) {
+                            Log.d("SettingsViewModel", "Clearing DatabaseProvider instance")
+                            DatabaseProvider.clearDatabaseInstance()
+                        }
                         _state.value = _state.value.copy(
                             showPinDialog = false,
                             currentPin = null,
@@ -102,6 +109,7 @@ class SettingsViewModel(
                         )
                         result
                     } else {
+                        Log.w("SettingsViewModel", "PIN validation failed: newPin='$newPin', confirmPin='$confirmPin'")
                         _state.value = _state.value.copy(
                             showPinDialog = true,
                             currentPin = oldPin,
@@ -110,10 +118,25 @@ class SettingsViewModel(
                         )
                         false
                     }
+                Log.d("SettingsViewModel", "Calling onResult with: $success")
                 viewModelScope.launch(Dispatchers.Main) {
                     onResult(success)
                 }
+            } catch (e: Exception) {
+                Log.e("SettingsViewModel", "❌ PIN change failed: ${e.message}", e)
+                _state.value = _state.value.copy(
+                    isLoading = false,
+                    showPinDialog = true,
+                    currentPin = oldPin,
+                    newPin = newPin,
+                    confirmPin = confirmPin
+                )
+                Log.d("SettingsViewModel", "Calling onResult with: false (exception)")
+                viewModelScope.launch(Dispatchers.Main) {
+                    onResult(false)
+                }
             } finally {
+                Log.d("SettingsViewModel", "Resetting state after PIN update attempt")
                 resetState()
             }
         }

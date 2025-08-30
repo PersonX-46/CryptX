@@ -433,7 +433,7 @@ fun ChangePinDialog(
                     .padding(24.dp)
             ) {
                 Text(
-                    stringResource(R.string.change_security_pin).uppercase(),
+                    stringResource(R.string.change_passphrase).uppercase(),
                     style = MaterialTheme.typography.headlineSmall.copy(
                         color = MaterialTheme.colorScheme.onSurface,
                         fontFamily = FontFamily.Monospace,
@@ -447,7 +447,7 @@ fun ChangePinDialog(
                     isPin = false,
                     value = state.value.currentPin?: "",
                     onValueChange = { viewModel.updateCurrentPin(it) },
-                    label = R.string.current_pin,
+                    label = R.string.current_passphrase,
                     modifier = Modifier.fillMaxWidth()
                 )
 

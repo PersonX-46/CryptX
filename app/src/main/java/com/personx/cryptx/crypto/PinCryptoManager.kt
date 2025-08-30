@@ -145,53 +145,82 @@ class PinCryptoManager(private val context: Context) {
      * @return True if the operation was successful, false otherwise.
      */
 
-    fun changePinAndRekeyDatabase(newPin: String): Boolean {
-        val prefs = context.getSharedPreferences(SecurePrefs.NAME, Context.MODE_PRIVATE)
-        val dbPath = context.getDatabasePath("encrypted_history.db").absolutePath
 
-        // 1. Validate old PIN and get current session key
+
+    fun changePinAndRekeyDatabase(newPin: String): Boolean {
+
+        val prefs = context.getSharedPreferences(SecurePrefs.NAME, Context.MODE_PRIVATE)
         val sessionKey = SessionKeyManager.getSessionKey() ?: return false
-        // 2. Create new key material
+
         val newSalt = generateSalt()
         val newPinKey = deriveKeyFromPassphrase(newPin, newSalt)
 
         return try {
-            System.loadLibrary("sqlcipher")
-            // 3. Rekey database using raw bytes (most reliable)
-            val db = SQLiteDatabase.openOrCreateDatabase(dbPath, sessionKey.encoded, null, null)
-            try {
-                // Convert new key to hex for PRAGMA rekey
-                db.changePassword(newPinKey.encoded)
-            } finally {
-                db.close()
-            }
-
-            SessionKeyManager.setSessionKey(newPinKey)
-
-            // 5. Re-encrypt the session key
             val cipher = Cipher.getInstance(TRANSFORMATION)
-            val newIv = ByteArray(12).also { SecureRandom().nextBytes(it) }
+            val newIv = ByteArray(IV_SIZE).also { SecureRandom().nextBytes(it) }
             cipher.init(Cipher.ENCRYPT_MODE, newPinKey, GCMParameterSpec(128, newIv))
-            val newEncryptedSessionKey = cipher.doFinal(sessionKey.encoded)
+            val newEncrptedSessionKey = cipher.doFinal(sessionKey.encoded)
 
-            // 6. Update preferences
             prefs.edit {
                 putString(SecurePrefs.SALT, Base64.encodeToString(newSalt, Base64.NO_WRAP))
                 putString(SecurePrefs.IV, Base64.encodeToString(newIv, Base64.NO_WRAP))
-                putString(SecurePrefs.ENCRYPTED_SESSION_KEY, Base64.encodeToString(newEncryptedSessionKey, Base64.NO_WRAP))
+                putString(SecurePrefs.ENCRYPTED_SESSION_KEY, Base64.encodeToString(newEncrptedSessionKey, Base64.NO_WRAP))
             }
 
-            // 7. Refresh database instance
-            DatabaseProvider.clearDatabaseInstance()
             true
         } catch (e: Exception) {
             Log.e("PinCryptoManager", "PIN change failed", e)
-            // Consider restoring from backup here
             false
         } finally {
             sessionKey.encoded?.fill(0)
             newPinKey.encoded?.fill(0)
         }
+//        val prefs = context.getSharedPreferences(SecurePrefs.NAME, Context.MODE_PRIVATE)
+//        val dbPath = context.getDatabasePath("encrypted_history.db").absolutePath
+//
+//        // 1. Validate old PIN and get current session key
+//        val sessionKey = SessionKeyManager.getSessionKey() ?: return false
+//        // 2. Create new key material
+//        val newSalt = generateSalt()
+//        val newPinKey = deriveKeyFromPassphrase(newPin, newSalt)
+//
+//        return try {
+//            System.loadLibrary("sqlcipher")
+//            // 3. Rekey database using raw bytes (most reliable)
+//            val db = SQLiteDatabase.openOrCreateDatabase(dbPath, sessionKey.encoded, null, null)
+//            try {
+//                // Convert new key to hex for PRAGMA rekey
+//                db.changePassword(newPinKey.encoded)
+//            } finally {
+//                db.close()
+//            }
+//
+//            SessionKeyManager.setSessionKey(newPinKey)
+//
+//            // 5. Re-encrypt the session key
+//            val cipher = Cipher.getInstance(TRANSFORMATION)
+//            val newIv = ByteArray(12).also { SecureRandom().nextBytes(it) }
+//            cipher.init(Cipher.ENCRYPT_MODE, newPinKey, GCMParameterSpec(128, newIv))
+//            val newEncryptedSessionKey = cipher.doFinal(sessionKey.encoded)
+//
+//            // 6. Update preferences
+//            prefs.edit {
+//                putString(SecurePrefs.SALT, Base64.encodeToString(newSalt, Base64.NO_WRAP))
+//                putString(SecurePrefs.IV, Base64.encodeToString(newIv, Base64.NO_WRAP))
+//                putString(SecurePrefs.ENCRYPTED_SESSION_KEY, Base64.encodeToString(newEncryptedSessionKey, Base64.NO_WRAP))
+//            }
+//
+//            // 7. Refresh database instance
+//            DatabaseProvider.clearDatabaseInstance()
+//            true
+//        } catch (e: Exception) {
+//            Log.e("PinCryptoManager", "PIN change failed", e)
+//            // Consider restoring from backup here
+//            false
+//        } finally {
+//            sessionKey.encoded?.fill(0)
+//            newPinKey.encoded?.fill(0)
+//        }
     }
     /**
      * Derives a secret key from the provided PIN and salt using PBKDF2 with HMAC SHA-256.

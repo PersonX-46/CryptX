@@ -268,6 +268,8 @@
     <string name="file_vault">FILE VAULT</string>
     <string name="folder_name">Folder Name</string>
     <string name="file_encryption_vault">FILE ENCRYPTION VAULT</string>
+    <string name="change_passphrase">Change Passphrase</string>
+    <string name="current_passphrase">Current Passphrase</string>
 
 
 </resources>
