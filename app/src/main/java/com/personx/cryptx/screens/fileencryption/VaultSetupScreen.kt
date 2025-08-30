@@ -166,6 +166,7 @@ fun VaultScreen(
 
             // Folder creation dialog
             if (showFolderDialog) {
+
                 AlertDialog(
                     onDismissRequest = { showFolderDialog = false },
                     title = { Text("New Folder") },

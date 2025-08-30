@@ -428,30 +428,30 @@ fun ChangePinDialog(
                 )
 
                 CyberpunkPinField(
-                    isPin = true,
+                    isPin = false,
                     value = state.value.currentPin?: "",
                     onValueChange = { viewModel.updateCurrentPin(it) },
-                    label = "Current PIN",
+                    label = "Current Passphrase",
                     modifier = Modifier.fillMaxWidth()
                 )
 
                 Spacer(Modifier.height(16.dp))
 
                 CyberpunkPinField(
-                    isPin = true,
+                    isPin = false,
                     value = state.value.newPin?: "",
                     onValueChange = { viewModel.updateNewPin(it) },
-                    label = "New PIN",
+                    label = "New Passphrase",
                     modifier = Modifier.fillMaxWidth()
                 )
 
                 Spacer(Modifier.height(16.dp))
 
                 CyberpunkPinField(
-                    isPin = true,
+                    isPin = false,
                     value = state.value.confirmPin?: "",
                     onValueChange = { viewModel.updateConfirmPin(it) },
-                    label = "Confirm PIN",
+                    label = "Confirm Passphrase",
                     modifier = Modifier.fillMaxWidth()
                 )
 
@@ -514,8 +514,6 @@ fun Base64Dialog(
     onDismiss: () -> Unit,
     onConfirm: (Boolean) -> Unit,
 ){
-    val context = LocalContext.current
-    val prefs = context.getSharedPreferences(AppSettingsPrefs.NAME, Context.MODE_PRIVATE)
     val savedValue = switchValue
 
     // Initialize with saved value
@@ -614,15 +612,10 @@ fun CyberpunkPinField(
     } else {
         PasswordVisualTransformation()
     }
-
-    val maxLength = if (isPin) 6 else 128
-
-
     OutlinedTextField(
         value = value,
         onValueChange = {
-            val filtered = if (isPin) it.filter { c -> c.isDigit() } else it
-            if (filtered.length <= maxLength) onValueChange(filtered)
+            onValueChange(it)
         },
         label = { Text(text = label, fontFamily = FontFamily.Monospace) },
         visualTransformation = visualTransformation,
