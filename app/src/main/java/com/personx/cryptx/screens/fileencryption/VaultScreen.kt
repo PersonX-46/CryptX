@@ -41,8 +41,6 @@ import androidx.compose.material.icons.outlined.Folder
 import androidx.compose.material.icons.outlined.Image
 import androidx.compose.material.icons.outlined.MusicNote
 import androidx.compose.material.icons.outlined.Videocam
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -51,7 +49,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextField
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
@@ -67,16 +64,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import com.personx.cryptx.R
 import com.personx.cryptx.components.CyberpunkButton
 import com.personx.cryptx.components.CyberpunkInputBox
 import com.personx.cryptx.components.Header
-import com.personx.cryptx.screens.settingsscreen.CyberpunkPinField
 import com.personx.cryptx.viewmodel.fileencryption.VaultFile
 import com.personx.cryptx.viewmodel.fileencryption.VaultViewModel
 import java.util.Date
@@ -117,7 +115,7 @@ fun VaultScreen(
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
-        Header("FILE VAULT", windowSizeClass = windowSizeClass)
+        Header(R.string.file_vault, windowSizeClass = windowSizeClass)
 
         // Breadcrumbs & back button
         Column(modifier = Modifier.padding(horizontal = padding, vertical = 8.dp)) {
@@ -281,7 +279,9 @@ fun VaultFileRow(
         shape = RoundedCornerShape(8.dp)
     ) {
         Row(
-            modifier = Modifier.padding(12.dp).fillMaxWidth()
+            modifier = Modifier
+                .padding(12.dp)
+                .fillMaxWidth()
                 .clickable(onClick = onClick),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -475,7 +475,7 @@ fun CreateFolderDialog(
                 ),
                 value = foldername.value,
                 onValueChange = {foldername.value = it},
-                placeholder = "Folder Name",
+                placeholder = R.string.folder_name,
             )
 
             Spacer(modifier = Modifier.height(24.dp))

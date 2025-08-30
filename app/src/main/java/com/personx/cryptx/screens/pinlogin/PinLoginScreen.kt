@@ -43,7 +43,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.personx.cryptx.R
 import com.personx.cryptx.components.CyberpunkButton
-import com.personx.cryptx.components.CyberpunkInputBox
 import com.personx.cryptx.components.CyberpunkPasswordBox
 import com.personx.cryptx.components.PlaceholderInfo
 import com.personx.cryptx.crypto.PinCryptoManager

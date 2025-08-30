@@ -265,6 +265,8 @@
     <string name="key_pair_deleted">Key pair deleted!</string>
     <string name="key_pair_saved">Key pair saved!</string>
     <string name="successfully_exported">Successfully exported</string>
+    <string name="file_vault">FILE VAULT</string>
+    <string name="folder_name">Folder Name</string>
 
 
 </resources>

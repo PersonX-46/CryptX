@@ -1,6 +1,5 @@
 package com.personx.cryptx.screens.settingsscreen
 
-import android.content.Context
 import android.net.Uri
 import android.os.Build
 import android.widget.Toast
@@ -75,14 +74,11 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
-import androidx.core.content.edit
 import androidx.navigation.NavController
-import com.personx.cryptx.AppSettingsPrefs
 import com.personx.cryptx.PrefsHelper
 import com.personx.cryptx.R
 import com.personx.cryptx.components.CyberpunkButton

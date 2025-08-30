@@ -2,7 +2,6 @@ package com.personx.cryptx.backup
 
 import android.content.Context
 import android.os.Build
-import android.provider.Settings
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.content.edit
@@ -35,7 +34,6 @@ import javax.crypto.spec.GCMParameterSpec
 import javax.crypto.spec.PBEKeySpec
 import javax.crypto.spec.SecretKeySpec
 import javax.security.auth.Destroyable
-import kotlin.math.cos
 
 @RequiresApi(Build.VERSION_CODES.O)
 object BackupManager {
