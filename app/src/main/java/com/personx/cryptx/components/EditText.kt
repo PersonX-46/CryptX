@@ -1,10 +1,16 @@
 package com.personx.cryptx.components
 
+import android.annotation.SuppressLint
+import android.content.Context
+import android.view.View
+import android.view.inputmethod.InputMethodManager
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
@@ -21,8 +27,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
@@ -79,14 +87,18 @@ fun CyberpunkInputBox(
     }
 }
 
+
 @Composable
 fun CyberpunkPasswordBox(
     modifier: Modifier = Modifier,
     value: String,
     onValueChange: (String) -> Unit,
-    placeholder: String
+    placeholder: String,
+    onDone: () -> Unit
 ) {
     var isPasswordVisible by remember { mutableStateOf(false) }
+
+    val keyboardController = LocalSoftwareKeyboardController.current
 
     Box(
         modifier = modifier
@@ -98,6 +110,7 @@ fun CyberpunkPasswordBox(
     ) {
         TextField(
             value = value,
+            maxLines = 1,
             onValueChange = onValueChange,
             modifier = Modifier.fillMaxWidth(),
             textStyle = TextStyle(
@@ -133,7 +146,16 @@ fun CyberpunkPasswordBox(
                 unfocusedIndicatorColor = Color.Transparent,
                 disabledIndicatorColor = Color.Transparent
             ),
-            singleLine = true
+            singleLine = true,
+            keyboardOptions = KeyboardOptions.Default.copy(
+                imeAction = ImeAction.Done
+            ),
+            keyboardActions = KeyboardActions(
+                onDone = {
+                    onDone()
+                    keyboardController?.hide()
+                }
+            )
         )
     }
 }

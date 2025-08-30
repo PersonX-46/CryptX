@@ -195,6 +195,9 @@ fun PassphraseSetupScreen(
                                 }
                             },
                             placeholder = if (state.step == 1) "Set a passphrase..." else "Confirm the passphrase...",
+                            onDone = {
+                                viewModel.event(PassphraseSetupEvent.Continue)
+                            }
                         )
 
                         IconButton(onClick = { passwordVisible = !passwordVisible }) {

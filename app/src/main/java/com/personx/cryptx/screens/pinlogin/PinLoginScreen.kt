@@ -145,6 +145,7 @@ fun PassphraseLoginScreen(
                         onValueChange = {
                             viewModel.event(PassphraseLoginEvent.EnterPassphrase(it)) },
                         placeholder = "Enter passphrase...",
+                        onDone = { viewModel.event(PassphraseLoginEvent.Submit) },
                     )
 
                     IconButton(onClick = { passwordVisible = !passwordVisible }) {
